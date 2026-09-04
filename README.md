@@ -49,6 +49,17 @@ export ANTHROPIC_API_KEY='...'
 
 Each artifact retains the exact prompt, source, provider response, model identity, request ID, usage, generation time, prompt hash, scaffold hash, and dependency-lock hash. Provider keys are never written to disk.
 
+### Generate securely with GitHub Actions
+
+The manual **OpenAI pilot** workflow generates and evaluates only the eight frozen OpenAI slots. To use it:
+
+1. In the GitHub repository, open **Settings → Secrets and variables → Actions**.
+2. Add a repository secret named `OPENAI_API_KEY` containing a newly created project key.
+3. Open **Actions → OpenAI pilot**, select **Run workflow**, and confirm the run.
+4. When it finishes, download the `depfailbench-openai-pilot-*` artifact from the workflow run.
+
+The encrypted secret is supplied only to the generation job. It is not written to the repository, generated artifacts, benchmark results, or workflow logs. The workflow is manual-only, so pushes and pull requests cannot trigger billable model calls.
+
 ## Run the complete pilot
 
 ```bash

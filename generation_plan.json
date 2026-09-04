@@ -1,0 +1,46 @@
+{
+  "status": "planned_pending_provider_access",
+  "protocol_version": "0.4.1",
+  "models": {
+    "openai_gpt56sol": {
+      "provider": "OpenAI",
+      "family": "GPT-5.6",
+      "model_id": "gpt-5.6-sol",
+      "reasoning_effort": "medium",
+      "tools": false
+    },
+    "anthropic_opus5": {
+      "provider": "Anthropic",
+      "family": "Claude 5",
+      "model_id": "claude-opus-5",
+      "effort": "medium",
+      "tools": false
+    }
+  },
+  "controls": {
+    "turns": 1,
+    "repair_passes": 0,
+    "output": "complete app.py only",
+    "temperature": null,
+    "top_p": null,
+    "note": "Reasoning/effort semantics differ by provider and are recorded, not treated as equivalent. Condition effects are estimated within each model."
+  },
+  "slots": [
+    {"artifact_id":"T1_C0_openai_gpt56sol_g1","task":"T1","condition":"C0","model":"openai_gpt56sol","generation_index":1},
+    {"artifact_id":"T1_C0_openai_gpt56sol_g2","task":"T1","condition":"C0","model":"openai_gpt56sol","generation_index":2},
+    {"artifact_id":"T1_C1_openai_gpt56sol_g1","task":"T1","condition":"C1","model":"openai_gpt56sol","generation_index":1},
+    {"artifact_id":"T1_C1_openai_gpt56sol_g2","task":"T1","condition":"C1","model":"openai_gpt56sol","generation_index":2},
+    {"artifact_id":"T4_C0_openai_gpt56sol_g1","task":"T4","condition":"C0","model":"openai_gpt56sol","generation_index":1},
+    {"artifact_id":"T4_C0_openai_gpt56sol_g2","task":"T4","condition":"C0","model":"openai_gpt56sol","generation_index":2},
+    {"artifact_id":"T4_C1_openai_gpt56sol_g1","task":"T4","condition":"C1","model":"openai_gpt56sol","generation_index":1},
+    {"artifact_id":"T4_C1_openai_gpt56sol_g2","task":"T4","condition":"C1","model":"openai_gpt56sol","generation_index":2},
+    {"artifact_id":"T1_C0_anthropic_opus5_g1","task":"T1","condition":"C0","model":"anthropic_opus5","generation_index":1},
+    {"artifact_id":"T1_C0_anthropic_opus5_g2","task":"T1","condition":"C0","model":"anthropic_opus5","generation_index":2},
+    {"artifact_id":"T1_C1_anthropic_opus5_g1","task":"T1","condition":"C1","model":"anthropic_opus5","generation_index":1},
+    {"artifact_id":"T1_C1_anthropic_opus5_g2","task":"T1","condition":"C1","model":"anthropic_opus5","generation_index":2},
+    {"artifact_id":"T4_C0_anthropic_opus5_g1","task":"T4","condition":"C0","model":"anthropic_opus5","generation_index":1},
+    {"artifact_id":"T4_C0_anthropic_opus5_g2","task":"T4","condition":"C0","model":"anthropic_opus5","generation_index":2},
+    {"artifact_id":"T4_C1_anthropic_opus5_g1","task":"T4","condition":"C1","model":"anthropic_opus5","generation_index":1},
+    {"artifact_id":"T4_C1_anthropic_opus5_g2","task":"T4","condition":"C1","model":"anthropic_opus5","generation_index":2}
+  ]
+}

@@ -1,0 +1,7 @@
+services:
+  depfailbench:
+    build: .
+    volumes:
+      - ./artifacts:/workspace/artifacts
+      - ./results:/workspace/results
+    command: ["pilot", "--allow-incomplete"]

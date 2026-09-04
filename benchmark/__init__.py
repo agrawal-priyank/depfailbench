@@ -1,0 +1,2 @@
+"""Runtime-dependency resilience benchmark."""
+

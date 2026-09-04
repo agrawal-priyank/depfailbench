@@ -1,0 +1,38 @@
+{
+  "protocol_version": "0.4.1",
+  "runtime": {"python": "3.12", "framework": "FastAPI", "http_client": "httpx"},
+  "conditions": {
+    "C0": "functional-only specification",
+    "C1": "functional specification plus explicit resilience requirements"
+  },
+  "tasks": [
+    {"id": "T1", "name": "Product Proxy", "pilot": true},
+    {"id": "T2", "name": "Reserved for full-study task", "pilot": false},
+    {"id": "T3", "name": "Reserved for full-study task", "pilot": false},
+    {"id": "T4", "name": "Order/Payment", "pilot": true},
+    {"id": "T5", "name": "Reserved for full-study task", "pilot": false},
+    {"id": "T6", "name": "Reserved for full-study task", "pilot": false}
+  ],
+  "pilot": {
+    "tasks": 2,
+    "model_families": 2,
+    "conditions": 2,
+    "generations": 2,
+    "artifacts": 16,
+    "planned_models": [
+      {"provider": "OpenAI", "family": "GPT-5.6", "model_id": "gpt-5.6-sol", "reasoning_effort": "medium"},
+      {"provider": "Anthropic", "family": "Claude 5", "model_id": "claude-opus-5", "effort": "medium"}
+    ],
+    "generation_mode": "single-turn code-only response; no tools; no repair pass",
+    "model_effect_interpretation": "secondary and descriptive; provider effort labels are not assumed equivalent"
+  },
+  "outcomes": ["resilient_success", "safe_failure", "unsafe_failure", "availability_failure"],
+  "metrics": ["CCR", "SRR", "APR", "retry_amplification_factor", "duplicate_side_effects", "state_consistency"],
+  "clarifications": [
+    "The actual starter app.py is embedded in every provider prompt.",
+    "Both T4 conditions visibly require final state at app.state.orders for task-independent inspection.",
+    "HTTP 429 may either recover within bounds or fail safely, matching the visible C1 contract."
+  ],
+  "novelty_scope": "controlled runtime downstream-dependency fault injection and recovery behavior in generated backend services",
+  "excluded_from_jss_scope": ["concurrency", "cascading failures", "compound failures", "Kubernetes", "service mesh"]
+}

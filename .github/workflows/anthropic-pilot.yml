@@ -1,0 +1,92 @@
+name: Anthropic pilot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: depfailbench-anthropic-pilot
+  cancel-in-progress: false
+
+jobs:
+  generate-and-evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - name: Check out the benchmark
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install the locked environment
+        run: |
+          python -m pip install --requirement requirements.lock
+          python -m pip install --no-deps --editable .
+
+      - name: Confirm the repository baseline
+        run: |
+          pytest -q
+          depfailbench validate-references --repetitions 3
+
+      - name: Confirm the encrypted key is configured
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::error::Add the ANTHROPIC_API_KEY repository secret before running this workflow."
+            exit 1
+          fi
+
+      - name: Verify the frozen model is available
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python - <<'PYMODEL'
+          import json, os, urllib.request
+          plan = json.load(open("generation_plan.json"))
+          model = plan["models"]["anthropic_opus5"]["model_id"]
+          request = urllib.request.Request(
+              "https://api.anthropic.com/v1/models/" + model,
+              headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01"})
+          with urllib.request.urlopen(request, timeout=30) as response:
+              data = json.load(response)
+          print("Verified model:", data["id"])
+          PYMODEL
+
+      - name: Generate the eight frozen Anthropic artifacts
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          depfailbench generate --execute \
+            --slot T1_C0_anthropic_opus5_g1 \
+            --slot T1_C0_anthropic_opus5_g2 \
+            --slot T1_C1_anthropic_opus5_g1 \
+            --slot T1_C1_anthropic_opus5_g2 \
+            --slot T4_C0_anthropic_opus5_g1 \
+            --slot T4_C0_anthropic_opus5_g2 \
+            --slot T4_C1_anthropic_opus5_g1 \
+            --slot T4_C1_anthropic_opus5_g2
+
+      - name: Evaluate the available pilot artifacts
+        run: depfailbench pilot --allow-incomplete
+
+      - name: Upload generated artifacts and measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: depfailbench-anthropic-pilot-${{ github.run_number }}
+          path: |
+            artifacts/
+            results/
+          if-no-files-found: warn
+          retention-days: 30
+

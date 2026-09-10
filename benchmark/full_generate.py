@@ -32,7 +32,7 @@ def load_spend(events):
     return sum(by.values())
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--provider',choices=RATES,required=True);p.add_argument('--cap',type=float,required=True);p.add_argument('--root',default='full_results');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--provider',choices=RATES,required=True);p.add_argument('--cap',type=float,required=True);p.add_argument('--root',default='full_results');p.add_argument('--additional-attempts',type=int,default=0);a=p.parse_args()
     root=Path(a.root);artifacts=root/'artifacts';artifacts.mkdir(parents=True,exist_ok=True)
     ledger=root/f'{a.provider}_ledger.jsonl';events=[json.loads(x) for x in ledger.read_text().splitlines()] if ledger.exists() else []
     def log(row):
@@ -52,7 +52,8 @@ def main():
         prompt=compose_prompt(slot['task'],slot['condition'],Path('full_study/prompts'),scaffold_root)
         reserved=reservation(prompt,a.provider)
         prior=sum(e['event']=='start' and e.get('artifact_id')==slot['artifact_id'] for e in events)
-        for attempt in range(prior,3):
+        max_attempts=3+a.additional_attempts
+        for attempt in range(prior,max_attempts):
             if load_spend(events)+reserved>a.cap:
                 log({'event':'budget_stop','artifact_id':slot['artifact_id'],'spent_or_reserved':load_spend(events),'next_reservation':reserved,'cap':a.cap});print('BUDGET STOP',flush=True);return
             attempt_id=f"{slot['artifact_id']}_attempt{attempt+1}"
@@ -63,7 +64,7 @@ def main():
                 # Provider failures/ambiguous timeouts conservatively consume reservation.
                 log({'event':'operational_error','artifact_id':slot['artifact_id'],'attempt_id':attempt_id,'error':str(exc)[:1200]})
                 if any(x in str(exc).lower() for x in ['401','403','credit','balance','workspace','404']):raise
-                if attempt==2:raise
+                if attempt==max_attempts-1:raise
                 time.sleep(10*(attempt+1));continue
             actual=charge(raw,a.provider)
             if actual is None:actual=reserved

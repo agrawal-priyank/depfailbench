@@ -57,9 +57,12 @@ def anthropic_generate(config: dict, prompt: str) -> tuple[str, dict]:
     key = os.environ.get("ANTHROPIC_API_KEY")
     if not key:
         raise RuntimeError("ANTHROPIC_API_KEY is not set")
+    headers = {"x-api-key": key, "anthropic-version": "2023-06-01"}
+    if workspace_id := os.environ.get("ANTHROPIC_WORKSPACE_ID"):
+        headers["anthropic-workspace-id"] = workspace_id
     raw = post_json(
         "https://api.anthropic.com/v1/messages",
-        {"x-api-key": key, "anthropic-version": "2023-06-01"},
+        headers,
         {"model": config["model_id"], "max_tokens": 12000, "thinking": {"type": "adaptive"},
          "output_config": {"effort": config["effort"]}, "messages": [{"role": "user", "content": prompt}]},
     )

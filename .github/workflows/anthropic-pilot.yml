@@ -16,6 +16,7 @@ jobs:
     timeout-minutes: 30
     env:
       PYTHONUNBUFFERED: "1"
+      ANTHROPIC_WORKSPACE_ID: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
 
     steps:
       - name: Check out the benchmark
@@ -56,7 +57,8 @@ jobs:
           model = plan["models"]["anthropic_opus5"]["model_id"]
           request = urllib.request.Request(
               "https://api.anthropic.com/v1/models/" + model,
-              headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01"})
+              headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01",
+                       "anthropic-workspace-id": os.environ["ANTHROPIC_WORKSPACE_ID"]})
           try:
               with urllib.request.urlopen(request, timeout=30) as response:
                   data = json.load(response)

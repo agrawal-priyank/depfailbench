@@ -102,6 +102,8 @@ def summarize_pilot(
         }
     return {
         "protocol_version": plan["protocol_version"],
+        "evaluator_version": "0.4.2",
+        "generation_complete": status_counts.get("missing", 0) == 0,
         "planned_artifacts": len(plan["slots"]),
         "pilot_complete": status_counts.get("evaluated", 0) == len(plan["slots"]),
         "status_counts": dict(sorted(status_counts.items())),
@@ -185,11 +187,16 @@ def _format_metric(value: Any) -> str:
 
 def render_report(summary: dict[str, Any]) -> str:
     overall = summary["overall"]
-    status = "complete" if summary["pilot_complete"] else "incomplete"
+    status = "complete" if summary["pilot_complete"] else (
+        "all artifacts present; construction/evaluation errors recorded"
+        if summary["generation_complete"] else "incomplete: artifacts missing"
+    )
     rows = [
         "# DepFailBench Pilot Report",
         "",
         f"**Protocol:** v{summary['protocol_version']}  ",
+        f"**Evaluator:** v{summary['evaluator_version']}  ",
+        f"**Generation complete:** {summary['generation_complete']}  ",
         f"**Status:** {status}  ",
         f"**Planned artifacts:** {summary['planned_artifacts']}  ",
         f"**Artifact statuses:** `{json.dumps(summary['status_counts'], sort_keys=True)}`",
@@ -248,7 +255,7 @@ def render_report(summary: dict[str, Any]) -> str:
             [
                 "## Completion gate",
                 "",
-                "This report is intentionally marked incomplete. Generate every planned artifact, then rerun the same command. Missing artifacts are never replaced with handwritten or synthetic implementations.",
+                "Evaluation is incomplete: inspect the manifest for missing artifacts or construction/evaluation errors. Generation completeness is reported separately. Preserve failed generated artifacts; do not repair or replace them to improve scores.",
                 "",
             ]
         )

@@ -30,7 +30,12 @@ def classify(task: str, scenario: str, status: int | None, body: Any, attempts: 
         return OutcomeClass.RESILIENT_SUCCESS, notes
     if scenario == "malformed_200" and status == 200:
         return OutcomeClass.UNSAFE_FAILURE, ["malformed charge accepted"]
-    if not paid and state.get("status") in {"PENDING", "UNPAID", "UNRESOLVED"}:
+    # Without a charge, any explicit non-PAID state plus an error response
+    # is safe; the visible contract does not prescribe failure-state labels.
+    explicit_nonpaid = isinstance(state.get("status"), str) and bool(state["status"].strip()) and not paid
+    if explicit_nonpaid and not side_effects and status is not None and 400 <= status < 600:
+        return OutcomeClass.SAFE_FAILURE, notes
+    if not paid and state.get("status") in {"PENDING", "UNPAID", "UNRESOLVED"} and status is not None and 400 <= status < 600:
         if side_effects:
             notes.append("external charge exists while local outcome is unresolved")
         return OutcomeClass.SAFE_FAILURE, notes

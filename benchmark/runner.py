@@ -33,20 +33,29 @@ async def run_probe(task: str, fixture: str, scenario: str, app_factory=None) ->
     status = None
     body = None
     exception = None
-    started = perf_counter()
+    latency = 0.0
+    state = {}
     try:
-        async with httpx.AsyncClient(transport=transport, base_url="http://artifact.test") as client:
-            response = await asyncio.wait_for(client.request(method, path), timeout=settings.deadline_s)
-        status = response.status_code
-        try:
-            body = response.json()
-        except ValueError:
-            body = response.text
-    except Exception as exc:  # harness must record artifact crashes, not crash itself
+        # ASGITransport does not drive startup/shutdown. Support both event
+        # handlers and lifespan contexts without changing generated code.
+        async with app.router.lifespan_context(app):
+            started = perf_counter()
+            try:
+                async with httpx.AsyncClient(transport=transport, base_url="http://artifact.test") as client:
+                    response = await asyncio.wait_for(client.request(method, path), timeout=settings.deadline_s)
+                status = response.status_code
+                try:
+                    body = response.json()
+                except ValueError:
+                    body = response.text
+            except Exception as exc:
+                exception = f"{type(exc).__name__}: {exc}"
+            finally:
+                latency = perf_counter() - started
+                state = {} if task == "T1" else dict(app.state.orders.get("order-1", {}))
+    except Exception as exc:
         exception = f"{type(exc).__name__}: {exc}"
-    latency = perf_counter() - started
     deadline_violated = emulator.virtual_time_s > settings.deadline_s or latency > settings.deadline_s
-    state = {} if task == "T1" else dict(app.state.orders.get("order-1", {}))
     outcome, notes = classify(task, scenario, status, body, len(emulator.attempts), deadline_violated,
                               exception, emulator.side_effects, state)
     return Observation(task, fixture, scenario, outcome, status, body, latency,

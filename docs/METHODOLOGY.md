@@ -35,3 +35,14 @@ The 16-artifact pilot is descriptive and feasibility-oriented. Report each artif
 ## Scope boundary
 
 The pilot uses one generated service and one emulated dependency per probe. It does not measure concurrent requests, service chains, cascading or compound failures, orchestration platforms, or service meshes.
+
+
+## Evaluator correction 0.4.2 (September 10, 2026)
+
+Generation protocol 0.4.1, prompts, dependency lock, and all generated implementations remain unchanged. Original evaluation reports are retained. The correction was motivated by inspection of pilot failures and must be disclosed in reporting.
+
+- Enter the FastAPI lifespan for each probe, including legacy startup/shutdown handlers. Measure the request deadline after startup and snapshot state before shutdown. Startup/shutdown failures are recorded as failures.
+- In T4, a bounded HTTP error with no external charge and an explicit non-PAID state is a safe failure, regardless of the failure-state label. The prompts do not prescribe labels such as PAYMENT_FAILED versus UNPAID. A fabricated success, duplicate charge, or PAID state without a charge remains unsafe. When a charge exists, terminal failure is distinguished from explicitly unresolved outcomes; uncertain labels require review rather than broad claims of a universal semantic checker.
+- Report generation completeness separately from successful artifact construction/evaluation. The two invalid OpenAI route annotations remain in the clean-correctness denominator and are not repaired.
+
+Corrected pilot results are descriptive. Two generations per task/condition/model do not support population-level claims or model rankings. Aggregate repeatability does not imply identical UUIDs or wall-clock timings.

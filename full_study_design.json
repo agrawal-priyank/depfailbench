@@ -1,0 +1,40 @@
+{
+  "version": "1.0-design",
+  "date": "2026-09-10",
+  "status": "design_locked_implementation_validation_pending",
+  "pilot_in_primary_analysis": false,
+  "tasks": [
+    "T1",
+    "T2",
+    "T4",
+    "T5"
+  ],
+  "models": {
+    "openai_gpt56sol": {
+      "model_id": "gpt-5.6-sol",
+      "effort": "medium"
+    },
+    "anthropic_opus5": {
+      "model_id": "claude-opus-5",
+      "effort": "medium"
+    }
+  },
+  "conditions": [
+    "C0",
+    "C1"
+  ],
+  "generations_per_cell": 20,
+  "fresh_artifacts": 320,
+  "primary_endpoint": "clean_correct_and_all_applicable_fault_oracles_pass / all_generated_artifacts",
+  "max_output_tokens": 12000,
+  "input_token_guard": 2000,
+  "generation_mode": "one turn, no tools, no repair",
+  "schedule_seed": 20260910,
+  "funding_status": "planning estimate only; no new paid calls dispatched",
+  "budget_usd": {
+    "pilot_scaled": 17.38396,
+    "planning_allowance": 35,
+    "token_envelope": 87.36,
+    "operational_stop": 100
+  }
+}

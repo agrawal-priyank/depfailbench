@@ -51,14 +51,19 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python - <<'PYMODEL'
-          import json, os, urllib.request
+          import json, os, urllib.request, urllib.error
           plan = json.load(open("generation_plan.json"))
           model = plan["models"]["anthropic_opus5"]["model_id"]
           request = urllib.request.Request(
               "https://api.anthropic.com/v1/models/" + model,
               headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01"})
-          with urllib.request.urlopen(request, timeout=30) as response:
-              data = json.load(response)
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  data = json.load(response)
+          except urllib.error.HTTPError as exc:
+              detail = exc.read().decode(errors="replace").replace(os.environ["ANTHROPIC_API_KEY"], "[REDACTED]")
+              print("Model preflight failed:", exc.code, detail[:2000])
+              raise SystemExit(1)
           print("Verified model:", data["id"])
           PYMODEL
 

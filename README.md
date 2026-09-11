@@ -66,6 +66,6 @@ The corrected loader registers generated modules before execution, supporting va
 
 ## Citation, documentation, and licenses
 
-Please cite DepFailBench using [CITATION.cff](CITATION.cff). The tagged software source is the [v1.0.1 GitHub release](https://github.com/agrawal-priyank/depfailbench/releases/tag/v1.0.1), and the full-study data archive is identified by [doi:10.5281/zenodo.22699095](https://doi.org/10.5281/zenodo.22699095).
+Please cite DepFailBench using [CITATION.cff](CITATION.cff). The tagged software source is the [v1.0.2 GitHub release](https://github.com/agrawal-priyank/depfailbench/releases/tag/v1.0.2), and the full-study data archive is identified by [doi:10.5281/zenodo.22699095](https://doi.org/10.5281/zenodo.22699095).
 
 [User guide](docs/USER_GUIDE.md), [result schema](docs/RESULT_SCHEMA.md), [pilot methodology](docs/METHODOLOGY.md), [contribution rules](CONTRIBUTING.md). Software source code is licensed under the MIT License in the canonical `LICENSE` file. SoftwareX Version 6 also requires the exact repository filename `Licence.txt`, so that file is an identical copy of `LICENSE`. Study data is licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0), as specified in [DATA_LICENSE.md](DATA_LICENSE.md). The original pilot README is retained as historical documentation in `docs/PILOT_README.md`; its commands and sample size describe only the pilot.

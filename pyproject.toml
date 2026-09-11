@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "depfailbench"
-version = "1.0.1"
+version = "1.0.2"
 description = "Deterministic fault-injection benchmark for LLM-generated backend services"
 authors = [{ name = "Priyank Agrawal", email = "agrawalpriyank@icloud.com" }]
 readme = "README.md"
@@ -26,7 +26,7 @@ dependencies = [
 
 [project.urls]
 Repository = "https://github.com/agrawal-priyank/depfailbench"
-Documentation = "https://github.com/agrawal-priyank/depfailbench/tree/v1.0.1/docs"
+Documentation = "https://github.com/agrawal-priyank/depfailbench/tree/v1.0.2/docs"
 Issues = "https://github.com/agrawal-priyank/depfailbench/issues"
 
 [project.optional-dependencies]

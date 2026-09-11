@@ -1,5 +1,4 @@
 include LICENSE
-include LICENSE.txt
 include Licence.txt
 include DATA_LICENSE.md
 include CITATION.cff
@@ -12,6 +11,8 @@ include README.md
 include ARTIFACT_CONTRACT.md
 include protocol.json
 include generation_plan.json
+include full_study_design.json
+include full_study_schedule.csv
 include requirements.lock
 recursive-include prompts *.md
 recursive-include scaffolds *.py

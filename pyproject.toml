@@ -9,7 +9,7 @@ description = "Deterministic fault-injection benchmark for LLM-generated backend
 authors = [{ name = "Priyank Agrawal", email = "agrawalpriyank@icloud.com" }]
 readme = "README.md"
 license = "MIT"
-license-files = ["LICENSE", "LICENSE.txt", "Licence.txt"]
+license-files = ["LICENSE"]
 requires-python = ">=3.12"
 keywords = ["benchmark", "fault-injection", "llm", "resilience", "fastapi"]
 classifiers = [
@@ -47,7 +47,7 @@ where = ["src"]
 include = ["benchmark*"]
 
 [tool.setuptools.data-files]
-"share/depfailbench" = ["ARTIFACT_CONTRACT.md", "generation_plan.json", "protocol.json", "requirements.lock", "full_study_schedule.csv", "README.md", "LICENSE", "LICENSE.txt", "Licence.txt", "DATA_LICENSE.md", "CHANGELOG.md"]
+"share/depfailbench" = ["ARTIFACT_CONTRACT.md", "generation_plan.json", "protocol.json", "requirements.lock", "full_study_design.json", "full_study_schedule.csv", "README.md", "CITATION.cff", "Licence.txt", "DATA_LICENSE.md", "CHANGELOG.md"]
 "share/depfailbench/prompts" = [
   "prompts/shared_rules.md",
   "prompts/T1_C0.md",

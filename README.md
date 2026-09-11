@@ -8,7 +8,9 @@ DepFailBench is authored and maintained by [Priyank Agrawal](https://orcid.org/0
 
 The full study contains four fixed tasks: T1 Product Proxy, T2 Paginated Catalog, T4 Order Payment, and T5 Object Upload. Two model configurations and two specification conditions, with 20 generations per cell, produced 320 unchanged programs. Each saved program has three corrected evaluations. The earlier two-task, 16-program pilot is separate and excluded from those results.
 
-C0 is a baseline contract, not a uniform absence of operational guidance: catalog and upload baselines already include safeguards. C1 adds a bundled resilience specification. See [full protocol](docs/FULL_STUDY_PROTOCOL.md) and [release guide](docs/REPRODUCING_FULL_STUDY.md).
+C0 is a baseline contract, not a uniform absence of operational guidance: catalog and upload baselines already include safeguards. C1 adds a bundled resilience specification. See [pre-generation protocol](docs/FULL_STUDY_PROTOCOL.md) and [release guide](docs/REPRODUCING_FULL_STUDY.md).
+
+The root files preserve the pilot plan and also supply the model configuration and T1/T4 scaffolds reused by the full study. Their planning-status values are historical. Full-study prompts, T2/T5 scaffolds, and the frozen manifest are under `full_study/`; `full_study_schedule.csv` lists the 320 prespecified generation slots. Generated programs and evaluation records are in the release archive rather than the Git repository.
 
 ## Installation
 
@@ -60,10 +62,10 @@ The current runner is task-specific. Adding a new task requires code and tests; 
 
 The four tasks use short, isolated requests and emulated dependency faults. They exclude concurrency, long-lived state, real distributed transactions, cascades, and calibrated network latency. Retry-After is zero in the rate-limit fixtures. Safe failure is distinct from successful recovery; only specified fault scenarios allow it to count as a pass.
 
-The corrected loader registers generated modules before execution, supporting valid dataclasses and forward references. Original evaluations and the five changed classifications remain in the data archive. No generated source was repaired. See [release notes](CHANGELOG.md).
+The corrected loader registers generated modules before execution, supporting valid dataclasses and forward references. Original evaluations and the changed outcomes for five affected programs remain in the data archive. No generated source was repaired. See [release notes](CHANGELOG.md).
 
 ## Citation, documentation, and licenses
 
-Please cite DepFailBench using [CITATION.cff](CITATION.cff). The immutable software source is the [v1.0.1 GitHub release](https://github.com/agrawal-priyank/depfailbench/releases/tag/v1.0.1), and the full-study data archive is identified by [doi:10.5281/zenodo.22699095](https://doi.org/10.5281/zenodo.22699095).
+Please cite DepFailBench using [CITATION.cff](CITATION.cff). The tagged software source is the [v1.0.1 GitHub release](https://github.com/agrawal-priyank/depfailbench/releases/tag/v1.0.1), and the full-study data archive is identified by [doi:10.5281/zenodo.22699095](https://doi.org/10.5281/zenodo.22699095).
 
-[User guide](docs/USER_GUIDE.md), [result schema](docs/RESULT_SCHEMA.md), [pilot methodology](docs/METHODOLOGY.md), [contribution rules](CONTRIBUTING.md). Software source code is licensed under the MIT License in `LICENSE`; duplicate `LICENSE.txt` and `Licence.txt` files support journal-template compatibility. Study data is licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0), as specified in [DATA_LICENSE.md](DATA_LICENSE.md). The original pilot README is retained as historical documentation in `docs/PILOT_README.md`; its commands and sample size describe only the pilot.
+[User guide](docs/USER_GUIDE.md), [result schema](docs/RESULT_SCHEMA.md), [pilot methodology](docs/METHODOLOGY.md), [contribution rules](CONTRIBUTING.md). Software source code is licensed under the MIT License in the canonical `LICENSE` file. SoftwareX Version 6 also requires the exact repository filename `Licence.txt`, so that file is an identical copy of `LICENSE`. Study data is licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0), as specified in [DATA_LICENSE.md](DATA_LICENSE.md). The original pilot README is retained as historical documentation in `docs/PILOT_README.md`; its commands and sample size describe only the pilot.

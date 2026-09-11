@@ -16,11 +16,14 @@
     "Anthropic": 17.5
   },
   "amendments_before_generation": [
-    "Four tasks, 320 fresh calls, pilot excluded.",
+    "Four tasks, 320 fresh usable generations, pilot excluded.",
     "T4 visible state vocabulary and receipt identity validation added equally to conditions.",
     "Input guard changed from 2000 tokens to conservative UTF-8 bytes plus 1024 overhead capped at 8192; reservations use actual byte bound and 12000 output tokens.",
     "No new dependency package required for runtime; NumPy 2.3.5 for separate local analysis.",
     "Full evaluation entry point uses subprocess isolation, 45 second hard limit per artifact; outcome repeats must agree."
+  ],
+  "post_start_deviations": [
+    "Anthropic slot full_v1_T4_C1_anthropic_opus5_g16 completed on provider attempt 4 after attempts 1-3 returned HTTP 529 overload errors and no usable generation, exceeding the planned maximum of two retries. The same prespecified slot was retained; no completed output was rerun or replaced. All attempts remain in data/Anthropic_ledger.jsonl."
   ],
   "sha256": {
     "benchmark/__init__.py": "126e67cb10aace966901ff4db567ca172756e0de57dcb52c9f128d3aa65eb066",
@@ -46,6 +49,8 @@
     "benchmark/runner.py": "e5c60bdd557929b213dbeb9a9135c8c984342464ee2f87dc61e114bb0a356344",
     "benchmark/scenarios.py": "e93c765ab27cc2fa539f164e00189f786f393edefd8cc6555ba8926bb8df797f",
     "benchmark/types.py": "676e2a7015ad6a0fa7381f249594ba638200ca563dcd55160fb2ddc1c1ee0805",
+    "scaffolds/T1/app.py": "6e0d9dd7cc8b5960794dd5b35e88fc8d6ca7fda1f4213a85f408c9c743338a20",
+    "scaffolds/T4/app.py": "6e0d9dd7cc8b5960794dd5b35e88fc8d6ca7fda1f4213a85f408c9c743338a20",
     "full_study/prompts/T1_C0.md": "d4c089bf2d1d6964b094a97007345ba5ceb99bcab0604626ca3c9d762afd27f6",
     "full_study/prompts/T1_C1.md": "a95f30f2d4069496792b80690472b5e4e0484c1f327eb29629e053d1b79031e5",
     "full_study/prompts/T2_C0.md": "944bc069d7d0708cffd24f2bd3bd0a3709b4bd96f427dbd5b6a759fe933d8887",

@@ -2,7 +2,6 @@
 
 For the completed four-task study use [Reproducing the full study](REPRODUCING_FULL_STUDY.md). The commands below are the legacy pilot interface. The full-study runner is `python -m benchmark.full_eval` or `benchmark.full_batch_eval`.
 
-
 ## Commands
 
 `depfailbench validate-references` runs both handwritten controls against every pilot scenario. Use this first after installation.

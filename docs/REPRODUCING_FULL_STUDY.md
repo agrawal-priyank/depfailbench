@@ -2,6 +2,8 @@
 
 The study archive contains sibling `source/` and `data/` directories. Use Python 3.12 and the pinned requirements. From `source/`:
 
+The benchmark implementation and documentation under `source/` are MIT-licensed. Research records under `data/`, including generated `app.py` files retained as study subjects, are licensed CC BY 4.0. See the archive-root `DATA_LICENSE.md` and `source/LICENSE` for the exact terms.
+
 ```sh
 python3.12 -m venv .venv
 .venv/bin/python -m pip install -r requirements.lock

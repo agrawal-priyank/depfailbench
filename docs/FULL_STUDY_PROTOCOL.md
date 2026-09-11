@@ -1,4 +1,6 @@
-# Paper #3 — full-study protocol and experiment budget
+# Historical pre-generation full-study protocol and budget
+
+**Status note (release v1.0.1):** This is the frozen pre-generation planning record. The study was completed and released on 10 September 2026. Statements below about pending gates, projected cost, estimated effort, and a working JSS target are preserved as historical protocol context; they do not describe the current release. For T1 alone, C0 included the exact clean fixture example while C1 gave only the schema, so that condition contrast is not a pure resilience-instruction effect. See [Reproducing the completed study](REPRODUCING_FULL_STUDY.md) for the final artifact layout, results, and verification route.
 
 Design version 1.0, September 10, 2026. Working paper: “Can LLM-Generated Backend Services Survive Dependency Failures?” Working venue: Journal of Systems and Software (JSS). This is a design lock, not an executable benchmark release or a submission-readiness claim. No new paid generations were started.
 

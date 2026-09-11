@@ -1,7 +1,7 @@
 {
-  "version": "1.0-design",
+  "version": "full-study-v1",
   "date": "2026-09-10",
-  "status": "study_completed_evaluated_release_candidate",
+  "status": "study_completed_evaluated_github_released",
   "pilot_in_primary_analysis": false,
   "tasks": [
     "T1",
@@ -25,16 +25,36 @@
   ],
   "generations_per_cell": 20,
   "fresh_artifacts": 320,
+  "provider_attempts": {
+    "usable_generations": 320,
+    "failed_provider_attempts": 3,
+    "total_attempts": 323
+  },
   "primary_endpoint": "clean_correct_and_all_applicable_fault_oracles_pass / all_generated_artifacts",
   "max_output_tokens": 12000,
-  "input_token_guard": 2000,
+  "input_guard": {
+    "method": "UTF-8 byte length plus 1024 as a conservative token bound",
+    "maximum_bound": 8192
+  },
   "generation_mode": "one turn, no tools, no repair",
   "schedule_seed": 20260910,
-  "funding_status": "generation completed; release verification required no new model calls",
+  "execution_status": "generation completed; release verification required no new model calls",
+  "post_start_deviations": [
+    "One prespecified Anthropic slot completed on attempt 4 after three HTTP 529 overload responses returned no usable generation; no completed output was rerun or replaced."
+  ],
   "budget_usd": {
-    "pilot_scaled": 17.38396,
-    "planning_allowance": 35,
-    "token_envelope": 87.36,
-    "operational_stop": 100
+    "authorized_total_cap": 35,
+    "provider_caps": {
+      "OpenAI": 17.5,
+      "Anthropic": 17.5
+    },
+    "successful_usage_total": 22.41438,
+    "successful_usage_by_provider": {
+      "OpenAI": 11.44028,
+      "Anthropic": 10.9741
+    },
+    "unresolved_provider_error_reservations": 0.9624,
+    "conservative_ledger_total": 23.37678,
+    "basis": "Recorded provider usage at the study's stated rates; not a billing invoice"
   }
 }

@@ -1,4 +1,6 @@
-# Methodology
+# Pilot methodology (historical v1.0 protocol)
+
+This document describes the separate 16-program pilot and its evaluator correction. It is retained for provenance and does not define the completed 320-program study; use [Reproducing the completed study](REPRODUCING_FULL_STUDY.md) and [the frozen full-study protocol](FULL_STUDY_PROTOCOL.md) for that release.
 
 ## Experimental unit
 

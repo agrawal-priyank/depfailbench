@@ -1,4 +1,6 @@
-# DepFailBench
+# DepFailBench pilot documentation (historical)
+
+This file preserves the v1.0 pilot instructions. Paths and commands are relative to the repository root. For the completed 320-program study, use [Reproducing the completed study](REPRODUCING_FULL_STUDY.md).
 
 DepFailBench is a deterministic fault-injection benchmark for measuring how LLM-generated FastAPI services behave when runtime dependencies fail. It separates clean-path functional correctness from operational resilience and records recovery, safe failure, unsafe behavior, retry amplification, duplicate side effects, and final-state consistency.
 
@@ -51,11 +53,11 @@ Each artifact retains the exact prompt, source, provider response, model identit
 
 ### Generate securely with GitHub Actions
 
-The manual **OpenAI pilot** workflow generates and evaluates only the eight frozen OpenAI slots. To use it:
+The manual **Historical OpenAI pilot generation (paid)** workflow generates and evaluates only the eight frozen OpenAI slots. To use it:
 
 1. In the GitHub repository, open **Settings → Secrets and variables → Actions**.
 2. Add a repository secret named `OPENAI_API_KEY` containing a newly created project key.
-3. Open **Actions → OpenAI pilot**, select **Run workflow**, and confirm the run.
+3. Open **Actions → Historical OpenAI pilot generation (paid)**, select **Run workflow**, enable `confirm_paid_generation`, and run it.
 4. When it finishes, download the `depfailbench-openai-pilot-*` artifact from the workflow run.
 
 The encrypted secret is supplied only to the generation job. It is not written to the repository, generated artifacts, benchmark results, or workflow logs. The workflow is manual-only, so pushes and pull requests cannot trigger billable model calls.
@@ -74,7 +76,7 @@ The command creates:
 - `results/pilot/summary.json`
 - `results/pilot/pilot_report.md`
 
-It exits with status 2 when any of the 16 planned artifacts are absent. Use `--allow-incomplete` only to inspect readiness; missing slots are never replaced by synthetic data.
+It exits with status 2 when a planned slot is missing or an artifact cannot be evaluated. `--allow-incomplete` permits diagnostic reports; missing slots are never replaced by synthetic data.
 
 ## Docker
 
@@ -91,7 +93,7 @@ docker compose run --rm depfailbench
 
 ## Outcome classes and measures
 
-Every probe receives one of four mutually exclusive outcomes: `resilient_success`, `safe_failure`, `unsafe_failure`, or `availability_failure`. The report calculates clean correctness rate (CCR), scenario recovery rate (SRR), application pass rate (APR), mean retry amplification factor, duplicate side effects, and state-consistency failures. Exact definitions are in [docs/METHODOLOGY.md](docs/METHODOLOGY.md); the machine-readable fields are in [docs/RESULT_SCHEMA.md](docs/RESULT_SCHEMA.md).
+Every probe receives one of four mutually exclusive outcomes: `resilient_success`, `safe_failure`, `unsafe_failure`, or `availability_failure`. The report calculates clean correctness rate (CCR), scenario recovery rate (SRR), application pass rate (APR), mean retry amplification factor, duplicate side effects, and state-consistency failures. Exact definitions are in [METHODOLOGY.md](METHODOLOGY.md); the machine-readable fields are in [RESULT_SCHEMA.md](RESULT_SCHEMA.md).
 
 ## Research framing
 
@@ -106,4 +108,4 @@ DepFailBench does not claim that resilience of LLM-generated software is wholly 
 - `ARTIFACT_CONTRACT.md` defines the only editable surface.
 - The MIT license permits reuse and extension.
 
-See [docs/USER_GUIDE.md](docs/USER_GUIDE.md) for extension instructions and [CONTRIBUTING.md](CONTRIBUTING.md) for contribution rules.
+See [USER_GUIDE.md](USER_GUIDE.md) for extension instructions and [CONTRIBUTING.md](../CONTRIBUTING.md) for contribution rules.

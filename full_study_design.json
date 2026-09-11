@@ -1,7 +1,7 @@
 {
   "version": "1.0-design",
   "date": "2026-09-10",
-  "status": "design_locked_implementation_validation_pending",
+  "status": "study_completed_evaluated_release_candidate",
   "pilot_in_primary_analysis": false,
   "tasks": [
     "T1",
@@ -30,7 +30,7 @@
   "input_token_guard": 2000,
   "generation_mode": "one turn, no tools, no repair",
   "schedule_seed": 20260910,
-  "funding_status": "planning estimate only; no new paid calls dispatched",
+  "funding_status": "generation completed; release verification required no new model calls",
   "budget_usd": {
     "pilot_scaled": 17.38396,
     "planning_allowance": 35,

@@ -1,6 +1,14 @@
 {
   "release": "full-study-v1",
   "generation_protocol": "full-study-v1",
+  "hash_provenance": {
+    "snapshot": "frozen pre-generation protocol implementation",
+    "snapshot_commit": "a434549a730043abe89616405d3430969ace454e",
+    "path_base": "generation checkout root",
+    "path_layout": "Paths preserve the original generation checkout layout, including benchmark/.",
+    "release_integrity": "Use the archive-level SHA-256 manifest supplied with the release to verify the current source and data.",
+    "self_hash": "full_study/release_manifest.json is intentionally excluded because its final SHA-256 cannot be embedded in the file it hashes."
+  },
   "pilot_excluded": true,
   "budget_total_usd": 35,
   "provider_caps_usd": {
@@ -47,7 +55,6 @@
     "full_study/prompts/T5_C0.md": "1d05d07a404d3945d196c65065a3ba49316970ce8cdd6065145ff23434ef05b7",
     "full_study/prompts/T5_C1.md": "5359d29d2a6b5a7c15d3747886a99459be22c254a3bac00b4cdce2025eb49d16",
     "full_study/prompts/shared_rules.md": "1d871caaaee0081e6678699b366802c2ef01d28b042baaa447dd48a2d37dba5f",
-    "full_study/release_manifest.json": "991f352774df3149efdc8a9c711c7cd3900dece382ea284ddeb7ba2306e8e532",
     "full_study/scaffolds/T2/app.py": "6e0d9dd7cc8b5960794dd5b35e88fc8d6ca7fda1f4213a85f408c9c743338a20",
     "full_study/scaffolds/T5/app.py": "6e0d9dd7cc8b5960794dd5b35e88fc8d6ca7fda1f4213a85f408c9c743338a20",
     "full_study_schedule.csv": "f613154ede8ffde2c5117906ec2ca81ce09e7bc55922c332371744aa718bffc9",

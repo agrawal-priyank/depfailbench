@@ -4,11 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "depfailbench"
-version = "1.0.0"
+version = "1.0.1"
 description = "Deterministic fault-injection benchmark for LLM-generated backend services"
+authors = [{ name = "Priyank Agrawal", email = "agrawalpriyank@icloud.com" }]
 readme = "README.md"
 license = "MIT"
-license-files = ["LICENSE"]
+license-files = ["LICENSE", "LICENSE.txt", "Licence.txt"]
 requires-python = ">=3.12"
 keywords = ["benchmark", "fault-injection", "llm", "resilience", "fastapi"]
 classifiers = [
@@ -23,6 +24,11 @@ dependencies = [
   "uvicorn>=0.30,<1",
 ]
 
+[project.urls]
+Repository = "https://github.com/agrawal-priyank/depfailbench"
+Documentation = "https://github.com/agrawal-priyank/depfailbench/tree/v1.0.1/docs"
+Issues = "https://github.com/agrawal-priyank/depfailbench/issues"
+
 [project.optional-dependencies]
 dev = ["pytest>=8,<9", "pytest-asyncio>=0.24,<1"]
 
@@ -33,11 +39,15 @@ depfailbench = "benchmark.cli:main"
 asyncio_mode = "auto"
 testpaths = ["tests"]
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+
 [tool.setuptools.packages.find]
+where = ["src"]
 include = ["benchmark*"]
 
 [tool.setuptools.data-files]
-"share/depfailbench" = ["ARTIFACT_CONTRACT.md", "generation_plan.json", "protocol.json", "requirements.lock"]
+"share/depfailbench" = ["ARTIFACT_CONTRACT.md", "generation_plan.json", "protocol.json", "requirements.lock", "full_study_schedule.csv", "README.md", "LICENSE", "LICENSE.txt", "Licence.txt", "DATA_LICENSE.md", "CHANGELOG.md"]
 "share/depfailbench/prompts" = [
   "prompts/shared_rules.md",
   "prompts/T1_C0.md",
@@ -47,3 +57,10 @@ include = ["benchmark*"]
 ]
 "share/depfailbench/scaffolds/T1" = ["scaffolds/T1/app.py"]
 "share/depfailbench/scaffolds/T4" = ["scaffolds/T4/app.py"]
+
+"share/depfailbench/full_study" = ["full_study/release_manifest.json"]
+"share/depfailbench/full_study/prompts" = ["full_study/prompts/*.md"]
+"share/depfailbench/full_study/scaffolds/T2" = ["full_study/scaffolds/T2/app.py"]
+"share/depfailbench/full_study/scaffolds/T5" = ["full_study/scaffolds/T5/app.py"]
+"share/depfailbench/docs" = ["docs/*.md"]
+"share/depfailbench/examples" = ["examples/*.py"]

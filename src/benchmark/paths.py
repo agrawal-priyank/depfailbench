@@ -4,7 +4,12 @@ import sys
 from pathlib import Path
 
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PACKAGE_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = (
+    PACKAGE_ROOT.parent.parent
+    if PACKAGE_ROOT.parent.name == "src"
+    else PACKAGE_ROOT.parent
+)
 
 
 def resolve_data_path(path: Path | str) -> Path:

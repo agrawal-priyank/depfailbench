@@ -1,3 +1,17 @@
+# Release notes
+
+## 1.0.1 - 2026-09-10
+
+- Correct dynamic module registration for generated dataclasses and forward references, with a regression fixture.
+- Reconcile the README with the completed four-task study; retain historical pilot instructions separately.
+- Include full-study inputs, licensing, and documentation in installed package data.
+- Document analysis replay, fresh evaluation, and a bounded extension example.
+- Publish the full-study source and data artifact under doi:10.5281/zenodo.22699095.
+
+Experimental prompts, fault contracts, generated source, and original records are unchanged. Generation used commit `a434549`, with operational resumption at `97bf6e2`. This release is authored by Priyank Agrawal. The immutable software release is [v1.0.1 on GitHub](https://github.com/agrawal-priyank/depfailbench/releases/tag/v1.0.1); the full-study archive is [doi:10.5281/zenodo.22699095](https://doi.org/10.5281/zenodo.22699095).
+
+## Previous release history
+
 # Changelog
 
 ## 1.0.0 - 2026-09-03

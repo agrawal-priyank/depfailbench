@@ -1,5 +1,8 @@
 # User guide
 
+For the completed four-task study use [Reproducing the full study](REPRODUCING_FULL_STUDY.md). The commands below are the legacy pilot interface. The full-study runner is `python -m benchmark.full_eval` or `benchmark.full_batch_eval`.
+
+
 ## Commands
 
 `depfailbench validate-references` runs both handwritten controls against every pilot scenario. Use this first after installation.
@@ -26,7 +29,7 @@ The benchmark never overwrites an existing directory. This prevents an accidenta
 
 ## Adding a model family
 
-Add a model entry and balanced slots to `generation_plan.json`, then add a provider adapter to `benchmark/generate.py`. Provider-specific effort settings must be recorded rather than assumed equivalent. Do not alter prompts between model families.
+Add a model entry and balanced slots to `generation_plan.json`, then add a provider adapter to `src/benchmark/generate.py`. Provider-specific effort settings must be recorded rather than assumed equivalent. Do not alter prompts between model families.
 
 ## Adding a task after the pilot
 
@@ -43,7 +46,7 @@ New tasks must not introduce concurrency, cascading failures, Kubernetes, or ser
 ## Interpreting failures
 
 - A clean failure contributes to CCR and stops further probing for that artifact.
-- A C0 resilience failure describes observed operational behavior; it is not a violation of a hidden requirement.
+- A C0 fault-probe failure describes observed operational behavior; it is not a violation of a hidden requirement.
 - A safe failure terminates within bounds and does not fabricate success or corrupt state.
 - An unsafe failure includes invalid success, duplicate effects, or inconsistent state.
 - An availability failure includes an unhandled exception, deadline breach, or more than three dependency attempts.

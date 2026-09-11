@@ -1,109 +1,69 @@
 # DepFailBench
 
-DepFailBench is a deterministic fault-injection benchmark for measuring how LLM-generated FastAPI services behave when runtime dependencies fail. It separates clean-path functional correctness from operational resilience and records recovery, safe failure, unsafe behavior, retry amplification, duplicate side effects, and final-state consistency.
+DepFailBench evaluates LLM-generated FastAPI services under controlled downstream dependency failures. It distinguishes clean correctness, successful recovery, safe termination, and unsafe or unavailable outcomes. The software is a research benchmark, not a production-readiness certification.
 
-The v1.0 pilot contains the locked T1 Product Proxy and T4 Order/Payment tasks. The full study reserves six tasks, but T2, T3, T5, and T6 are intentionally not invented during pilot execution.
+DepFailBench is authored and maintained by [Priyank Agrawal](https://orcid.org/0009-0004-3230-8277), Independent Researcher, New York, NY, United States.
 
-## What the pilot tests
+## Completed study
 
-- T1: clean response, transient and persistent HTTP 503, timeout, HTTP 429 with `Retry-After`, and malformed HTTP 200.
-- T4: the same applicable faults plus timeout before commit and an ambiguous outcome in which the payment commits but its response is lost.
-- Conditions: C0 functional-only and C1 with explicit resilience requirements.
-- Design: 2 tasks × 2 model families × 2 conditions × 2 independent generations = 16 artifacts.
+The full study contains four fixed tasks: T1 Product Proxy, T2 Paginated Catalog, T4 Order Payment, and T5 Object Upload. Two model configurations and two specification conditions, with 20 generations per cell, produced 320 unchanged programs. Each saved program has three corrected evaluations. The earlier two-task, 16-program pilot is separate and excluded from those results.
 
-The scope deliberately excludes concurrency, cascading or compound failures, Kubernetes, and service meshes.
+C0 is a baseline contract, not a uniform absence of operational guidance: catalog and upload baselines already include safeguards. C1 adds a bundled resilience specification. See [full protocol](docs/FULL_STUDY_PROTOCOL.md) and [release guide](docs/REPRODUCING_FULL_STUDY.md).
 
-## Install
+## Installation
 
-Python 3.12 is required.
+Use Python 3.12. From this source directory:
 
-```bash
+```sh
 python3.12 -m venv .venv
-.venv/bin/pip install -e '.[dev]'
-.venv/bin/pytest -q
+.venv/bin/python -m pip install -r requirements.lock
+.venv/bin/python -m pip install --no-deps .
+.venv/bin/python -m pytest -q tests
 ```
 
-## Validate the deterministic controls
+The pinned environment is the reference evaluation environment. Statistical analysis additionally uses `numpy==2.3.5`.
 
-```bash
+## Five-minute walkthrough
+
+```sh
 .venv/bin/depfailbench validate-references --repetitions 3
+.venv/bin/python examples/transient_transport.py
 ```
 
-This runs the handwritten `reference_naive` and `reference_resilient` controls. All non-wall-clock observations must be identical across repetitions, the naive controls must pass the clean contract, and the resilient controls must satisfy every scenario oracle.
+The first command validates the T1/T4 handwritten controls; full-study T2/T5 controls are covered by the repository tests. The second command injects the same `503 -> 200` dependency sequence into two T1 controls. The naive service stops after one call and returns a safe 503 response. The resilient service retries once and returns the valid product after two calls. Neither command generates model outputs.
 
-## Preview and generate the pilot
+The complete saved study is distributed as the versioned `DepFailBench_Source_and_Data.zip` release artifact. After extracting it, reproduce one saved program with:
 
-Previewing makes no provider calls:
-
-```bash
-.venv/bin/depfailbench generate
+```sh
+.venv/bin/python -m benchmark.full_eval \
+  ../data/artifacts/full_v1_T1_C1_openai_gpt56sol_g01 \
+  ../single-evaluation.json
 ```
 
-Actual generation is deliberately explicit and non-overwriting:
+The output records clean qualification, primary pass status, every scenario outcome, downstream-call traces, and task-specific state. It can be inspected without provider credentials.
 
-```bash
-export OPENAI_API_KEY='...'
-export ANTHROPIC_API_KEY='...'
-.venv/bin/depfailbench generate --execute
-```
+For all 320 saved programs and the statistical analysis, follow the [reproduction instructions](docs/REPRODUCING_FULL_STUDY.md). Analysis and evaluation need no provider account or API key. Generation is a separate, explicitly billable operation and is not required to reproduce saved results.
 
-Each artifact retains the exact prompt, source, provider response, model identity, request ID, usage, generation time, prompt hash, scaffold hash, and dependency-lock hash. Provider keys are never written to disk.
+## Software organization
 
-### Generate securely with GitHub Actions
+- `src/benchmark/emulator.py`, `runner.py`, and `oracle.py`: T1/T4 fault traces and checks.
+- `src/benchmark/full_tasks.py`: T2/T5 dependencies, fixtures, and outcome checks.
+- `src/benchmark/full_eval.py`: full-study artifact loading and scenario evaluation.
+- `src/benchmark/full_batch_eval.py`: fresh-process batch execution with hard time limits.
+- `src/benchmark/full_analysis.py`: fixed-task analysis of saved evaluation records.
+- `full_study/`: frozen full-study prompts, scaffolds, and their manifest.
+- `tests/`: reference, regression, and evaluator checks.
 
-The manual **OpenAI pilot** workflow generates and evaluates only the eight frozen OpenAI slots. To use it:
+The current runner is task-specific. Adding a new task requires code and tests; it is not a general plugin API. See the [extension example](docs/EXTENSION_EXAMPLE.md).
 
-1. In the GitHub repository, open **Settings → Secrets and variables → Actions**.
-2. Add a repository secret named `OPENAI_API_KEY` containing a newly created project key.
-3. Open **Actions → OpenAI pilot**, select **Run workflow**, and confirm the run.
-4. When it finishes, download the `depfailbench-openai-pilot-*` artifact from the workflow run.
+## Scope and interpretation
 
-The encrypted secret is supplied only to the generation job. It is not written to the repository, generated artifacts, benchmark results, or workflow logs. The workflow is manual-only, so pushes and pull requests cannot trigger billable model calls.
+The four tasks use short, isolated requests and emulated dependency faults. They exclude concurrency, long-lived state, real distributed transactions, cascades, and calibrated network latency. Retry-After is zero in the rate-limit fixtures. Safe failure is distinct from successful recovery; only specified fault scenarios allow it to count as a pass.
 
-## Run the complete pilot
+The corrected loader registers generated modules before execution, supporting valid dataclasses and forward references. Original evaluations and the five changed classifications remain in the data archive. No generated source was repaired. See [release notes](CHANGELOG.md).
 
-```bash
-.venv/bin/depfailbench pilot
-```
+## Citation, documentation, and licenses
 
-The command creates:
+Please cite DepFailBench using [CITATION.cff](CITATION.cff). The immutable software source is the [v1.0.1 GitHub release](https://github.com/agrawal-priyank/depfailbench/releases/tag/v1.0.1), and the full-study data archive is identified by [doi:10.5281/zenodo.22699095](https://doi.org/10.5281/zenodo.22699095).
 
-- `results/pilot/artifact_manifest.jsonl`
-- `results/pilot/observations.jsonl`
-- `results/pilot/observations.csv`
-- `results/pilot/summary.json`
-- `results/pilot/pilot_report.md`
-
-It exits with status 2 when any of the 16 planned artifacts are absent. Use `--allow-incomplete` only to inspect readiness; missing slots are never replaced by synthetic data.
-
-## Docker
-
-```bash
-docker build -t depfailbench .
-docker run --rm depfailbench
-```
-
-To evaluate locally generated artifacts and retain results:
-
-```bash
-docker compose run --rm depfailbench
-```
-
-## Outcome classes and measures
-
-Every probe receives one of four mutually exclusive outcomes: `resilient_success`, `safe_failure`, `unsafe_failure`, or `availability_failure`. The report calculates clean correctness rate (CCR), scenario recovery rate (SRR), application pass rate (APR), mean retry amplification factor, duplicate side effects, and state-consistency failures. Exact definitions are in [docs/METHODOLOGY.md](docs/METHODOLOGY.md); the machine-readable fields are in [docs/RESULT_SCHEMA.md](docs/RESULT_SCHEMA.md).
-
-## Research framing
-
-DepFailBench does not claim that resilience of LLM-generated software is wholly unexplored. Its narrower contribution is controlled runtime downstream-dependency fault injection and measurement of recovery behavior in generated backend services.
-
-## Reproducibility and reuse
-
-- `protocol.json` is the machine-readable protocol lock.
-- `generation_plan.json` fixes all 16 generation slots.
-- `requirements.lock` records the validated dependency versions.
-- `prompts/` and `scaffolds/` contain the exact generation inputs.
-- `ARTIFACT_CONTRACT.md` defines the only editable surface.
-- The MIT license permits reuse and extension.
-
-See [docs/USER_GUIDE.md](docs/USER_GUIDE.md) for extension instructions and [CONTRIBUTING.md](CONTRIBUTING.md) for contribution rules.
+[User guide](docs/USER_GUIDE.md), [result schema](docs/RESULT_SCHEMA.md), [pilot methodology](docs/METHODOLOGY.md), [contribution rules](CONTRIBUTING.md). Software source code is licensed under the MIT License in `LICENSE`; duplicate `LICENSE.txt` and `Licence.txt` files support journal-template compatibility. Study data is licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0), as specified in [DATA_LICENSE.md](DATA_LICENSE.md). The original pilot README is retained as historical documentation in `docs/PILOT_README.md`; its commands and sample size describe only the pilot.

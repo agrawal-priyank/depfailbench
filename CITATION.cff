@@ -1,13 +1,18 @@
 cff-version: 1.2.0
 message: "If you use DepFailBench, please cite the software and its accompanying article."
-title: "DepFailBench: A Deterministic Fault-Injection Benchmark for LLM-Generated Backend Services"
+title: "DepFailBench: Evaluating dependency failures in generated backend services"
 type: software
 authors:
-  - name: "DepFailBench contributors"
-version: 1.0.0
-date-released: 2026-09-03
+  - given-names: "Priyank"
+    family-names: "Agrawal"
+    affiliation: "Independent Researcher, New York, NY, United States"
+    email: "agrawalpriyank@icloud.com"
+    orcid: "https://orcid.org/0009-0004-3230-8277"
+version: 1.0.1
+date-released: 2026-09-10
 license: MIT
 repository-code: "https://github.com/agrawal-priyank/depfailbench"
+repository-artifact: "https://github.com/agrawal-priyank/depfailbench/releases/tag/v1.0.1"
 keywords:
   - fault injection
   - large language models

@@ -1,4 +1,7 @@
 include LICENSE
+include LICENSE.txt
+include Licence.txt
+include DATA_LICENSE.md
 include CITATION.cff
 include CONTRIBUTING.md
 include CHANGELOG.md

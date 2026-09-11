@@ -1,6 +1,6 @@
 """Subprocess-isolated full-study evaluation; no provider calls."""
 from __future__ import annotations
-import argparse,asyncio,importlib.util,json,time
+import argparse,asyncio,importlib.util,json,time,sys
 from pathlib import Path
 import httpx
 from benchmark.fixtures.common import AppSettings
@@ -35,7 +35,7 @@ async def evaluate(directory):
     if raw.get('stop_reason')=='max_tokens' or raw.get('status')=='incomplete':
         result['error']='provider_output_truncated';return result
     try:
-        spec=importlib.util.spec_from_file_location('full_generated',directory/'app.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);factory=module.create_app
+        spec=importlib.util.spec_from_file_location('full_generated',directory/'app.py');module=importlib.util.module_from_spec(spec);sys.modules[spec.name]=module;spec.loader.exec_module(module);factory=module.create_app
         scenarios=list(T1_SCENARIOS if task=='T1' else T4_SCENARIOS if task=='T4' else SCENARIOS[task])
         for scenario in scenarios:
             if task in {'T1','T4'}:

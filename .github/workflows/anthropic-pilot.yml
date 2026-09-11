@@ -1,7 +1,13 @@
-name: Anthropic pilot
+name: Historical Anthropic pilot generation (paid)
 
 on:
   workflow_dispatch:
+    inputs:
+      confirm_paid_generation:
+        description: Create new, non-identical outputs and incur provider charges
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -12,6 +18,7 @@ concurrency:
 
 jobs:
   generate-and-evaluate:
+    if: ${{ inputs.confirm_paid_generation }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -96,4 +103,3 @@ jobs:
             results/
           if-no-files-found: warn
           retention-days: 30
-

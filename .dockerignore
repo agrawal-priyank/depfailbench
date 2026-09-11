@@ -1,10 +1,17 @@
 .git
 .github
+.DS_Store
+.env
+.env.*
+.venv
 .pytest_cache
 __pycache__
 *.egg-info
 work
 artifacts
 results
+outputs
 dist
 build
+.coverage
+htmlcov

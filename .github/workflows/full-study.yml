@@ -1,6 +1,12 @@
-name: Full study capped at 35 USD
+name: "Historical full-study generation ($35 study-rate estimate; current pricing applies)"
 on:
   workflow_dispatch:
+    inputs:
+      confirm_paid_generation:
+        description: "Attempt up to 320 prespecified generation slots; $35 is a study-rate cap estimate and actual charges depend on current provider pricing"
+        required: true
+        default: false
+        type: boolean
 permissions:
   contents: read
 concurrency:
@@ -8,6 +14,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   generate:
+    if: ${{ inputs.confirm_paid_generation }}
     strategy:
       fail-fast: false
       matrix:
@@ -42,7 +49,7 @@ jobs:
           retention-days: 90
   evaluate:
     needs: generate
-    if: always()
+    if: ${{ always() && inputs.confirm_paid_generation }}
     strategy:
       fail-fast: false
       matrix:

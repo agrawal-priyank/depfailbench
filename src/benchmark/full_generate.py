@@ -6,6 +6,7 @@ from datetime import datetime,timezone
 from benchmark.generate import openai_generate,anthropic_generate,extract_code
 from benchmark.prompts import compose_prompt
 
+# Fixed 2026 study accounting rates (USD per million input/output tokens); they are not live provider billing prices.
 RATES={'OpenAI':(4.,20.),'Anthropic':(5.,25.)}
 LIMIT_OUTPUT=12000
 

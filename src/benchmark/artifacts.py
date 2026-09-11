@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
@@ -40,11 +41,21 @@ def load_artifact(directory: Path) -> tuple[ArtifactMetadata, Callable[[httpx.As
     if metadata.generation_index not in {1, 2}:
         raise ValueError("generation_index must be 1 or 2 for the locked pilot")
     app_path = directory / "app.py"
-    spec = importlib.util.spec_from_file_location(f"generated_{metadata.artifact_id}", app_path)
+    module_name = f"generated_{metadata.artifact_id}"
+    spec = importlib.util.spec_from_file_location(module_name, app_path)
     if spec is None or spec.loader is None:
         raise ValueError(f"cannot load {app_path}")
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    previous_module = sys.modules.get(module_name)
+    sys.modules[module_name] = module
+    try:
+        spec.loader.exec_module(module)
+    except BaseException:
+        if previous_module is not None:
+            sys.modules[module_name] = previous_module
+        else:
+            sys.modules.pop(module_name, None)
+        raise
     factory = getattr(module, "create_app", None)
     if not callable(factory):
         raise ValueError(f"{app_path} does not export callable create_app")

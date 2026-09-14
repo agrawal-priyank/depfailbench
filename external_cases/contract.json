@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "frozen_at": "2026-09-14T18:15:00-04:00",
+  "purpose": "Externally sourced contract cases, separate from the 320-program prompt experiment",
+  "subjects": {
+    "stripe": {
+      "package": "stripe",
+      "version": "15.6.1",
+      "source_commit": "885cdaa8d8b335b0768d955b5ee69f951ebe00e3",
+      "wheel_sha256": "b33e1ea76462d7289e5fe755a1132b82099151bfb31e961021655471e6d216bf",
+      "license": "MIT",
+      "operation": "StripeClient.v1.payment_intents.create_async",
+      "sources": [
+        "https://github.com/stripe/stripe-python/blob/885cdaa8d8b335b0768d955b5ee69f951ebe00e3/README.md#configuring-automatic-retries",
+        "https://github.com/stripe/stripe-python/blob/885cdaa8d8b335b0768d955b5ee69f951ebe00e3/stripe/_http_client.py#L117-L179",
+        "https://github.com/stripe/stripe-python/blob/885cdaa8d8b335b0768d955b5ee69f951ebe00e3/stripe/_api_requestor.py#L568-L574",
+        "https://docs.stripe.com/api/idempotent_requests?lang=python"
+      ],
+      "cases": [
+        {"id": "clean_200", "actions": ["success_commit"], "expected_attempts": 1, "expected_class": "resilient_success"},
+        {"id": "transient_503", "actions": ["503", "503", "success_commit"], "expected_attempts": 3, "expected_class": "resilient_success"},
+        {"id": "persistent_503", "actions": ["503", "503", "503"], "expected_attempts": 3, "expected_class": "safe_failure"},
+        {"id": "conflict_409", "actions": ["409", "success_commit"], "expected_attempts": 2, "expected_class": "resilient_success"},
+        {"id": "retry_override_true", "actions": ["400_retry_true", "success_commit"], "expected_attempts": 2, "expected_class": "resilient_success"},
+        {"id": "retry_override_false", "actions": ["503_retry_false"], "expected_attempts": 1, "expected_class": "safe_failure"},
+        {"id": "nonretryable_400", "actions": ["400"], "expected_attempts": 1, "expected_class": "safe_failure"},
+        {"id": "disconnect_before_commit", "actions": ["disconnect", "success_commit"], "expected_attempts": 2, "expected_class": "resilient_success"},
+        {"id": "timeout_before_commit", "actions": ["timeout", "success_commit"], "expected_attempts": 2, "expected_class": "resilient_success"},
+        {"id": "committed_response_lost", "actions": ["commit_disconnect", "success_commit"], "expected_attempts": 2, "expected_class": "resilient_success"}
+      ]
+    },
+    "seam": {
+      "package": "seam",
+      "version": "3.12.0",
+      "source_commit": "7a17585e54acf4e66f1ad409092dcac6cec488ab",
+      "wheel_sha256": "ff4c22e3d8be15dc2fee5d5bcc36a9f8e89a5d133bde007e40ebc74059e4ea4e",
+      "license": "MIT",
+      "operation": "Seam.devices.list",
+      "sources": [
+        "https://github.com/seamapi/python/blob/7a17585e54acf4e66f1ad409092dcac6cec488ab/README.rst#L625-L649",
+        "https://github.com/seamapi/python/blob/7a17585e54acf4e66f1ad409092dcac6cec488ab/seam/client.py#L24-L30",
+        "https://github.com/seamapi/python/blob/7a17585e54acf4e66f1ad409092dcac6cec488ab/test/retry_test.py#L11-L83"
+      ],
+      "cases": [
+        {"id": "clean_200", "method": "GET", "actions": ["success"], "expected_attempts": 1, "expected_class": "resilient_success"},
+        {"id": "transient_503", "method": "GET", "actions": ["503", "503", "success"], "expected_attempts": 3, "expected_class": "resilient_success"},
+        {"id": "persistent_503", "method": "GET", "actions": ["503", "503", "503"], "expected_attempts": 3, "expected_class": "safe_failure"},
+        {"id": "rate_limit_retry_after", "method": "GET", "actions": ["429_retry_after", "success"], "expected_attempts": 2, "expected_class": "resilient_success"},
+        {"id": "timeout_then_success", "method": "GET", "actions": ["timeout", "timeout", "success"], "expected_attempts": 3, "expected_class": "resilient_success"},
+        {"id": "connection_then_success", "method": "GET", "actions": ["disconnect", "success"], "expected_attempts": 2, "expected_class": "resilient_success"},
+        {"id": "nonretryable_400", "method": "GET", "actions": ["400"], "expected_attempts": 1, "expected_class": "safe_failure"},
+        {"id": "post_503_no_retry", "method": "POST", "actions": ["503"], "expected_attempts": 1, "expected_class": "safe_failure"}
+      ]
+    }
+  }
+}

@@ -33,6 +33,7 @@ class Attempt:
     status: int | None
     error: str | None
     idempotency_key: str | None
+    timeout_config: dict[str, float | None] | None = None
 
 
 @dataclass
@@ -50,6 +51,9 @@ class Observation:
     side_effects: list[dict[str, Any]]
     final_state: dict[str, Any]
     notes: list[str] = field(default_factory=list)
+    wall_latency_s: float | None = None
+    virtual_dependency_time_s: float | None = None
+    effective_latency_s: float | None = None
 
     @property
     def retry_amplification_factor(self) -> float:

@@ -20,7 +20,7 @@ Create a sibling `replay/` directory next to `source/`, then copy `../data/evalu
 .venv/bin/python -m benchmark.full_analysis ../replay
 ```
 
-Compare `../replay/analysis.json` with `../data/analysis.json`. Expected primary counts are OpenAI 39/80 and 68/80, Anthropic 59/80 and 78/80, for C0 and C1 respectively. There should be 320 artifacts and no repeated-outcome disagreements. NumPy 2.3.5 reproduces the saved seeded analysis.
+Compare `../replay/analysis.json` with `../data/analysis.json`. Expected hardened primary counts are OpenAI 39/80 and 45/80, Anthropic 59/80 and 48/80, for C0 and C1 respectively. There should be 320 artifacts and no repeated outcome or timeout-guard disagreements. NumPy 2.3.5 reproduces the saved seeded analysis.
 
 ## Fresh execution of saved programs
 
@@ -43,4 +43,4 @@ This full-study command differs from the legacy `depfailbench evaluate` pilot in
 
 ## Traceability
 
-`full_study/release_manifest.json` records the frozen pre-generation protocol implementation, using paths from the original generation checkout. It is provenance rather than an integrity inventory for the current `source/` tree, and it intentionally excludes its own digest because embedding that digest would be self-referential. Use the archive-level SHA-256 manifest supplied with the release to verify the current source and data. `frozen_evaluation*` are pre-loader-correction results; `evaluation*` are corrected results. `loader_correction_changes.json` identifies five affected programs. Distinguish 320 generated programs from their repeated executions. Do not treat repeated scenarios as independent generations.
+`full_study/release_manifest.json` records the frozen pre-generation protocol implementation, using paths from the original generation checkout. It is provenance rather than an integrity inventory for the current `source/` tree, and it intentionally excludes its own digest because embedding that digest would be self-referential. Use the archive-level SHA-256 manifest supplied with the release to verify the current source and data. The archive separates submitted, loader-corrected, and final oracle-hardened records; the change ledger identifies all reclassifications. Distinguish 320 generated programs from repeated executions and scenario probes.

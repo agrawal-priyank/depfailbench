@@ -5,6 +5,7 @@ from pathlib import Path
 from datetime import datetime,timezone
 from benchmark.generate import openai_generate,anthropic_generate,extract_code
 from benchmark.prompts import compose_prompt
+from benchmark.task_registry import TaskRegistry
 
 # Fixed 2026 study accounting rates (USD per million input/output tokens); they are not live provider billing prices.
 RATES={'OpenAI':(4.,20.),'Anthropic':(5.,25.)}
@@ -32,8 +33,15 @@ def load_spend(events):
         if row['event']=='finish':by[row['attempt_id']]=row['charged']
     return sum(by.values())
 
+def prompt_from_manifest(registry, task, condition):
+    record=registry.record(task);base=registry.manifest.parent
+    shared=(base/'prompts'/'shared_rules.md').read_text().strip()
+    task_prompt=(base/record.prompts[condition]).read_text().strip()
+    scaffold=(base/record.scaffold).read_text().strip()
+    return f'{shared}\n\n{task_prompt}\n\n# Starting `app.py`\n\nReplace the complete file below while preserving its public factory signature.\n\n```python\n{scaffold}\n```\n'
+
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--provider',choices=RATES,required=True);p.add_argument('--cap',type=float,required=True);p.add_argument('--root',default='full_results');p.add_argument('--additional-attempts',type=int,default=0);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--provider',choices=RATES,required=True);p.add_argument('--cap',type=float,required=True);p.add_argument('--root',default='full_results');p.add_argument('--additional-attempts',type=int,default=0);p.add_argument('--task-manifest');p.add_argument('--schedule',default='full_study_schedule.csv');a=p.parse_args()
     root=Path(a.root);artifacts=root/'artifacts';artifacts.mkdir(parents=True,exist_ok=True)
     ledger=root/f'{a.provider}_ledger.jsonl';events=[json.loads(x) for x in ledger.read_text().splitlines()] if ledger.exists() else []
     def log(row):
@@ -42,7 +50,7 @@ def main():
         events.append(row)
     plan=json.loads(Path('generation_plan.json').read_text())
     model_key='openai_gpt56sol' if a.provider=='OpenAI' else 'anthropic_opus5';config=plan['models'][model_key]
-    schedule=list(csv.DictReader(open('full_study_schedule.csv')))
+    schedule=list(csv.DictReader(open(a.schedule)));registry=TaskRegistry.from_manifest(a.task_manifest) if a.task_manifest else None
     for slot in schedule:
         if slot['model']!=model_key:continue
         target=artifacts/slot['artifact_id']
@@ -50,7 +58,7 @@ def main():
             if all((target/n).exists() for n in ['app.py','metadata.json','raw_response.json','prompt.txt']):continue
             raise RuntimeError('Partial artifact needs audit; refusing overwrite')
         scaffold_root=Path('full_study/scaffolds') if slot['task'] in {'T2','T5'} else Path('scaffolds')
-        prompt=compose_prompt(slot['task'],slot['condition'],Path('full_study/prompts'),scaffold_root)
+        prompt=prompt_from_manifest(registry,slot['task'],slot['condition']) if registry else compose_prompt(slot['task'],slot['condition'],Path('full_study/prompts'),scaffold_root)
         reserved=reservation(prompt,a.provider)
         prior=sum(e['event']=='start' and e.get('artifact_id')==slot['artifact_id'] for e in events)
         max_attempts=3+a.additional_attempts
@@ -70,7 +78,8 @@ def main():
             actual=charge(raw,a.provider)
             if actual is None:actual=reserved
             target.mkdir()
-            meta={'artifact_id':slot['artifact_id'],'task':slot['task'],'condition':slot['condition'],'model_provider':a.provider,'model_family':config['family'],'model_version':raw.get('model',config['model_id']),'generation_index':int(slot['generation_index']),'prompt_sha256':hashlib.sha256(prompt.encode()).hexdigest(),'generated_at':datetime.now(timezone.utc).isoformat(),'provider_response_id':raw.get('id'),'provider_usage':raw.get('usage'),'scaffold_sha256':hashlib.sha256((scaffold_root/slot['task']/'app.py').read_bytes()).hexdigest(),'dependency_lock_sha256':hashlib.sha256(Path('requirements.lock').read_bytes()).hexdigest(),'temperature':None,'top_p':None}
+            scaffold_path=(registry.manifest.parent/registry.record(slot['task']).scaffold) if registry else (scaffold_root/slot['task']/'app.py')
+            meta={'artifact_id':slot['artifact_id'],'task':slot['task'],'condition':slot['condition'],'model_provider':a.provider,'model_family':config['family'],'model_version':raw.get('model',config['model_id']),'generation_index':int(slot['generation_index']),'prompt_sha256':hashlib.sha256(prompt.encode()).hexdigest(),'generated_at':datetime.now(timezone.utc).isoformat(),'provider_response_id':raw.get('id'),'provider_usage':raw.get('usage'),'scaffold_sha256':hashlib.sha256(scaffold_path.read_bytes()).hexdigest(),'dependency_lock_sha256':hashlib.sha256(Path('requirements.lock').read_bytes()).hexdigest(),'task_manifest_sha256':registry.manifest_sha256() if registry else None,'temperature':None,'top_p':None}
             (target/'app.py').write_text(extract_code(text or ''))
             (target/'prompt.txt').write_text(prompt)
             (target/'raw_response.json').write_text(json.dumps(raw,indent=2))

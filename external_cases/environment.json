@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "python": "3.12.14",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "network_boundary": "loopback-only test server",
+  "credentials": "offline fake credentials",
+  "subject_distributions": {
+    "stripe": {
+      "version": "15.6.1",
+      "wheel_sha256": "b33e1ea76462d7289e5fe755a1132b82099151bfb31e961021655471e6d216bf"
+    },
+    "seam": {
+      "version": "3.12.0",
+      "wheel_sha256": "ff4c22e3d8be15dc2fee5d5bcc36a9f8e89a5d133bde007e40ebc74059e4ea4e"
+    },
+    "httpx-retries": {
+      "version": "0.6.0",
+      "wheel_sha256": "d1e52a8f68a5df42de75ab89049d5020b2d0ab2f5f8bceacda008d12aa1257a3"
+    }
+  },
+  "requirements": "requirements-lock.txt"
+}

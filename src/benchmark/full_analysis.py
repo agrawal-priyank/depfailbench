@@ -76,7 +76,11 @@ def main():
     validate_evaluation_sets(root,find_schedule(a.schedule))
     rows=[json.loads(p.read_text()) for p in sorted((root/'evaluation1').glob('*.json'))]
     summary={'artifacts':len(rows),'complete':len(rows)==320,'models':{},'repeat_disagreements':[]}
-    def signature(r):return (r['clean_qualified'],r['primary_pass'],[(x['scenario'],x['outcome_class']) for x in r['observations']],r.get('error'))
+    def guard_signature(record):
+        guard=record.get('timeout_guard')
+        if guard is None:return None
+        return (guard.get('pass'),guard.get('response_status'),guard.get('unhandled_exception'),[(a.get('timeout_mode'),a.get('bounded')) for a in guard.get('attempts',[])],tuple(guard.get('contract_violations',[])))
+    def signature(r):return (r['clean_qualified'],r['primary_pass'],[(x['scenario'],x['outcome_class']) for x in r['observations']],guard_signature(r),r.get('error'))
     for r in rows:
         for repeat in [2,3]:
             p=root/f'evaluation{repeat}'/(r['artifact_id']+'.json')

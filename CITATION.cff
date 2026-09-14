@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use DepFailBench, please cite the software and its accompanying article."
-title: "DepFailBench: Evaluating dependency failures in generated backend services"
+title: "DepFailBench: Task-dependent effects of resilience requirements on LLM-generated backend services"
 type: software
 authors:
   - given-names: "Priyank"
@@ -8,11 +8,11 @@ authors:
     affiliation: "Independent Researcher, New York, NY, United States"
     email: "agrawalpriyank@icloud.com"
     orcid: "https://orcid.org/0009-0004-3230-8277"
-version: 1.0.2
-date-released: 2026-09-10
+version: 1.1.0
+date-released: 2026-09-14
 license: MIT
 repository-code: "https://github.com/agrawal-priyank/depfailbench"
-repository-artifact: "https://github.com/agrawal-priyank/depfailbench/releases/tag/v1.0.2"
+repository-artifact: "https://github.com/agrawal-priyank/depfailbench/releases/tag/v1.1.0"
 keywords:
   - fault injection
   - large language models

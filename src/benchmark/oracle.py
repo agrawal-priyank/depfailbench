@@ -11,7 +11,14 @@ def classify(task: str, scenario: str, status: int | None, body: Any, attempts: 
     if exception or deadline_violated or attempts > 3:
         return OutcomeClass.AVAILABILITY_FAILURE, ["unhandled exception, deadline violation, or excessive attempts"]
     if task == "T1":
-        valid = status == 200 and isinstance(body, dict) and body == {"id": 7, "name": "Keyboard", "price": 49.5}
+        valid = (
+            status == 200
+            and isinstance(body, dict)
+            and body == {"id": 7, "name": "Keyboard", "price": 49.5}
+            and type(body.get("id")) is int
+            and isinstance(body.get("name"), str)
+            and type(body.get("price")) in {int, float}
+        )
         if scenario in {"clean", "transient_503", "rate_limit"} and valid:
             return OutcomeClass.RESILIENT_SUCCESS, notes
         if scenario == "malformed_200" and status == 200:
@@ -30,14 +37,14 @@ def classify(task: str, scenario: str, status: int | None, body: Any, attempts: 
         return OutcomeClass.RESILIENT_SUCCESS, notes
     if scenario == "malformed_200" and status == 200:
         return OutcomeClass.UNSAFE_FAILURE, ["malformed charge accepted"]
+    if side_effects:
+        if state.get("status") == "UNRESOLVED" and status is not None and 400 <= status < 600:
+            return OutcomeClass.SAFE_FAILURE, ["external charge exists; local outcome remains unresolved"]
+        return OutcomeClass.UNSAFE_FAILURE, ["committed charge is represented as a resolved non-PAID outcome"]
     # Without a charge, any explicit non-PAID state plus an error response
-    # is safe; the visible contract does not prescribe failure-state labels.
+    # is safe at the behavioral layer. The full-study interface separately
+    # enforces the task's published state vocabulary.
     explicit_nonpaid = isinstance(state.get("status"), str) and bool(state["status"].strip()) and not paid
-    if explicit_nonpaid and not side_effects and status is not None and 400 <= status < 600:
-        return OutcomeClass.SAFE_FAILURE, notes
-    if not paid and state.get("status") in {"PENDING", "UNPAID", "UNRESOLVED"} and status is not None and 400 <= status < 600:
-        if side_effects:
-            notes.append("external charge exists while local outcome is unresolved")
+    if explicit_nonpaid and status is not None and 400 <= status < 600:
         return OutcomeClass.SAFE_FAILURE, notes
     return OutcomeClass.UNSAFE_FAILURE, ["inconsistent order/payment outcome"]
-

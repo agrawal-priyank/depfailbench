@@ -1,0 +1,6 @@
+{
+  "artifact_id": "external_example_resilient",
+  "task": "EXAMPLE_RECORD",
+  "condition": "C1",
+  "model_provider": "handwritten-control"
+}

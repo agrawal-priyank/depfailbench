@@ -45,6 +45,8 @@ async def test_repeated_runs_are_deterministic_except_wall_latency():
     for row in rows:
         data = row.to_dict()
         data.pop("latency_s")
+        data.pop("wall_latency_s")
+        data.pop("effective_latency_s")
         key = (row.task, row.fixture, row.scenario)
         signatures.setdefault(key, set()).add(json.dumps(data, sort_keys=True))
     assert all(len(values) == 1 for values in signatures.values())

@@ -1,3 +1,5 @@
+import hashlib
+
 import pytest
 from benchmark.full_tasks import create_reference,SCENARIOS,SAFE,Dependency,classify,CONTENT,KEY
 from benchmark.full_eval import probe_new
@@ -25,6 +27,44 @@ async def test_pagination_retries_are_per_page():
     row=await probe_new('T2','transient_503',lambda t,s:create_reference('T2',True,t,s))
     assert len(row['attempts'])==5
     assert row['outcome_class']=='resilient_success'
+
+
+async def test_catalog_float_ids_do_not_satisfy_integer_schema():
+    import httpx
+
+    dependency = Dependency('T2', 'clean')
+    async with httpx.AsyncClient(
+        transport=dependency,
+        base_url='http://dep',
+        timeout=0.25,
+    ) as client:
+        for cursor in ('0', '1', '2'):
+            await client.get('/pages', params={'cursor': cursor})
+    body = {'items': [{'id': float(i), 'name': f'Item {i}'} for i in range(1, 7)]}
+    assert classify('T2', 'clean', 200, body, None, False, dependency) == 'unsafe_failure'
+
+
+async def test_upload_cannot_fabricate_receipt_after_lost_response():
+    import httpx
+
+    dependency = Dependency('T5', 'committed_response_lost')
+    async with httpx.AsyncClient(
+        transport=dependency,
+        base_url='http://dep',
+        timeout=0.25,
+    ) as client:
+        with pytest.raises(httpx.ReadTimeout):
+            await client.put('/objects/' + KEY, content=CONTENT)
+    fabricated = {'key': KEY, 'sha256': hashlib.sha256(CONTENT).hexdigest()}
+    assert classify(
+        'T5',
+        'committed_response_lost',
+        200,
+        fabricated,
+        None,
+        False,
+        dependency,
+    ) == 'unsafe_failure'
 
 @pytest.mark.parametrize('task',['T1','T2','T4','T5'])
 async def test_full_evaluator_accepts_resilient_reference(task,tmp_path):

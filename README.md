@@ -6,7 +6,7 @@ DepFailBench is authored and maintained by [Priyank Agrawal](https://orcid.org/0
 
 ## Completed study
 
-The full study contains four fixed tasks: T1 Product Proxy, T2 Paginated Catalog, T4 Order Payment, and T5 Object Upload. Two model configurations and two specification conditions, with 20 generations per cell, produced 320 unchanged programs. Each saved program has three corrected evaluations. The earlier two-task, 16-program pilot is separate and excluded from those results.
+The full study contains four fixed tasks: T1 Product Proxy, T2 Paginated Catalog, T4 Order Payment, and T5 Object Upload. Two model configurations and two specification conditions, with 20 generations per cell, produced 320 unchanged programs. Each saved program has three oracle-hardened evaluations with zero categorical disagreements. The earlier two-task, 16-program pilot is separate and excluded from those results.
 
 C0 is a baseline contract, not a uniform absence of operational guidance: catalog and upload baselines already include safeguards. C1 adds a bundled resilience specification. See [pre-generation protocol](docs/FULL_STUDY_PROTOCOL.md) and [release guide](docs/REPRODUCING_FULL_STUDY.md).
 
@@ -53,19 +53,20 @@ For all 320 saved programs and the statistical analysis, follow the [reproductio
 - `src/benchmark/full_eval.py`: full-study artifact loading and scenario evaluation.
 - `src/benchmark/full_batch_eval.py`: fresh-process batch execution with hard time limits.
 - `src/benchmark/full_analysis.py`: fixed-task analysis of saved evaluation records.
+- `src/benchmark/task_api.py`, `task_registry.py`, and `adapter_eval.py`: versioned extension interface, explicit manifest loading, and task-agnostic evaluation.
 - `full_study/`: frozen full-study prompts, scaffolds, and their manifest.
 - `tests/`: reference, regression, and evaluator checks.
 
-The current runner is task-specific. Adding a new task requires code and tests; it is not a general plugin API. See the [extension example](docs/EXTENSION_EXAMPLE.md).
+The historical T1/T2/T4/T5 evaluator remains fixed so the published 320-program study can be replayed exactly. New tasks can use the versioned manifest-backed adapter interface without registering task IDs in core code. A task author still supplies the semantic oracle, scenarios, dependency request contract, and observable state; these cannot be inferred safely from HTTP status alone. See the runnable [task-adapter guide](docs/ADDING_TASKS.md).
 
 ## Scope and interpretation
 
 The four tasks use short, isolated requests and emulated dependency faults. They exclude concurrency, long-lived state, real distributed transactions, cascades, and calibrated network latency. Retry-After is zero in the rate-limit fixtures. Safe failure is distinct from successful recovery; only specified fault scenarios allow it to count as a pass.
 
-The corrected loader registers generated modules before execution, supporting valid dataclasses and forward references. Original evaluations and the changed outcomes for five affected programs remain in the data archive. No generated source was repaired. See [release notes](CHANGELOG.md).
+The evaluator registers a fresh generated module for every probe, validates exact request/response/state contracts, combines application and simulated dependency time, and separately checks finite timeout behavior against a hanging dependency. A machine-readable ledger identifies 53 programs that move from submitted primary pass to hardened failure. No generated source was repaired. See [release notes](CHANGELOG.md).
 
 ## Citation, documentation, and licenses
 
-Please cite DepFailBench using [CITATION.cff](CITATION.cff). The tagged software source is the [v1.0.2 GitHub release](https://github.com/agrawal-priyank/depfailbench/releases/tag/v1.0.2), and the full-study data archive is identified by [doi:10.5281/zenodo.22699095](https://doi.org/10.5281/zenodo.22699095).
+Please cite DepFailBench using [CITATION.cff](CITATION.cff). Version 1.1.0 is the Array-revision source release; its matched data archive contains the hardened replays and external case-study records. Version 1.0.2 and [doi:10.5281/zenodo.22699095](https://doi.org/10.5281/zenodo.22699095) preserve the earlier SoftwareX submission state.
 
-[User guide](docs/USER_GUIDE.md), [result schema](docs/RESULT_SCHEMA.md), [pilot methodology](docs/METHODOLOGY.md), [contribution rules](CONTRIBUTING.md). Software source code is licensed under the MIT License in the canonical `LICENSE` file. SoftwareX Version 6 also requires the exact repository filename `Licence.txt`, so that file is an identical copy of `LICENSE`. Study data is licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0), as specified in [DATA_LICENSE.md](DATA_LICENSE.md). The original pilot README is retained as historical documentation in `docs/PILOT_README.md`; its commands and sample size describe only the pilot.
+[User guide](docs/USER_GUIDE.md), [result schema](docs/RESULT_SCHEMA.md), [task-adapter guide](docs/ADDING_TASKS.md), [pilot methodology](docs/METHODOLOGY.md), [contribution rules](CONTRIBUTING.md). Software source code is licensed under the MIT License in the sole canonical `LICENSE` file. Study data is licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0), as specified in [DATA_LICENSE.md](DATA_LICENSE.md).

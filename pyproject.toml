@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "depfailbench"
-version = "1.0.2"
+version = "1.1.0"
 description = "Deterministic fault-injection benchmark for LLM-generated backend services"
 authors = [{ name = "Priyank Agrawal", email = "agrawalpriyank@icloud.com" }]
 readme = "README.md"
@@ -26,7 +26,7 @@ dependencies = [
 
 [project.urls]
 Repository = "https://github.com/agrawal-priyank/depfailbench"
-Documentation = "https://github.com/agrawal-priyank/depfailbench/tree/v1.0.2/docs"
+Documentation = "https://github.com/agrawal-priyank/depfailbench/tree/v1.1.0/docs"
 Issues = "https://github.com/agrawal-priyank/depfailbench/issues"
 
 [project.optional-dependencies]
@@ -47,7 +47,7 @@ where = ["src"]
 include = ["benchmark*"]
 
 [tool.setuptools.data-files]
-"share/depfailbench" = ["ARTIFACT_CONTRACT.md", "generation_plan.json", "protocol.json", "requirements.lock", "full_study_design.json", "full_study_schedule.csv", "README.md", "CITATION.cff", "Licence.txt", "DATA_LICENSE.md", "CHANGELOG.md"]
+"share/depfailbench" = ["ARTIFACT_CONTRACT.md", "generation_plan.json", "protocol.json", "requirements.lock", "full_study_design.json", "full_study_schedule.csv", "README.md", "CITATION.cff", "LICENSE", "DATA_LICENSE.md", "CHANGELOG.md"]
 "share/depfailbench/prompts" = [
   "prompts/shared_rules.md",
   "prompts/T1_C0.md",
@@ -64,3 +64,8 @@ include = ["benchmark*"]
 "share/depfailbench/full_study/scaffolds/T5" = ["full_study/scaffolds/T5/app.py"]
 "share/depfailbench/docs" = ["docs/*.md"]
 "share/depfailbench/examples" = ["examples/*.py"]
+"share/depfailbench/examples/external_task" = ["examples/external_task/*.py", "examples/external_task/*.json"]
+"share/depfailbench/examples/external_task/prompts" = ["examples/external_task/prompts/*.md"]
+"share/depfailbench/examples/external_task/scaffold" = ["examples/external_task/scaffold/*.py"]
+"share/depfailbench/examples/external_task/artifact" = ["examples/external_task/artifact/*.py", "examples/external_task/artifact/*.json"]
+"share/depfailbench/external_cases" = ["external_cases/*.py", "external_cases/*.json", "external_cases/*.txt", "external_cases/*.sha256"]

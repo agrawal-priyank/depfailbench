@@ -1,5 +1,15 @@
 # Release notes
 
+## 1.1.0 - 2026-09-14
+
+- Harden task oracles against unsupported success, wrong downstream requests, schema type confusion, ambiguous payment state, state leakage, excessive attempts, and deadline evasion.
+- Add a hanging-dependency guard that distinguishes configured or application-enforced timeouts from the evaluator's outer watchdog and charges cumulative timeout budgets to the request deadline.
+- Replay all 320 saved programs three times with zero categorical or timeout-guard disagreements and publish a 53-program submitted-to-hardened change ledger.
+- Add externally sourced Stripe 15.6.1 and Seam 3.12.0 contract cases: 18 cases and 54 repeat-stable formal records.
+- Add the versioned manifest-backed task-adapter interface, an out-of-tree runnable task, and generation/batch-evaluation support.
+- Add a validated post-hoc failure-strategy taxonomy, task-composition and generation-order sensitivity analyses, and revised figures.
+- Keep `LICENSE` as the sole software-license file and `DATA_LICENSE.md` as the separate research-data license.
+
 ## 1.0.2 - 2026-09-10
 
 - Keep one canonical `LICENSE` plus the exact `Licence.txt` filename required by the SoftwareX template; remove the redundant `LICENSE.txt` alias.

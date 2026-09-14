@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "task_api_version": 1,
+  "tasks": [
+    {
+      "id": "EXAMPLE_RECORD",
+      "adapter": "example_task:TASK",
+      "prompts": {
+        "C0": "prompts/C0.md",
+        "C1": "prompts/C1.md"
+      },
+      "scaffold": "scaffold/app.py"
+    }
+  ]
+}

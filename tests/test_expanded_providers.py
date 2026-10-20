@@ -112,6 +112,27 @@ def test_sse_unicode_crlf_comments_and_incomplete_frames():
         SSEDecoder().feed(b'data: {"x":1}', final=True)
 
 
+def test_openai_cache_writes_are_retained_and_conservatively_priced():
+    raw = fixture("OpenAI")
+    raw["usage"]["input_tokens_details"] = {"cached_tokens": 20, "cache_write_tokens": 60}
+    usage = normalise_usage("OpenAI", raw)
+    assert usage["complete"] and usage["input_tokens"] == 100
+    assert usage["cache_write_tokens"] == 60 and usage["cached_input_tokens"] == 20
+    # Input is inclusive; the budget estimate allows 2x for writes and ignores
+    # read discounts, conservatively covering the documented 1.25x write rate.
+    rates = TokenRates("2", "10", "https://developers.openai.com/api/docs/guides/prompt-caching", "2026-10-20")
+    assert rates.estimate(usage) == "0.00092"
+
+
+@pytest.mark.parametrize("written", [-1, True, "60", 81])
+def test_invalid_or_excess_openai_cache_writes_block_pricing(written):
+    raw = fixture("OpenAI")
+    raw["usage"]["input_tokens_details"] = {"cached_tokens": 20, "cache_write_tokens": written}
+    usage = normalise_usage("OpenAI", raw)
+    assert not usage["complete"]
+    assert RATES["gpt-6.1-sol"].estimate(usage) is None
+
+
 def test_unknown_or_inconsistent_usage_is_not_free_and_xai_shapes_do_not_double_bill():
     assert not normalise_usage("Google", {"usage": {"total_input_tokens": 1}})["complete"]
     assert not normalise_usage("OpenAI", {"usage": {"input_tokens": True, "output_tokens": 1, "total_tokens": 2}})["complete"]

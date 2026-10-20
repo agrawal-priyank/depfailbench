@@ -118,8 +118,11 @@ def normalise_usage(provider, raw):
                 out += reasoning  # Older xAI response shapes report visible completion separately.
             else:
                 raise ValueError("inconsistent input/output/total counters")
-            cached = (u.get("input_tokens_details") or u.get("prompt_tokens_details") or {}).get("cached_tokens", 0)
-            cache_write = 0
+            input_details = u.get("input_tokens_details") or u.get("prompt_tokens_details") or {}
+            cached = input_details.get("cached_tokens", 0)
+            # Responses includes OpenAI cache writes within input_tokens. Retain
+            # them so the conservative estimator covers the write surcharge.
+            cache_write = _count(input_details.get("cache_write_tokens", 0)) if provider == "OpenAI" else 0
             if any(u.get(k, 0) for k in ("num_sources_used", "num_server_side_tools_used")):
                 raise ValueError("unexpected server tool use; token-only pricing insufficient")
         elif provider == "Anthropic":

@@ -155,8 +155,10 @@ dispatch. Estimates use explicitly supplied dated rates and are not invoices.
 Reservations are operational allowances, not provider-enforced cost guarantees;
 Grok reasoning remains outside its visible-output cap. Interrupted/inflight
 attempts and existing artifact directories cannot be silently overwritten or
-regenerated. Recovery/reconciliation of such evidence remains a reviewed future
-live-run prerequisite.
+regenerated. The separate [20 October authenticated sender and recovery preparation](LIVE_EXECUTION_READINESS.md)
+supersedes the earlier recovery/reconciliation implementation-pending status.
+Actual account compatibility, spending authorization and the excluded paid
+validation batch remain open.
 
 Documentation checked 19 October 2026: [OpenAI reasoning](https://developers.openai.com/api/docs/guides/reasoning),
 [Claude Messages](https://platform.claude.com/docs/en/api/messages/create),

@@ -1,11 +1,15 @@
-"""Offline wire-level generation rehearsal; real network transports are rejected.
+"""Shared durable generation path and strictly offline wire-level rehearsal.
 
 This exercises the actual request, streaming, retry, recording and accounting
-path with HTTPX MockTransport. It never reads credentials. Live execution needs
-a separately reviewed sender and the outstanding API/platform/budget gates.
+path with HTTPX MockTransport. OfflineGenerator never reads credentials. The
+separate LiveGenerator requires reviewed permission and accounting gates.
 """
 
 import asyncio
+from contextlib import asynccontextmanager
+import os
+import tempfile
+import hashlib
 from dataclasses import asdict
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
@@ -20,14 +24,55 @@ from .planning import allocation, assets_root, check, prompt
 from .providers import TokenRates, build_request, canonical, parse_response, sha256
 from .provider_streams import ResponseAssembler, SSEDecoder
 from .spending import DispatchPaused
+from .dispatch_lock import slot_lock
+
+
+def save_bytes(path, value):
+    """Durable exclusive publication; incomplete temporary files are not evidence."""
+    path = Path(path)
+    descriptor, temporary = tempfile.mkstemp(prefix=".generation-", dir=path.parent)
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(value)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.link(temporary, path)
+        directory = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
 
 
 def save_json(path, value):
-    """Exclusive creation: preserve existing evidence rather than overwrite it."""
-    with Path(path).open("x", encoding="utf-8") as handle:
-        json.dump(value, handle, indent=2, sort_keys=True, ensure_ascii=False)
-        handle.write("\n")
-        handle.flush()
+    save_bytes(path, (json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode())
+
+
+def publish_output(target, *, slot, config, request, parsed, cost, simulation_only, generated_at, synthetic_data=None):
+    metadata = {**slot, "simulation_only": simulation_only,
+        "synthetic_data": simulation_only if synthetic_data is None else synthetic_data,
+        "generation_status": parsed["generation_status"], "provider_response_id": parsed["provider_response_id"],
+        "resolved_model_id": parsed["resolved_model_id"], "generation_settings": config["generation_settings"],
+        "output_limit_semantics": config["output_limit_semantics"], "request_sha256": request["request_sha256"],
+        "provider_usage": parsed["usage"], "estimated_token_cost_usd": cost,
+        "source_sha256": sha256(parsed["source"]) if parsed["source"] else None,
+        "finish_reason": parsed["finish_reason"], "unexpected_tool_use": parsed["unexpected_tool_use"],
+        "generated_at": generated_at}
+    files = {"response.txt": parsed["text"].encode()}
+    if parsed["source"]:
+        files["app.py"] = parsed["source"].encode()
+    # metadata.json is the completion marker, always published last.
+    files["metadata.json"] = (json.dumps(metadata, indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode()
+    for name, content in files.items():
+        path = Path(target) / name
+        if path.exists():
+            if path.read_bytes() != content:
+                raise DispatchPaused("recovery cannot overwrite different existing artifact evidence")
+        else:
+            save_bytes(path, content)
+    return metadata
 
 
 def retry_delay(number, retry_after=None, *, now=None):
@@ -48,10 +93,10 @@ def retry_delay(number, retry_after=None, *, now=None):
     return delay
 
 
-class OfflineGenerator:
+class _Generator:
+    simulation_only = True
+    synthetic_data = True
     def __init__(self, *, output, ledger, transport, rates, root=None, sleep=asyncio.sleep):
-        if type(transport) is not httpx.MockTransport:
-            raise ValueError("this draft accepts only HTTPX MockTransport; live calls disabled")
         self.root = assets_root(root)
         check(self.root)
         self.design = json.loads((self.root / "study.json").read_text())
@@ -66,14 +111,26 @@ class OfflineGenerator:
         self.semaphores = {p: asyncio.Semaphore(1 if p == "xAI" else 2)
                            for p in {c["provider"] for c in self.configs.values()}}
 
+    def authorize_slot(self, slot):
+        if self.ledger.simulation_only != self.simulation_only:
+            raise DispatchPaused("generator and spending ledger execution modes differ")
+
+    @asynccontextmanager
+    async def client(self):
+        async with httpx.AsyncClient(transport=self.transport, trust_env=False,
+            follow_redirects=False, timeout=httpx.Timeout(1800, connect=30)) as client:
+            yield client
+
     async def generate(self, slot, *, allowance_usd):
         if slot != self.slots.get(slot.get("artifact_id")):
             raise ValueError("slot is absent from or inconsistent with the declared allocation")
         provider = slot["provider"]
         async with self.semaphores[provider]:
-            return await self._generate(slot, allowance_usd)
+            with slot_lock(self.output, slot['artifact_id']):
+                return await self._generate(slot, allowance_usd)
 
     async def _generate(self, slot, allowance_usd):
+        self.authorize_slot(slot)
         if any(sha256((self.root / p).read_text()) != expected for p, expected in self.asset_manifest.items()) or \
                 sha256((self.root.parent / "requirements.lock").read_text()) != self.lock_sha256:
             raise DispatchPaused("study/scaffold/task manifest/environment changed after preparation")
@@ -91,40 +148,45 @@ class OfflineGenerator:
             raise DispatchPaused("saved artifact/attempt evidence already exists; inspect or recover it without overwriting")
         attempt = self.ledger.reserve(slot["artifact_id"], slot["provider"], fingerprint, allowance_usd)
         target.mkdir(parents=True)
-        (target / "prompt.txt").write_text(exact_prompt, encoding="utf-8")
+        save_bytes(target / "prompt.txt", exact_prompt.encode())
         save_json(target / "slot.json", slot)
         save_json(target / "configuration.json", config)
         save_json(target / "provenance.json", {
-            "simulation_only": True, "study_sha256": sha256((self.root / "study.json").read_text()),
+            "simulation_only": self.simulation_only, "synthetic_data": self.synthetic_data,
+            "study_sha256": sha256((self.root / "study.json").read_text()),
             "scaffold_sha256": sha256((self.root / "scaffold.py").read_text()),
             "task_manifest_sha256": sha256((self.root / "task_contracts.json").read_text()),
             "dependency_lock_sha256": self.lock_sha256,
-            "request_sha256": request["request_sha256"], "token_rates": asdict(rates)})
+            "request_sha256": request["request_sha256"], "token_rates": asdict(rates),
+            "dispatch_fingerprint": fingerprint})
         while True:
             directory = target / f"attempt_{attempt['number']:02d}"
             directory.mkdir()
             save_json(directory / "request.json", request)
             started_at = datetime.now(timezone.utc).isoformat()
             started_clock = monotonic()
+            save_json(directory / "started.json", {**attempt, "started_at": started_at,
+                "simulation_only": self.simulation_only, "dispatch_fingerprint": fingerprint})
+            self.authorize_slot(slot)
             assembler = ResponseAssembler(provider=config["provider"])
             decoder = SSEDecoder()
             status_code, retry_after, error_kind, safe_connect_failure = None, None, None, False
             raw_bytes = bytearray()
             with (directory / "wire_response.bin").open("xb") as wire, (directory / "events.jsonl").open("x") as event_log:
                 try:
-                    # MockTransport is mandatory. No API key or ambient proxy is used.
+                    # Offline requires mock transport; live dispatch is separately authorized.
                     async with asyncio.timeout(1800):
-                        async with httpx.AsyncClient(transport=self.transport, trust_env=False,
-                            follow_redirects=False, timeout=httpx.Timeout(1800, connect=30)) as client:
+                        async with self.client() as client:
                             async with client.stream("POST", request["url"], headers=request["headers"], json=request["body"]) as response:
                                 status_code = response.status_code
                                 retry_after = response.headers.get("retry-after")
                                 save_json(directory / "response_headers.json", {k: v for k, v in response.headers.items()
-                                    if k in {"content-type", "retry-after", "request-id", "x-request-id"}})
+                                    if k in {"content-type", "retry-after", "request-id", "x-request-id"}} | {"http_status": status_code})
                                 is_sse = response.headers.get("content-type", "").split(";")[0] == "text/event-stream"
                                 async for chunk in response.aiter_bytes():
                                     wire.write(chunk)
                                     wire.flush()
+                                    os.fsync(wire.fileno())
                                     raw_bytes.extend(chunk)
                                     if status_code == 200 and is_sse:
                                         for event in decoder.feed(chunk):
@@ -145,9 +207,14 @@ class OfflineGenerator:
                                                                           assembler.raw.get("steps") or assembler.raw.get("choices"))
                 except (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout) as exc:
                     error_kind, safe_connect_failure = type(exc).__name__, not assembler.accepted and not assembler.content_received
-                except (httpx.HTTPError, TimeoutError, ValueError, KeyError, TypeError) as exc:
+                except (httpx.HTTPError, TimeoutError, ValueError, KeyError, TypeError, DispatchPaused) as exc:
                     # Exception messages may include request data; preserve a safe class only.
                     error_kind = type(exc).__name__
+            finished_at = datetime.now(timezone.utc).isoformat()
+            save_json(directory / "wire_complete.json", {"finished_at": finished_at, "http_status": status_code,
+                "error_kind": error_kind, "safe_connect_failure": safe_connect_failure,
+                "wire_sha256": hashlib.sha256(bytes(raw_bytes)).hexdigest(),
+                "terminal_received": assembler.terminal, "accepted": assembler.accepted})
             raw = assembler.response()
             save_json(directory / "assembled_response.json", raw)
             try:
@@ -169,28 +236,20 @@ class OfflineGenerator:
             retryable = not consumed and not assembler.accepted and (
                 safe_connect_failure or status_code in {429, 500, 502, 503, 504, 529})
             outcome = parsed["generation_status"] if consumed else "service_unfilled"
-            save_json(directory / "attempt.json", {**attempt, "simulation_only": True,
-                "started_at": started_at, "elapsed_s": monotonic() - started_clock,
+            save_json(directory / "attempt.json", {**attempt, "simulation_only": self.simulation_only,
+                "started_at": started_at, "finished_at": finished_at, "elapsed_s": monotonic() - started_clock,
                 "connect_timeout_s": 30, "overall_generation_allowance_s": 1800,
                 "http_status": status_code, "error_kind": error_kind, "content_received": assembler.content_received,
                 "provider_response_id": parsed["provider_response_id"], "outcome": outcome,
-                "retryable": retryable, "usage": parsed["usage"], "estimated_token_cost_usd": cost,
+                "retryable": retryable, "accepted": assembler.accepted, "consumed": consumed,
+                "usage": parsed["usage"], "estimated_token_cost_usd": cost,
                 "billing_uncertain": cost is None})
+            if consumed:
+                metadata = publish_output(target, slot=slot, config=config, request=request, parsed=parsed,
+                    cost=cost, simulation_only=self.simulation_only, synthetic_data=self.synthetic_data, generated_at=finished_at)
             self.ledger.finish(attempt["id"], cost_usd=cost, outcome=outcome,
                                response_id=parsed["provider_response_id"], consume=consumed)
             if consumed:
-                metadata = {**slot, "simulation_only": True, "synthetic_data": True,
-                    "generation_status": parsed["generation_status"], "provider_response_id": parsed["provider_response_id"],
-                    "resolved_model_id": parsed["resolved_model_id"], "generation_settings": config["generation_settings"],
-                    "output_limit_semantics": config["output_limit_semantics"], "request_sha256": request["request_sha256"],
-                    "provider_usage": parsed["usage"], "estimated_token_cost_usd": cost,
-                    "source_sha256": sha256(parsed["source"]) if parsed["source"] else None,
-                    "finish_reason": parsed["finish_reason"], "unexpected_tool_use": parsed["unexpected_tool_use"],
-                    "generated_at": datetime.now(timezone.utc).isoformat()}
-                (target / "response.txt").write_text(parsed["text"], encoding="utf-8")
-                if parsed["source"]:
-                    (target / "app.py").write_text(parsed["source"], encoding="utf-8")
-                save_json(target / "metadata.json", metadata)
                 if not parsed["usage"]["complete"]:
                     self.ledger.pause(config["provider"], "output retained but billing usage requires reconciliation")
                 return metadata
@@ -208,3 +267,13 @@ class OfflineGenerator:
                 self.ledger.pause(config["provider"], str(exc))
                 save_json(target / "slot_state.json", {"state": "paused_unfilled", "reason": str(exc)})
                 raise
+
+
+class OfflineGenerator(_Generator):
+    """Wire rehearsal: credentials and real network transports remain rejected."""
+    def __init__(self, *, output, ledger, transport, rates, root=None, sleep=asyncio.sleep):
+        if type(transport) is not httpx.MockTransport:
+            raise ValueError("this draft accepts only HTTPX MockTransport; live calls disabled")
+        if not ledger.simulation_only:
+            raise ValueError("offline generator requires a simulation-only ledger")
+        super().__init__(output=output, ledger=ledger, transport=transport, rates=rates, root=root, sleep=sleep)

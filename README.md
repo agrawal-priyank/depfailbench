@@ -68,6 +68,11 @@ modify the historical release or authorize paid generations. See
 [expanded local preparation](docs/EXPANDED_STUDY_DRAFT.md) for its commands,
 validation evidence and remaining readiness gates.
 
+The separately gated authenticated sender, saved-response recovery and audited
+billing reconciliation are described in [live execution readiness](docs/LIVE_EXECUTION_READINESS.md).
+Mock permissions cannot open real network connections; no paid run is authorized
+by this working copy.
+
 ## Scope and interpretation of the historical study
 
 The four tasks use short, isolated requests and emulated dependency faults. They exclude concurrency, long-lived state, real distributed transactions, cascades, and calibrated network latency. Retry-After is zero in the rate-limit fixtures. Safe failure is distinct from successful recovery; only specified fault scenarios allow it to count as a pass.

@@ -8,6 +8,19 @@ import hashlib
 from .contracts import TASKS, SAFE_UNAVAILABLE, catalog_items, events, public_requests
 
 
+ERROR_STATUS_POLICY_VERSION = "written-contract-2026-10-20"
+DEPENDENCY_ERROR_CODES = frozenset({502, 503, 504})
+# These exact codes occur in the task text given identically to C0 and C1.
+EXPLICIT_FAULT_CODES = {
+    ("E2", "malformed_200"): 502,
+    ("E2", "conflicting_quote"): 502,
+    ("E3", "cursor_cycle"): 502,
+    ("E3", "conflicting_duplicate"): 502,
+    ("E4", "conflicting_duplicate"): 502,
+    ("E8", "malformed_200"): 502,
+}
+
+
 def matches(actual, expected):
     """Typed subset matching; bool and float are not integer IDs or quantities."""
     if isinstance(expected, dict):
@@ -26,12 +39,14 @@ def expected_status(task_id, scenario, settings, public_index):
         return {404}
     if scenario == "insufficient_stock" or (scenario == "conflicting_identity" and public_index == 1):
         return {409}
+    if (task_id, scenario) in EXPLICIT_FAULT_CODES:
+        return {EXPLICIT_FAULT_CODES[task_id, scenario]}
     if scenario in SAFE_UNAVAILABLE:
-        return {503}
+        return {503} if task_id == "E8" else set(DEPENDENCY_ERROR_CODES)
     if scenario in {"malformed_200", "wrong_identity", "cursor_cycle", "conflicting_duplicate", "conflicting_quote"}:
-        return {502, 503} if TASKS[task_id].pattern == "action" else {502}
+        return set(DEPENDENCY_ERROR_CODES)
     if scenario == "cumulative_budget" and settings.deadline_s < 6 * settings.timeout_s * .8 + .03:
-        return {503}
+        return set(DEPENDENCY_ERROR_CODES)
     return {200}
 
 
@@ -123,6 +138,10 @@ def classify(task_id, scenario, settings, evidence):
             notes.append("committed but unconfirmed action must be UNRESOLVED")
         elif not effects and label_state in ("PAID", "RESERVED"):
             notes.append("application claims success without external effect")
+        if (task_id == "E6" and scenario == "committed_response_lost" and effects
+                and responses and responses[0].get("status") != 200):
+            if responses[0].get("status") != 503:
+                notes.append("unconfirmed committed reservation requires HTTP 503")
         if task_id == "E6":
             expected_stock = {"widget": 10, "gadget": 8}
             for effect in effects:

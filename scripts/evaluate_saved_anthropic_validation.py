@@ -1,8 +1,8 @@
 """Evaluate the immutable, excluded 16-program Anthropic validation batch.
 
 This wrapper has no provider/generation imports, API requests or credentials.
-The original study assets are unchanged. One explicitly hashed oracle correction
-accepts the status representations permitted by the unchanged action-task text.
+The original study assets are unchanged. Explicitly hashed oracle corrections
+align internal-state representation and public error codes with the task text.
 """
 
 from __future__ import annotations
@@ -25,8 +25,9 @@ SOURCE_ARTIFACT_ID = 12281573442
 MEASUREMENT_AMENDMENT = {
     "file": "implementation/oracles.py",
     "original_sha256": "ea77ea68423b9f8fce7e0ddd5908f8b24f5200603ccaabaa473803f41f325701",
-    "evaluation_sha256": "a3c24b3140cbd0a2aa89de20fe05bb585c6bb219b35f6cb821a2fea2c344d064",
-    "reason": "Accept keyed status strings or status records as permitted by E5/E6; retain public receipt, external effect and truthful-state checks. Do not impose an undocumented requirement that receipts be duplicated inside status records.",
+    "preceding_evaluation_sha256": "a3c24b3140cbd0a2aa89de20fe05bb585c6bb219b35f6cb821a2fea2c344d064",
+    "evaluation_sha256": "a440b3a65965ac9c9c12bc1113d92a2255d8925368b7935a5094283992d80739",
+    "reason": "Accept task-permitted status representations and, following the author's 20 October decision, 502/503/504 where no exact dependency-error code was specified. Preserve explicit task codes and every recovery, timing, receipt, state and side-effect check.",
     "applies_uniformly_to_all_providers_conditions_deadlines": True,
     "generation_inputs_changed": False,
 }

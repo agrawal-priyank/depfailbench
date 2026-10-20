@@ -349,8 +349,8 @@
   "per_attempt_allowance_usd": "1",
   "previous_archive_sha256": "3390e30dec40a3e225f6e5054351c9b102e049dbabb940f5f9d2863503af8d9a",
   "driver_sha256": "d2d242602bfea84d0a2503279c75a8d925c63b4c778935f3699b4f05ec861052",
-  "budget_amendment_author_approved": false,
+  "budget_amendment_author_approved": true,
   "authorized_by": "Priyank Agrawal",
-  "authorization_record": "PROPOSED; specific approval of the$12 total validation ceiling and$1 request allowance is pending.",
+  "authorization_record": "Priyank Agrawal explicitly approved on2026-10-20: yes run it. Scope: only15 unfilled excluded Grok validation responses; total$12 including retained$0.526958 estimate; $1 request review allowance; model settings unchanged; no main-study authorization.",
   "authorization_valid_until_utc": "2026-10-22T23:59:00+00:00"
 }

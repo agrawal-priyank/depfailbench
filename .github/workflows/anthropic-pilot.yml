@@ -1,10 +1,10 @@
-name: Historical Anthropic pilot generation (paid)
+name: Expanded Anthropic validation (paid, maximum $6)
 
 on:
   workflow_dispatch:
     inputs:
       confirm_paid_generation:
-        description: Create new, non-identical outputs and incur provider charges
+        description: Generate only the 16 excluded Sonnet 5.5 validation programs, within the reviewed $6 limit
         required: true
         default: false
         type: boolean
@@ -13,93 +13,159 @@ permissions:
   contents: read
 
 concurrency:
-  group: depfailbench-anthropic-pilot
+  group: depfailbench-expanded-anthropic-validation
   cancel-in-progress: false
 
 jobs:
-  generate-and-evaluate:
-    if: ${{ inputs.confirm_paid_generation }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+  validation:
+    if: ${{ inputs.confirm_paid_generation && github.run_attempt == '1' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 350
     env:
       PYTHONUNBUFFERED: "1"
-      ANTHROPIC_WORKSPACE_ID: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
-
     steps:
-      - name: Check out the benchmark
-        uses: actions/checkout@v4
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
         with:
-          python-version: "3.12"
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.14"
           cache: pip
-
-      - name: Install the locked environment
+      - name: Install the exact reviewed dependencies
         run: |
-          python -m pip install --requirement requirements.lock
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
           python -m pip install --no-deps --editable .
-
-      - name: Confirm the repository baseline
+      - name: Verify batch guards and rehearse all sixteen slots without credentials
         run: |
-          pytest -q
-          depfailbench validate-references --repetitions 3
-
-      - name: Confirm the encrypted key is configured
+          python -m pytest -q tests/test_expanded_anthropic_batch.py --junitxml=results/expanded/anthropic_batch_tests.junit.xml
+          python scripts/expanded_anthropic_validation.py mock-rehearsal --state results/expanded/anthropic_batch_mock
+      - name: Prepare the scoped validation permission and spending ledger
+        env:
+          CONFIRM_PAID_GENERATION: "true"
+        run: python scripts/expanded_anthropic_validation.py prepare --state results/expanded/anthropic_api_validation --maximum-cost-usd 6
+      - name: Preserve the complete plan before any authenticated provider request
+        uses: actions/upload-artifact@v4
+        with:
+          name: anthropic-validation-${{ github.run_id }}-prepared
+          path: results/expanded/anthropic_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Check model metadata without generating a response
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          if [ -z "$ANTHROPIC_API_KEY" ]; then
-            echo "::error::Add the ANTHROPIC_API_KEY repository secret before running this workflow."
-            exit 1
-          fi
-
-      - name: Verify the frozen model is available
+        run: python scripts/expanded_anthropic_validation.py access --state results/expanded/anthropic_api_validation
+      - name: Generate validation pair 0
+        id: pair0
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          python - <<'PYMODEL'
-          import json, os, urllib.request, urllib.error
-          plan = json.load(open("generation_plan.json"))
-          model = plan["models"]["anthropic_opus5"]["model_id"]
-          request = urllib.request.Request(
-              "https://api.anthropic.com/v1/models/" + model,
-              headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01",
-                       "anthropic-workspace-id": os.environ["ANTHROPIC_WORKSPACE_ID"]})
-          try:
-              with urllib.request.urlopen(request, timeout=30) as response:
-                  data = json.load(response)
-          except urllib.error.HTTPError as exc:
-              detail = exc.read().decode(errors="replace").replace(os.environ["ANTHROPIC_API_KEY"], "[REDACTED]")
-              print("Model preflight failed:", exc.code, detail[:2000])
-              raise SystemExit(1)
-          print("Verified model:", data["id"])
-          PYMODEL
-
-      - name: Generate the eight frozen Anthropic artifacts
+        run: python scripts/expanded_anthropic_validation.py pair --state results/expanded/anthropic_api_validation --index 0
+      - name: Preserve response journals and spending after pair 0
+        if: ${{ always() && steps.pair0.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: anthropic-validation-${{ github.run_id }}-pair-0
+          path: results/expanded/anthropic_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate validation pair 1
+        id: pair1
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          depfailbench generate --execute \
-            --slot T1_C0_anthropic_opus5_g1 \
-            --slot T1_C0_anthropic_opus5_g2 \
-            --slot T1_C1_anthropic_opus5_g1 \
-            --slot T1_C1_anthropic_opus5_g2 \
-            --slot T4_C0_anthropic_opus5_g1 \
-            --slot T4_C0_anthropic_opus5_g2 \
-            --slot T4_C1_anthropic_opus5_g1 \
-            --slot T4_C1_anthropic_opus5_g2
-
-      - name: Evaluate the available pilot artifacts
-        run: depfailbench pilot --allow-incomplete
-
-      - name: Upload generated artifacts and measurements
+        run: python scripts/expanded_anthropic_validation.py pair --state results/expanded/anthropic_api_validation --index 1
+      - name: Preserve response journals and spending after pair 1
+        if: ${{ always() && steps.pair1.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: anthropic-validation-${{ github.run_id }}-pair-1
+          path: results/expanded/anthropic_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate validation pair 2
+        id: pair2
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/expanded_anthropic_validation.py pair --state results/expanded/anthropic_api_validation --index 2
+      - name: Preserve response journals and spending after pair 2
+        if: ${{ always() && steps.pair2.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: anthropic-validation-${{ github.run_id }}-pair-2
+          path: results/expanded/anthropic_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate validation pair 3
+        id: pair3
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/expanded_anthropic_validation.py pair --state results/expanded/anthropic_api_validation --index 3
+      - name: Preserve response journals and spending after pair 3
+        if: ${{ always() && steps.pair3.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: anthropic-validation-${{ github.run_id }}-pair-3
+          path: results/expanded/anthropic_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate validation pair 4
+        id: pair4
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/expanded_anthropic_validation.py pair --state results/expanded/anthropic_api_validation --index 4
+      - name: Preserve response journals and spending after pair 4
+        if: ${{ always() && steps.pair4.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: anthropic-validation-${{ github.run_id }}-pair-4
+          path: results/expanded/anthropic_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate validation pair 5
+        id: pair5
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/expanded_anthropic_validation.py pair --state results/expanded/anthropic_api_validation --index 5
+      - name: Preserve response journals and spending after pair 5
+        if: ${{ always() && steps.pair5.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: anthropic-validation-${{ github.run_id }}-pair-5
+          path: results/expanded/anthropic_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate validation pair 6
+        id: pair6
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/expanded_anthropic_validation.py pair --state results/expanded/anthropic_api_validation --index 6
+      - name: Preserve response journals and spending after pair 6
+        if: ${{ always() && steps.pair6.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: anthropic-validation-${{ github.run_id }}-pair-6
+          path: results/expanded/anthropic_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate validation pair 7
+        id: pair7
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/expanded_anthropic_validation.py pair --state results/expanded/anthropic_api_validation --index 7
+      - name: Preserve response journals and spending after pair 7
+        if: ${{ always() && steps.pair7.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: anthropic-validation-${{ github.run_id }}-pair-7
+          path: results/expanded/anthropic_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Verify every declared output and write the validation-only usage summary
+        run: python scripts/expanded_anthropic_validation.py summarize --state results/expanded/anthropic_api_validation
+      - name: Preserve final evidence even after an account or generation failure
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: depfailbench-anthropic-pilot-${{ github.run_number }}
-          path: |
-            artifacts/
-            results/
-          if-no-files-found: warn
-          retention-days: 30
+          name: anthropic-validation-${{ github.run_id }}-final
+          path: results/expanded/
+          if-no-files-found: error
+          retention-days: 90

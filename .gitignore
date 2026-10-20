@@ -13,3 +13,4 @@ outputs/
 dist/
 build/
 .env
+expanded_study/plan_preview/

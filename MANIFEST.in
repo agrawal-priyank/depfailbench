@@ -18,3 +18,5 @@ recursive-include prompts *.md
 recursive-include scaffolds *.py
 recursive-include docs *.md
 recursive-include .github *.yml
+recursive-include expanded_study *.md *.json *.py *.txt
+prune expanded_study/plan_preview

@@ -1,0 +1,2 @@
+# Analysis only; does not alter the pinned generated-program runtime contract.
+numpy==2.3.5

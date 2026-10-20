@@ -1,0 +1,74 @@
+name: Expanded study checks (no model API calls)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [array-revision-linux-validation]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: depfailbench-expanded-local-validation
+  cancel-in-progress: false
+
+jobs:
+  local-validation:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.14"
+          cache: pip
+      - name: Install exact runtime and analysis dependencies
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Run tests and inspect the unexecuted allocation
+        run: |
+          python -m pytest -q --junitxml=results/expanded/linux_tests.junit.xml
+          python -m benchmark.expanded preflight --output results/expanded/plan_preview
+      - name: Record the Linux runtime and measured implementation
+        run: |
+          python - <<'PY'
+          import json, os, platform, sys
+          from pathlib import Path
+          from benchmark.expanded.collect import environment, implementation_manifest
+          assert sys.platform == "linux" and platform.machine() == "x86_64"
+          report = {"environment": environment(), "implementation": implementation_manifest(),
+                    "github_commit": os.environ["GITHUB_SHA"], "github_run_id": os.environ["GITHUB_RUN_ID"],
+                    "model_api_calls": 0, "validation_kind": "reference_and_synthetic_only"}
+          Path("results/expanded/linux_platform.json").write_text(json.dumps(report, indent=2) + "\n")
+          PY
+      - name: Collect saved reference and negative controls at every deadline and repeat
+        run: |
+          python -m benchmark.expanded.collection_dry_run --mode reference-controls \
+            --output results/expanded/collection_controls
+          python -m benchmark.expanded.report_collection \
+            results/expanded/collection_controls/collection \
+            --output results/expanded/collection_control_exports
+      - name: Rehearse full three-deadline reporting with synthetic records
+        run: |
+          python -m benchmark.expanded.collection_dry_run --mode synthetic-reporting \
+            --output results/expanded/collection_synthetic_reporting
+      - name: Exercise reporting with explicitly synthetic records
+        run: |
+          python expanded_study/analysis.py --synthetic-demo \
+            --output results/expanded/synthetic_analysis/summary.json
+      - name: Rehearse provider requests with synthetic HTTP responses only
+        run: |
+          python -m benchmark.expanded.provider_dry_run \
+            --output results/expanded/provider_rehearsal
+      - name: Preserve validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: expanded-local-validation-${{ github.run_number }}
+          path: results/expanded/
+          if-no-files-found: error
+          retention-days: 90

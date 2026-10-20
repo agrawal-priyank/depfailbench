@@ -1,0 +1,554 @@
+{
+  "schema_version": 1,
+  "namespace": "benchmark.expanded",
+  "status": "draft local validation; no API generations",
+  "tasks": [
+    {
+      "id": "E1",
+      "name": "Product proxy",
+      "historical_id": "T1",
+      "pattern": "read",
+      "method": "GET",
+      "path": "/products/7",
+      "body": null,
+      "contract": "tasks/E1.md",
+      "condition_prompts": {
+        "C0": "prompts/E1_C0.md",
+        "C1": "prompts/E1_C1.md"
+      },
+      "scenarios": [
+        {
+          "id": "clean",
+          "phase": "functional"
+        },
+        {
+          "id": "alternate_clean",
+          "phase": "functional"
+        },
+        {
+          "id": "transient_503",
+          "phase": "fault"
+        },
+        {
+          "id": "persistent_503",
+          "phase": "fault"
+        },
+        {
+          "id": "timeout_before_commit",
+          "phase": "fault"
+        },
+        {
+          "id": "hanging_dependency",
+          "phase": "fault"
+        },
+        {
+          "id": "rate_limit",
+          "phase": "fault"
+        },
+        {
+          "id": "retry_after_exceeds_deadline",
+          "phase": "fault"
+        },
+        {
+          "id": "malformed_200",
+          "phase": "fault"
+        },
+        {
+          "id": "not_found",
+          "phase": "functional"
+        },
+        {
+          "id": "wrong_identity",
+          "phase": "fault"
+        }
+      ],
+      "checks_equal_across_conditions": true
+    },
+    {
+      "id": "E2",
+      "name": "Shipping-quote selection",
+      "historical_id": null,
+      "pattern": "read",
+      "method": "POST",
+      "path": "/shipping/quote",
+      "body": {
+        "destination": "Boston",
+        "weight_g": 500
+      },
+      "contract": "tasks/E2.md",
+      "condition_prompts": {
+        "C0": "prompts/E2_C0.md",
+        "C1": "prompts/E2_C1.md"
+      },
+      "scenarios": [
+        {
+          "id": "clean",
+          "phase": "functional"
+        },
+        {
+          "id": "alternate_clean",
+          "phase": "functional"
+        },
+        {
+          "id": "transient_503",
+          "phase": "fault"
+        },
+        {
+          "id": "persistent_503",
+          "phase": "fault"
+        },
+        {
+          "id": "timeout_before_commit",
+          "phase": "fault"
+        },
+        {
+          "id": "hanging_dependency",
+          "phase": "fault"
+        },
+        {
+          "id": "rate_limit",
+          "phase": "fault"
+        },
+        {
+          "id": "retry_after_exceeds_deadline",
+          "phase": "fault"
+        },
+        {
+          "id": "malformed_200",
+          "phase": "fault"
+        },
+        {
+          "id": "quote_tie",
+          "phase": "functional"
+        },
+        {
+          "id": "no_valid_quotes",
+          "phase": "functional"
+        },
+        {
+          "id": "invalid_input",
+          "phase": "functional"
+        },
+        {
+          "id": "conflicting_quote",
+          "phase": "fault"
+        }
+      ],
+      "checks_equal_across_conditions": true
+    },
+    {
+      "id": "E3",
+      "name": "Paginated catalog",
+      "historical_id": "T2",
+      "pattern": "pages",
+      "method": "GET",
+      "path": "/catalog",
+      "body": null,
+      "contract": "tasks/E3.md",
+      "condition_prompts": {
+        "C0": "prompts/E3_C0.md",
+        "C1": "prompts/E3_C1.md"
+      },
+      "scenarios": [
+        {
+          "id": "clean",
+          "phase": "functional"
+        },
+        {
+          "id": "alternate_clean",
+          "phase": "functional"
+        },
+        {
+          "id": "transient_503",
+          "phase": "fault"
+        },
+        {
+          "id": "persistent_503",
+          "phase": "fault"
+        },
+        {
+          "id": "timeout_before_commit",
+          "phase": "fault"
+        },
+        {
+          "id": "hanging_dependency",
+          "phase": "fault"
+        },
+        {
+          "id": "rate_limit",
+          "phase": "fault"
+        },
+        {
+          "id": "retry_after_exceeds_deadline",
+          "phase": "fault"
+        },
+        {
+          "id": "malformed_200",
+          "phase": "fault"
+        },
+        {
+          "id": "cursor_cycle",
+          "phase": "fault"
+        },
+        {
+          "id": "conflicting_duplicate",
+          "phase": "fault"
+        },
+        {
+          "id": "identical_overlap",
+          "phase": "functional"
+        },
+        {
+          "id": "cumulative_budget",
+          "phase": "fault"
+        }
+      ],
+      "checks_equal_across_conditions": true
+    },
+    {
+      "id": "E4",
+      "name": "Paginated activity summary",
+      "historical_id": null,
+      "pattern": "pages",
+      "method": "GET",
+      "path": "/activity/failed-logins",
+      "body": null,
+      "contract": "tasks/E4.md",
+      "condition_prompts": {
+        "C0": "prompts/E4_C0.md",
+        "C1": "prompts/E4_C1.md"
+      },
+      "scenarios": [
+        {
+          "id": "clean",
+          "phase": "functional"
+        },
+        {
+          "id": "alternate_clean",
+          "phase": "functional"
+        },
+        {
+          "id": "transient_503",
+          "phase": "fault"
+        },
+        {
+          "id": "persistent_503",
+          "phase": "fault"
+        },
+        {
+          "id": "timeout_before_commit",
+          "phase": "fault"
+        },
+        {
+          "id": "hanging_dependency",
+          "phase": "fault"
+        },
+        {
+          "id": "rate_limit",
+          "phase": "fault"
+        },
+        {
+          "id": "retry_after_exceeds_deadline",
+          "phase": "fault"
+        },
+        {
+          "id": "malformed_200",
+          "phase": "fault"
+        },
+        {
+          "id": "cursor_cycle",
+          "phase": "fault"
+        },
+        {
+          "id": "conflicting_duplicate",
+          "phase": "fault"
+        },
+        {
+          "id": "identical_overlap",
+          "phase": "functional"
+        },
+        {
+          "id": "cumulative_budget",
+          "phase": "fault"
+        },
+        {
+          "id": "empty_history",
+          "phase": "functional"
+        }
+      ],
+      "checks_equal_across_conditions": true
+    },
+    {
+      "id": "E5",
+      "name": "Order/payment",
+      "historical_id": "T4",
+      "pattern": "action",
+      "method": "POST",
+      "path": "/orders/order-1/pay",
+      "body": null,
+      "contract": "tasks/E5.md",
+      "condition_prompts": {
+        "C0": "prompts/E5_C0.md",
+        "C1": "prompts/E5_C1.md"
+      },
+      "scenarios": [
+        {
+          "id": "clean",
+          "phase": "functional"
+        },
+        {
+          "id": "alternate_clean",
+          "phase": "functional"
+        },
+        {
+          "id": "transient_503",
+          "phase": "fault"
+        },
+        {
+          "id": "persistent_503",
+          "phase": "fault"
+        },
+        {
+          "id": "timeout_before_commit",
+          "phase": "fault"
+        },
+        {
+          "id": "hanging_dependency",
+          "phase": "fault"
+        },
+        {
+          "id": "rate_limit",
+          "phase": "fault"
+        },
+        {
+          "id": "retry_after_exceeds_deadline",
+          "phase": "fault"
+        },
+        {
+          "id": "malformed_200",
+          "phase": "fault"
+        },
+        {
+          "id": "committed_response_lost",
+          "phase": "fault"
+        },
+        {
+          "id": "repeated_request",
+          "phase": "functional"
+        }
+      ],
+      "checks_equal_across_conditions": true
+    },
+    {
+      "id": "E6",
+      "name": "Inventory reservation",
+      "historical_id": null,
+      "pattern": "action",
+      "method": "POST",
+      "path": "/reservations/request-1",
+      "body": {
+        "item_id": "widget",
+        "quantity": 3
+      },
+      "contract": "tasks/E6.md",
+      "condition_prompts": {
+        "C0": "prompts/E6_C0.md",
+        "C1": "prompts/E6_C1.md"
+      },
+      "scenarios": [
+        {
+          "id": "clean",
+          "phase": "functional"
+        },
+        {
+          "id": "alternate_clean",
+          "phase": "functional"
+        },
+        {
+          "id": "transient_503",
+          "phase": "fault"
+        },
+        {
+          "id": "persistent_503",
+          "phase": "fault"
+        },
+        {
+          "id": "timeout_before_commit",
+          "phase": "fault"
+        },
+        {
+          "id": "hanging_dependency",
+          "phase": "fault"
+        },
+        {
+          "id": "rate_limit",
+          "phase": "fault"
+        },
+        {
+          "id": "retry_after_exceeds_deadline",
+          "phase": "fault"
+        },
+        {
+          "id": "malformed_200",
+          "phase": "fault"
+        },
+        {
+          "id": "committed_response_lost",
+          "phase": "fault"
+        },
+        {
+          "id": "repeated_request",
+          "phase": "functional"
+        },
+        {
+          "id": "insufficient_stock",
+          "phase": "functional"
+        },
+        {
+          "id": "conflicting_identity",
+          "phase": "functional"
+        },
+        {
+          "id": "invalid_input",
+          "phase": "functional"
+        }
+      ],
+      "checks_equal_across_conditions": true
+    },
+    {
+      "id": "E7",
+      "name": "Object upload",
+      "historical_id": "T5",
+      "pattern": "write",
+      "method": "POST",
+      "path": "/uploads/sample.txt",
+      "body": {
+        "content": "benchmark-content-expanded"
+      },
+      "contract": "tasks/E7.md",
+      "condition_prompts": {
+        "C0": "prompts/E7_C0.md",
+        "C1": "prompts/E7_C1.md"
+      },
+      "scenarios": [
+        {
+          "id": "clean",
+          "phase": "functional"
+        },
+        {
+          "id": "alternate_clean",
+          "phase": "functional"
+        },
+        {
+          "id": "transient_503",
+          "phase": "fault"
+        },
+        {
+          "id": "persistent_503",
+          "phase": "fault"
+        },
+        {
+          "id": "timeout_before_commit",
+          "phase": "fault"
+        },
+        {
+          "id": "hanging_dependency",
+          "phase": "fault"
+        },
+        {
+          "id": "rate_limit",
+          "phase": "fault"
+        },
+        {
+          "id": "retry_after_exceeds_deadline",
+          "phase": "fault"
+        },
+        {
+          "id": "malformed_200",
+          "phase": "fault"
+        },
+        {
+          "id": "committed_response_lost",
+          "phase": "fault"
+        },
+        {
+          "id": "repeated_request",
+          "phase": "functional"
+        }
+      ],
+      "checks_equal_across_conditions": true
+    },
+    {
+      "id": "E8",
+      "name": "User-preferences replacement",
+      "historical_id": null,
+      "pattern": "write",
+      "method": "PUT",
+      "path": "/preferences/alice",
+      "body": {
+        "language": "es",
+        "email_notifications": false
+      },
+      "contract": "tasks/E8.md",
+      "condition_prompts": {
+        "C0": "prompts/E8_C0.md",
+        "C1": "prompts/E8_C1.md"
+      },
+      "scenarios": [
+        {
+          "id": "clean",
+          "phase": "functional"
+        },
+        {
+          "id": "alternate_clean",
+          "phase": "functional"
+        },
+        {
+          "id": "transient_503",
+          "phase": "fault"
+        },
+        {
+          "id": "persistent_503",
+          "phase": "fault"
+        },
+        {
+          "id": "timeout_before_commit",
+          "phase": "fault"
+        },
+        {
+          "id": "hanging_dependency",
+          "phase": "fault"
+        },
+        {
+          "id": "rate_limit",
+          "phase": "fault"
+        },
+        {
+          "id": "retry_after_exceeds_deadline",
+          "phase": "fault"
+        },
+        {
+          "id": "malformed_200",
+          "phase": "fault"
+        },
+        {
+          "id": "committed_response_lost",
+          "phase": "fault"
+        },
+        {
+          "id": "repeated_request",
+          "phase": "functional"
+        },
+        {
+          "id": "preference_replacement",
+          "phase": "functional"
+        },
+        {
+          "id": "invalid_input",
+          "phase": "functional"
+        }
+      ],
+      "checks_equal_across_conditions": true
+    }
+  ]
+}

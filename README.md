@@ -59,7 +59,16 @@ For all 320 saved programs and the statistical analysis, follow the [reproductio
 
 The historical T1/T2/T4/T5 evaluator remains fixed so the published 320-program study can be replayed exactly. New tasks can use the versioned manifest-backed adapter interface without registering task IDs in core code. A task author still supplies the semantic oracle, scenarios, dependency request contract, and observable state; these cannot be inferred safely from HTTP status alone. See the runnable [task-adapter guide](docs/ADDING_TASKS.md).
 
-## Scope and interpretation
+## Expanded-study draft
+
+The current working copy includes separately implemented E1–E8 tasks, exact
+C0/C1 prompts, an actual-wall-clock evaluator, offline allocation previews and
+synthetic reporting checks for the planned Array expansion. This draft does not
+modify the historical release or authorize paid generations. See
+[expanded local preparation](docs/EXPANDED_STUDY_DRAFT.md) for its commands,
+validation evidence and remaining readiness gates.
+
+## Scope and interpretation of the historical study
 
 The four tasks use short, isolated requests and emulated dependency faults. They exclude concurrency, long-lived state, real distributed transactions, cascades, and calibrated network latency. Retry-After is zero in the rate-limit fixtures. Safe failure is distinct from successful recovery; only specified fault scenarios allow it to count as a pass.
 

@@ -3,6 +3,11 @@ name: Remaining excluded provider validation and saved OpenAI evaluation
 on:
   workflow_dispatch:
     inputs:
+      evaluate_saved_mistral_google:
+        description: Evaluate only original Mistral48 and Google16 saved validation responses without model API calls
+        required: true
+        default: false
+        type: boolean
       recover_grok_after_key_fix:
         description: Fill only the sixteen Grok slots proven untouched by run 39486369819 metadata failure
         required: true
@@ -14,7 +19,7 @@ on:
         default: false
         type: boolean
       verify_setup_only:
-        description: Test only the narrow checkpoint-folder fix and its guards; no model credentials or generation
+        description: Verify current validation orchestration and immutable-input guards without model credentials or generation
         required: true
         default: false
         type: boolean
@@ -34,12 +39,12 @@ permissions:
   actions: read
 
 concurrency:
-  group: depfailbench-remaining-${{ inputs.recover_grok_after_key_fix && 'grok-metadata-recovery' || inputs.inspect_grok_access_only && 'grok-metadata-diagnostic' || inputs.verify_setup_only && 'setup-verification' || inputs.confirm_paid_generation && 'provider-generation' || 'saved-openai-evaluation' }}
+  group: depfailbench-remaining-${{ inputs.evaluate_saved_mistral_google && 'saved-mistral-google-evaluation' || inputs.recover_grok_after_key_fix && 'grok-metadata-recovery' || inputs.inspect_grok_access_only && 'grok-metadata-diagnostic' || inputs.verify_setup_only && 'setup-verification' || inputs.confirm_paid_generation && 'provider-generation' || 'saved-openai-evaluation' }}
   cancel-in-progress: false
 
 jobs:
   mistral-validation:
-    if: ${{ !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -84,7 +89,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 0
       - name: Preserve response journals and spending after group 0
-        if: ${{ always() && steps.group0.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group0.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-0
@@ -97,7 +102,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 1
       - name: Preserve response journals and spending after group 1
-        if: ${{ always() && steps.group1.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group1.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-1
@@ -110,7 +115,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 2
       - name: Preserve response journals and spending after group 2
-        if: ${{ always() && steps.group2.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group2.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-2
@@ -123,7 +128,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 3
       - name: Preserve response journals and spending after group 3
-        if: ${{ always() && steps.group3.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group3.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-3
@@ -136,7 +141,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 4
       - name: Preserve response journals and spending after group 4
-        if: ${{ always() && steps.group4.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group4.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-4
@@ -149,7 +154,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 5
       - name: Preserve response journals and spending after group 5
-        if: ${{ always() && steps.group5.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group5.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-5
@@ -162,7 +167,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 6
       - name: Preserve response journals and spending after group 6
-        if: ${{ always() && steps.group6.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group6.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-6
@@ -175,7 +180,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 7
       - name: Preserve response journals and spending after group 7
-        if: ${{ always() && steps.group7.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group7.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-7
@@ -188,7 +193,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 8
       - name: Preserve response journals and spending after group 8
-        if: ${{ always() && steps.group8.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group8.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-8
@@ -201,7 +206,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 9
       - name: Preserve response journals and spending after group 9
-        if: ${{ always() && steps.group9.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group9.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-9
@@ -214,7 +219,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 10
       - name: Preserve response journals and spending after group 10
-        if: ${{ always() && steps.group10.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group10.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-10
@@ -227,7 +232,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 11
       - name: Preserve response journals and spending after group 11
-        if: ${{ always() && steps.group11.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group11.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-11
@@ -240,7 +245,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 12
       - name: Preserve response journals and spending after group 12
-        if: ${{ always() && steps.group12.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group12.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-12
@@ -253,7 +258,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 13
       - name: Preserve response journals and spending after group 13
-        if: ${{ always() && steps.group13.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group13.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-13
@@ -266,7 +271,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 14
       - name: Preserve response journals and spending after group 14
-        if: ${{ always() && steps.group14.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group14.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-14
@@ -279,7 +284,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 15
       - name: Preserve response journals and spending after group 15
-        if: ${{ always() && steps.group15.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group15.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-15
@@ -292,7 +297,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 16
       - name: Preserve response journals and spending after group 16
-        if: ${{ always() && steps.group16.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group16.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-16
@@ -305,7 +310,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 17
       - name: Preserve response journals and spending after group 17
-        if: ${{ always() && steps.group17.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group17.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-17
@@ -318,7 +323,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 18
       - name: Preserve response journals and spending after group 18
-        if: ${{ always() && steps.group18.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group18.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-18
@@ -331,7 +336,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 19
       - name: Preserve response journals and spending after group 19
-        if: ${{ always() && steps.group19.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group19.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-19
@@ -344,7 +349,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 20
       - name: Preserve response journals and spending after group 20
-        if: ${{ always() && steps.group20.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group20.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-20
@@ -357,7 +362,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 21
       - name: Preserve response journals and spending after group 21
-        if: ${{ always() && steps.group21.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group21.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-21
@@ -370,7 +375,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 22
       - name: Preserve response journals and spending after group 22
-        if: ${{ always() && steps.group22.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group22.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-22
@@ -383,7 +388,7 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 23
       - name: Preserve response journals and spending after group 23
-        if: ${{ always() && steps.group23.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group23.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: mistral-validation-${{ github.run_id }}-group-23
@@ -401,7 +406,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   google-validation:
-    if: ${{ !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -446,7 +451,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 0
       - name: Preserve response journals and spending after group 0
-        if: ${{ always() && steps.group0.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group0.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: google-validation-${{ github.run_id }}-group-0
@@ -459,7 +464,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 1
       - name: Preserve response journals and spending after group 1
-        if: ${{ always() && steps.group1.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group1.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: google-validation-${{ github.run_id }}-group-1
@@ -472,7 +477,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 2
       - name: Preserve response journals and spending after group 2
-        if: ${{ always() && steps.group2.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group2.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: google-validation-${{ github.run_id }}-group-2
@@ -485,7 +490,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 3
       - name: Preserve response journals and spending after group 3
-        if: ${{ always() && steps.group3.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group3.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: google-validation-${{ github.run_id }}-group-3
@@ -498,7 +503,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 4
       - name: Preserve response journals and spending after group 4
-        if: ${{ always() && steps.group4.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group4.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: google-validation-${{ github.run_id }}-group-4
@@ -511,7 +516,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 5
       - name: Preserve response journals and spending after group 5
-        if: ${{ always() && steps.group5.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group5.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: google-validation-${{ github.run_id }}-group-5
@@ -524,7 +529,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 6
       - name: Preserve response journals and spending after group 6
-        if: ${{ always() && steps.group6.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group6.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: google-validation-${{ github.run_id }}-group-6
@@ -537,7 +542,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 7
       - name: Preserve response journals and spending after group 7
-        if: ${{ always() && steps.group7.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group7.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: google-validation-${{ github.run_id }}-group-7
@@ -555,7 +560,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   xai-validation:
-    if: ${{ !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.evaluate_saved_openai && ((inputs.confirm_paid_generation && !inputs.recover_grok_after_key_fix) || (inputs.recover_grok_after_key_fix && !inputs.confirm_paid_generation)) && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.evaluate_saved_openai && ((inputs.confirm_paid_generation && !inputs.recover_grok_after_key_fix) || (inputs.recover_grok_after_key_fix && !inputs.confirm_paid_generation)) && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -576,17 +581,17 @@ jobs:
       - name: Verify the exact tested plan without model credentials
         run: python scripts/expanded_remaining_validation.py check-plan --provider xAI --state results/expanded/xai_api_validation
       - name: Check the stable prior-batch marker before preparation
-        if: ${{ !inputs.recover_grok_after_key_fix }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: python scripts/expanded_remaining_validation.py prior-run-check --provider xAI --state results/expanded/xai_prior_guard.json
       - name: Prepare exact excluded allocation and spending ledger
-        if: ${{ !inputs.recover_grok_after_key_fix }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix }}
         env:
           CONFIRM_PAID_GENERATION: "true"
         run: python scripts/expanded_remaining_validation.py prepare --provider xAI --state results/expanded/xai_api_validation --maximum-cost-usd 8 --guard results/expanded/xai_prior_guard.json
       - name: Prove the previous Grok metadata failure made zero generation requests before recovering its unfilled slots
-        if: ${{ inputs.recover_grok_after_key_fix }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && inputs.recover_grok_after_key_fix }}
         env:
           GH_TOKEN: ${{ github.token }}
           CONFIRM_PAID_GENERATION: "true"
@@ -608,7 +613,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 0
       - name: Preserve response journals and spending after group 0
-        if: ${{ always() && steps.group0.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group0.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-0
@@ -621,7 +626,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 1
       - name: Preserve response journals and spending after group 1
-        if: ${{ always() && steps.group1.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group1.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-1
@@ -634,7 +639,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 2
       - name: Preserve response journals and spending after group 2
-        if: ${{ always() && steps.group2.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group2.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-2
@@ -647,7 +652,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 3
       - name: Preserve response journals and spending after group 3
-        if: ${{ always() && steps.group3.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group3.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-3
@@ -660,7 +665,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 4
       - name: Preserve response journals and spending after group 4
-        if: ${{ always() && steps.group4.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group4.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-4
@@ -673,7 +678,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 5
       - name: Preserve response journals and spending after group 5
-        if: ${{ always() && steps.group5.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group5.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-5
@@ -686,7 +691,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 6
       - name: Preserve response journals and spending after group 6
-        if: ${{ always() && steps.group6.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group6.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-6
@@ -699,7 +704,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 7
       - name: Preserve response journals and spending after group 7
-        if: ${{ always() && steps.group7.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group7.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-7
@@ -712,7 +717,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 8
       - name: Preserve response journals and spending after group 8
-        if: ${{ always() && steps.group8.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group8.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-8
@@ -725,7 +730,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 9
       - name: Preserve response journals and spending after group 9
-        if: ${{ always() && steps.group9.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group9.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-9
@@ -738,7 +743,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 10
       - name: Preserve response journals and spending after group 10
-        if: ${{ always() && steps.group10.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group10.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-10
@@ -751,7 +756,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 11
       - name: Preserve response journals and spending after group 11
-        if: ${{ always() && steps.group11.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group11.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-11
@@ -764,7 +769,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 12
       - name: Preserve response journals and spending after group 12
-        if: ${{ always() && steps.group12.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group12.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-12
@@ -777,7 +782,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 13
       - name: Preserve response journals and spending after group 13
-        if: ${{ always() && steps.group13.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group13.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-13
@@ -790,7 +795,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 14
       - name: Preserve response journals and spending after group 14
-        if: ${{ always() && steps.group14.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group14.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-14
@@ -803,7 +808,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 15
       - name: Preserve response journals and spending after group 15
-        if: ${{ always() && steps.group15.outcome != 'skipped' }}
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group15.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: xai-validation-${{ github.run_id }}-group-15
@@ -821,7 +826,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   saved-openai-evaluation:
-    if: ${{ !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -863,7 +868,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   verify-remaining-setup:
-    if: ${{ !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
@@ -879,15 +884,15 @@ jobs:
           python -m pip install -r requirements.lock
           python -m pip install -r expanded_study/requirements-analysis.txt
           python -m pip install --no-deps --editable .
-      - name: Verify checkpoint parents, all provider mocks, scoping and saved-source guards
+      - name: Verify saved-provider input guards, execution isolation and recovery scope
         run: |
-          python -m pytest -q tests/test_expanded_remaining_batch.py tests/test_expanded_openai_saved_validation.py tests/test_xai_metadata_recovery.py --junitxml=results/expanded/folder_fix_tests.junit.xml
+          python -m pytest -q tests/test_saved_remaining_validation.py tests/test_expanded_openai_saved_validation.py tests/test_xai_metadata_recovery.py --junitxml=results/expanded/validation_orchestration_tests.junit.xml
           python -m benchmark.expanded preflight --output results/expanded/preflight
           python - <<'PY'
           import json, os
           from pathlib import Path
           from benchmark.expanded.collect import environment, implementation_manifest
-          Path('results/expanded/runtime.json').write_text(json.dumps({'environment':environment(),'implementation':implementation_manifest(),'github_commit':os.environ['GITHUB_SHA'],'github_run_id':os.environ['GITHUB_RUN_ID'],'model_api_calls':0,'verification_scope':'narrow checkpoint-folder orchestration fix; measured core unchanged'},indent=2)+'\n')
+          Path('results/expanded/runtime.json').write_text(json.dumps({'environment':environment(),'implementation':implementation_manifest(),'github_commit':os.environ['GITHUB_SHA'],'github_run_id':os.environ['GITHUB_RUN_ID'],'model_api_calls':0,'verification_scope':'saved-provider evaluation orchestration; measured core unchanged'},indent=2)+'\n')
           PY
       - name: Preserve the focused Linux evidence
         if: always()
@@ -898,7 +903,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   inspect-grok-access:
-    if: ${{ !inputs.recover_grok_after_key_fix && inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai }}
+    if: ${{ !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai }}
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
@@ -920,5 +925,61 @@ jobs:
         with:
           name: grok-access-diagnostic-${{ github.run_id }}
           path: results/expanded/xai_access_diagnostic/
+          if-no-files-found: error
+          retention-days: 90
+
+  saved-mistral-google-evaluation:
+    if: ${{ inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - provider: Mistral
+            slug: mistral
+            artifact: 12293643835
+          - provider: Google
+            slug: google
+            artifact: 12295806138
+    runs-on: ubuntu-22.04
+    timeout-minutes: 350
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.14"
+          cache: pip
+      - name: Install the same reviewed runtime and analysis dependencies
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Verify no prior saved-provider evaluation and download the exact original archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api 'repos/agrawal-priyank/depfailbench/actions/artifacts?per_page=100&name=${{ matrix.slug }}-saved-evaluation-20261020-v1-verified-inputs' > "$RUNNER_TEMP/prior_saved_evaluation.json"
+          python -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["total_count"]==0 and not r["artifacts"], "Previous evaluation exists; inspect saved evidence instead of repeating"' "$RUNNER_TEMP/prior_saved_evaluation.json"
+          gh api repos/agrawal-priyank/depfailbench/actions/artifacts/${{ matrix.artifact }}/zip > "$RUNNER_TEMP/provider_saved_validation.zip"
+      - name: Verify every original response including failures before execution
+        run: python scripts/evaluate_saved_remaining_validation.py prepare --provider ${{ matrix.provider }} --archive "$RUNNER_TEMP/provider_saved_validation.zip" --output results/expanded/${{ matrix.slug }}_saved_evaluation
+      - name: Preserve immutable verified inputs before source execution
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.slug }}-saved-evaluation-20261020-v1-verified-inputs
+          path: results/expanded/${{ matrix.slug }}_saved_evaluation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Evaluate unchanged saved outcomes at three deadlines and repeats without credentials
+        run: python scripts/evaluate_saved_remaining_validation.py evaluate --provider ${{ matrix.provider }} --output results/expanded/${{ matrix.slug }}_saved_evaluation
+      - name: Preserve all complete or interrupted measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.slug }}-saved-evaluation-${{ github.run_id }}-final
+          path: results/expanded/${{ matrix.slug }}_saved_evaluation/
           if-no-files-found: error
           retention-days: 90

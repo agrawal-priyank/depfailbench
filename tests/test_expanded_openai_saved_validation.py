@@ -39,5 +39,6 @@ def test_remaining_workflow_never_runs_historical_or_main_generation():
  assert 'benchmark.full_generate' not in text and 'full_batch_eval' not in text
  assert 'OPENAI_API_KEY' not in text and 'ANTHROPIC_API_KEY' not in text
  assert 'XAI_API_KEY: ${{ secrets.GROK_API_KEY }}' in text
- assert text.count('confirm_paid_generation && github.run_attempt')==3
+ assert text.count('confirm_paid_generation && github.run_attempt')==2
+ assert '(inputs.recover_grok_after_key_fix && !inputs.confirm_paid_generation)' in text
  assert text.count('Generate excluded validation group')==48

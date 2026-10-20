@@ -3,6 +3,11 @@ name: Remaining excluded provider validation and saved OpenAI evaluation
 on:
   workflow_dispatch:
     inputs:
+      resume_grok_request_fix:
+        description: Resume only sixteen original unfilled Grok validation slots after reviewed request-format rejection
+        required: true
+        default: false
+        type: boolean
       evaluate_saved_mistral_google:
         description: Evaluate only original Mistral48 and Google16 saved validation responses without model API calls
         required: true
@@ -39,12 +44,12 @@ permissions:
   actions: read
 
 concurrency:
-  group: depfailbench-remaining-${{ inputs.evaluate_saved_mistral_google && 'saved-mistral-google-evaluation' || inputs.recover_grok_after_key_fix && 'grok-metadata-recovery' || inputs.inspect_grok_access_only && 'grok-metadata-diagnostic' || inputs.verify_setup_only && 'setup-verification' || inputs.confirm_paid_generation && 'provider-generation' || 'saved-openai-evaluation' }}
+  group: depfailbench-remaining-${{ inputs.resume_grok_request_fix && 'grok-request-correction' || inputs.evaluate_saved_mistral_google && 'saved-mistral-google-evaluation' || inputs.recover_grok_after_key_fix && 'grok-metadata-recovery' || inputs.inspect_grok_access_only && 'grok-metadata-diagnostic' || inputs.verify_setup_only && 'setup-verification' || inputs.confirm_paid_generation && 'provider-generation' || 'saved-openai-evaluation' }}
   cancel-in-progress: false
 
 jobs:
   mistral-validation:
-    if: ${{ !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -406,7 +411,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   google-validation:
-    if: ${{ !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -560,7 +565,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   xai-validation:
-    if: ${{ !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.evaluate_saved_openai && ((inputs.confirm_paid_generation && !inputs.recover_grok_after_key_fix) || (inputs.recover_grok_after_key_fix && !inputs.confirm_paid_generation)) && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.evaluate_saved_openai && ((inputs.confirm_paid_generation && !inputs.recover_grok_after_key_fix) || (inputs.recover_grok_after_key_fix && !inputs.confirm_paid_generation)) && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -826,7 +831,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   saved-openai-evaluation:
-    if: ${{ !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -868,7 +873,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   verify-remaining-setup:
-    if: ${{ !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
@@ -903,7 +908,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   inspect-grok-access:
-    if: ${{ !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai }}
+    if: ${{ !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai }}
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
@@ -929,7 +934,7 @@ jobs:
           retention-days: 90
 
   saved-mistral-google-evaluation:
-    if: ${{ inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.resume_grok_request_fix && inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     strategy:
       fail-fast: false
       matrix:
@@ -981,5 +986,264 @@ jobs:
         with:
           name: ${{ matrix.slug }}-saved-evaluation-${{ github.run_id }}-final
           path: results/expanded/${{ matrix.slug }}_saved_evaluation/
+          if-no-files-found: error
+          retention-days: 90
+
+  grok-request-recovery:
+    if: ${{ inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 350
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.14"
+          cache: pip
+      - name: Install exact reviewed dependencies
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Verify the exact tested plan without model credentials
+        run: python scripts/expanded_xai_request_recovery.py check-plan --provider xAI --state results/expanded/xai_api_validation
+      - name: Check the stable prior-batch marker before preparation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/expanded_xai_request_recovery.py prior-run-check --provider xAI --state results/expanded/xai_prior_guard.json
+      - name: Prepare exact excluded allocation and spending ledger
+        env:
+          CONFIRM_PAID_GENERATION: "true"
+        run: python scripts/expanded_xai_request_recovery.py prepare --provider xAI --state results/expanded/xai_api_validation --maximum-cost-usd 8 --guard results/expanded/xai_prior_guard.json
+      - name: Save the stable prepared marker before any provider authentication
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-request-recovery-20261020-v2-prepared
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Verify exact model metadata without generation
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py access --provider xAI --state results/expanded/xai_api_validation
+      - name: Generate excluded validation group 0
+        id: group0
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 0
+      - name: Preserve response journals and spending after group 0
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group0.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-0
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 1
+        id: group1
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 1
+      - name: Preserve response journals and spending after group 1
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group1.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-1
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 2
+        id: group2
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 2
+      - name: Preserve response journals and spending after group 2
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group2.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-2
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 3
+        id: group3
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 3
+      - name: Preserve response journals and spending after group 3
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group3.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-3
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 4
+        id: group4
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 4
+      - name: Preserve response journals and spending after group 4
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group4.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-4
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 5
+        id: group5
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 5
+      - name: Preserve response journals and spending after group 5
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group5.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-5
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 6
+        id: group6
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 6
+      - name: Preserve response journals and spending after group 6
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group6.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-6
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 7
+        id: group7
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 7
+      - name: Preserve response journals and spending after group 7
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group7.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-7
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 8
+        id: group8
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 8
+      - name: Preserve response journals and spending after group 8
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group8.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-8
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 9
+        id: group9
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 9
+      - name: Preserve response journals and spending after group 9
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group9.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-9
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 10
+        id: group10
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 10
+      - name: Preserve response journals and spending after group 10
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group10.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-10
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 11
+        id: group11
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 11
+      - name: Preserve response journals and spending after group 11
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group11.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-11
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 12
+        id: group12
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 12
+      - name: Preserve response journals and spending after group 12
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group12.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-12
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 13
+        id: group13
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 13
+      - name: Preserve response journals and spending after group 13
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group13.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-13
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 14
+        id: group14
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 14
+      - name: Preserve response journals and spending after group 14
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group14.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-14
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 15
+        id: group15
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_xai_request_recovery.py group --provider xAI --state results/expanded/xai_api_validation --index 15
+      - name: Preserve response journals and spending after group 15
+        if: ${{ !inputs.evaluate_saved_mistral_google && always() && steps.group15.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-15
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Verify every output and record validation-only usage
+        run: python scripts/expanded_xai_request_recovery.py summarize --provider xAI --state results/expanded/xai_api_validation
+      - name: Preserve complete or interrupted evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-final
+          path: results/expanded/
           if-no-files-found: error
           retention-days: 90

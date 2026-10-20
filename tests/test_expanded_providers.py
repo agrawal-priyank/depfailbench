@@ -56,6 +56,7 @@ def test_exact_selected_request_and_omissions(config):
         assert b["generation_config"] == {"max_output_tokens": 32000, "thinking_level": "medium"}
         assert "contents" not in b and "generationConfig" not in b
     elif provider == "xAI":
+        assert b["tools"] == [] and "tool_choice" not in b
         assert b["reasoning"] == {"effort": "high"} and b["temperature"] == .7 and b["top_p"] == .95
         assert r["output_limit_semantics"] == "visible_only_reasoning_excluded"
     elif provider == "Mistral":

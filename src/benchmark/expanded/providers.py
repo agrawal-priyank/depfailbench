@@ -55,6 +55,8 @@ def build_request(config, prompt):
     body = {"model": config["model_id"], "stream": True}
     if provider in {"OpenAI", "xAI"}:
         body.update(input=prompt, max_output_tokens=limit, tools=[], tool_choice="none", store=False)
+        if provider == "xAI":
+            body.pop("tool_choice")  # xAI rejects tool_choice when the tools list is empty.
         body["service_tier"] = "default"
         body["reasoning"] = {"effort": settings["reasoning_effort"]}
         if provider == "OpenAI":

@@ -17,6 +17,19 @@ spec=importlib.util.spec_from_file_location('openai_batch',Path(__file__).parent
 batch=importlib.util.module_from_spec(spec);spec.loader.exec_module(batch)
 
 
+@pytest.fixture(autouse=True)
+def current_core_mock_plan(tmp_path,monkeypatch):
+    # Keep executed plans immutable; temporary plans authorize synthetic tests only.
+    plan=json.loads(batch.PLAN_PATH.read_text());plan['snapshot']=batch.execution_snapshot()
+    path=tmp_path/'mock_current_openai_plan.json';path.write_text(json.dumps(plan))
+    monkeypatch.setattr(batch,'PLAN_PATH',path)
+
+
+def test_original_openai_plan_blocks_changed_transport_snapshot(monkeypatch):
+    monkeypatch.setattr(batch,'PLAN_PATH',batch.SCRIPT.with_name('expanded_openai_validation_plan.json'))
+    with pytest.raises(DispatchPaused,match='snapshot'):batch.load_plan()
+
+
 @pytest.mark.parametrize('limit',['0','-1','8.01','NaN','Infinity'])
 def test_budget_rejected_without_creating_state(tmp_path,limit):
     with pytest.raises(DispatchPaused):batch.prepare(tmp_path/'state',maximum_cost_usd=limit)

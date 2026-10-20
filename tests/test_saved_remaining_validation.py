@@ -32,7 +32,7 @@ def test_fixed_provider_scope_and_no_new_measurement_policy():
 
 def test_workflow_does_not_expose_credentials_to_generated_source_or_repeat_other_batches():
     text=(ROOT/'.github/workflows/full-study.yml').read_text()
-    job=text.split('  saved-mistral-google-evaluation:',1)[1]
+    job=text.split('  saved-mistral-google-evaluation:',1)[1].split('  grok-request-recovery:',1)[0]
     assert 'secrets.' not in job and 'persist-credentials: false' in job
     steps=[s for s in job.split('      - ') if 'GH_TOKEN:' in s]
     assert len(steps)==1 and 'gh api' in steps[0] and 'evaluate_saved_remaining_validation.py' not in steps[0]

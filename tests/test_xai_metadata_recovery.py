@@ -15,6 +15,18 @@ recovery = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(recovery)
 
 
+@pytest.fixture(autouse=True)
+def historical_recovery_mock_plan(tmp_path,monkeypatch):
+    # Actual old recovery remains bound to its old core and cannot run again.
+    original_select=recovery.batch.select_provider
+    def select(provider):
+        original_select(provider)
+        plan=json.loads(recovery.batch.PLAN_PATH.read_text());plan['snapshot']=recovery.batch.execution_snapshot()
+        path=tmp_path/'historical_recovery_mock_plan.json';path.write_text(json.dumps(plan))
+        monkeypatch.setattr(recovery.batch,'PLAN_PATH',path)
+    monkeypatch.setattr(recovery.batch,'select_provider',select)
+
+
 @pytest.fixture
 def previous(tmp_path, monkeypatch):
     recovery.batch.select_provider('xAI')

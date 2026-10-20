@@ -9,6 +9,17 @@ from benchmark.expanded.spending import DispatchPaused
 spec=importlib.util.spec_from_file_location('remaining_batch',Path(__file__).parents[1]/'scripts/expanded_remaining_validation.py')
 batch=importlib.util.module_from_spec(spec);spec.loader.exec_module(batch)
 
+
+@pytest.fixture(autouse=True)
+def current_core_mock_plans(tmp_path,monkeypatch):
+ original_select=batch.select_provider
+ def select(provider):
+  original_select(provider)
+  plan=json.loads(batch.PLAN_PATH.read_text());plan['snapshot']=batch.execution_snapshot()
+  path=tmp_path/(provider+'_mock_plan.json');path.write_text(json.dumps(plan))
+  monkeypatch.setattr(batch,'PLAN_PATH',path)
+ monkeypatch.setattr(batch,'select_provider',select)
+
 @pytest.fixture(params=['Mistral','Google','xAI'])
 def selected(request):
  batch.select_provider(request.param);return request.param

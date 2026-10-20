@@ -58,12 +58,12 @@ def test_uniform_workflow_has_no_model_credentials_and_token_is_only_in_download
     assert job.index('Preserve exact original and derived inputs')<job.index('Test only changed completed saved sources')
     assert 'github.run_attempt == \'1\'' in job
     for mode in ('confirm_paid_generation','resume_grok_request_fix','recover_grok_after_key_fix',
-                 'evaluate_saved_mistral_google','evaluate_saved_openai','inspect_grok_access_only','verify_setup_only'):
+                 'evaluate_saved_mistral_google','evaluate_saved_openai','inspect_grok_access_only','verify_setup_only','continue_grok_budget'):
         assert '!inputs.'+mode in job
 
 def test_every_other_job_is_excluded_from_uniform_evaluation_dispatch():
     text=(Path(__file__).parents[1]/'.github/workflows/full-study.yml').read_text()
     other=text.split('jobs:',1)[1].split('  uniform-saved-source-evaluation:',1)[0]
     guards=[line for line in other.splitlines() if line.startswith('    if:')]
-    assert len(guards)==8
+    assert len(guards)==9
     assert all('!inputs.evaluate_uniform_saved_sources' in line for line in guards)

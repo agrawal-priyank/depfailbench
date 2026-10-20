@@ -26,7 +26,7 @@ def test_bytecode_exception_still_checks_every_original(tmp_path):
 
 
 def test_workflow_uses_exact_archive_and_exposes_no_model_credentials_to_saved_code():
- text=(ROOT/'.github/workflows/full-study.yml').read_text();saved=text.split('  saved-openai-evaluation:',1)[1]
+ text=(ROOT/'.github/workflows/full-study.yml').read_text();saved=text.split('  saved-openai-evaluation:',1)[1].split('  verify-remaining-setup:',1)[0]
  assert 'secrets.' not in saved and '12290279403/zip' in saved
  token_steps=[step for step in saved.split('      - ') if 'GH_TOKEN:' in step]
  assert len(token_steps)==1 and 'gh api' in token_steps[0] and 'python ' not in token_steps[0]

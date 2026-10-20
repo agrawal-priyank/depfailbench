@@ -3,6 +3,11 @@ name: Remaining excluded provider validation and saved OpenAI evaluation
 on:
   workflow_dispatch:
     inputs:
+      inspect_grok_access_only:
+        description: Read-only Grok metadata diagnosis, without generation or saved-code execution
+        required: true
+        default: false
+        type: boolean
       verify_setup_only:
         description: Test only the narrow checkpoint-folder fix and its guards; no model credentials or generation
         required: true
@@ -24,12 +29,12 @@ permissions:
   actions: read
 
 concurrency:
-  group: depfailbench-remaining-${{ inputs.verify_setup_only && 'setup-verification' || inputs.confirm_paid_generation && 'provider-generation' || 'saved-openai-evaluation' }}
+  group: depfailbench-remaining-${{ inputs.inspect_grok_access_only && 'grok-metadata-diagnostic' || inputs.verify_setup_only && 'setup-verification' || inputs.confirm_paid_generation && 'provider-generation' || 'saved-openai-evaluation' }}
   cancel-in-progress: false
 
 jobs:
   mistral-validation:
-    if: ${{ !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -391,7 +396,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   google-validation:
-    if: ${{ !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -545,7 +550,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   xai-validation:
-    if: ${{ !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -803,7 +808,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   saved-openai-evaluation:
-    if: ${{ !inputs.verify_setup_only && inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -845,7 +850,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   verify-remaining-setup:
-    if: ${{ inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.inspect_grok_access_only && inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
@@ -877,5 +882,30 @@ jobs:
         with:
           name: remaining-setup-verification-${{ github.run_id }}
           path: results/expanded/
+          if-no-files-found: error
+          retention-days: 90
+  inspect-grok-access:
+    if: ${{ inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.14"
+      - name: Install the reviewed HTTP client
+        run: python -m pip install -r requirements.lock
+      - name: Inspect only three metadata endpoints with redacted errors
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/inspect_xai_access.py
+      - name: Preserve safe account diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: grok-access-diagnostic-${{ github.run_id }}
+          path: results/expanded/xai_access_diagnostic/
           if-no-files-found: error
           retention-days: 90

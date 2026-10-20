@@ -97,3 +97,14 @@ def test_prior_marker_filter_prevents_duplicate_even_expired(tmp_path,selected,m
  monkeypatch.setattr(batch.subprocess,'run',run)
  with pytest.raises(DispatchPaused,match='already has saved state'):batch.prior_run_check(tmp_path/'guard.json')
  assert not (tmp_path/'guard.json').exists()
+
+
+def test_first_guard_creates_missing_checkpoint_parent_without_provider_access(tmp_path,selected,monkeypatch):
+ for k,v in {'GITHUB_RUN_ATTEMPT':'1','GITHUB_REPOSITORY':'agrawal-priyank/depfailbench','GITHUB_RUN_ID':'synthetic','GITHUB_SHA':'synthetic'}.items():monkeypatch.setenv(k,v)
+ monkeypatch.setattr(batch.subprocess,'run',lambda *a,**k:SimpleNamespace(returncode=0,stdout=json.dumps([{'total_count':0,'artifacts':[]}])) )
+ path=tmp_path/'missing/results/prior_guard.json'
+ report=batch.prior_run_check(path)
+ assert path.is_file() and report['clear'] and report['model_generation_calls']==0
+ before=path.read_bytes()
+ with pytest.raises(DispatchPaused,match='already exists'):batch.prior_run_check(path)
+ assert path.read_bytes()==before

@@ -12,7 +12,7 @@
   "authorization_record": "Author instruction in Array revision chat on 20 October 2026: go ahead with the remaining 80 agreed excluded provider-validation outputs. Operational allowance selected within the earlier author API budget; no main-study authorization.",
   "authorization_valid_until_utc": "2026-10-22T00:00:00+00:00",
   "linux_validated_core_commit": "2a84a0367a43e2d1bd4911ccba1fbd9668b1c8be",
-  "driver_sha256": "0f254dadce7eb92a15403a44893c8a4252a6852d72b853024f81001332a6f5c7",
+  "driver_sha256": "6e932d16b15833b6650a3b9d50ed9d436361bfb4e71557a9a9bf59e0e4a534b2",
   "snapshot": {
     "expanded_study/study.json": "104e7107490162a9a0fb9b6b5025b28a3432c11ff5647bac0d4f98847cfc8323",
     "expanded_study/scaffold.py": "1587ecfcb67e286385ea8af37f0b298962063cfc0041c77b87bff82fe6c1165e",

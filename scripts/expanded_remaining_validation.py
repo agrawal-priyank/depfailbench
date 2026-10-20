@@ -96,6 +96,7 @@ def prior_run_check(destination):
         'prior_artifacts_checked': len(artifacts), 'model_generation_calls': 0}
     if destination.exists():
         raise DispatchPaused('prior-run guard already exists')
+    destination.parent.mkdir(parents=True, exist_ok=True)
     save_json(destination, guard)
     return guard
 

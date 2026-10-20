@@ -17,7 +17,6 @@ from benchmark.expanded.collect import (
     artifact_manifest, collect, implementation_manifest, save_new,
 )
 from benchmark.expanded.planning import allocation, assets_root, digest
-from benchmark.expanded.report_collection import export
 
 
 ARCHIVE_SHA256 = "064fa01b5c82b2065ee02b1d66a11ad9ab84f27bd5993ede5a6e7d9c4027fe9e"
@@ -99,6 +98,9 @@ def prepare(archive, output):
 
 
 def evaluate_saved(output):
+    # Analysis is optional for ordinary installs and archive/guard checks.
+    from benchmark.expanded.report_collection import export
+
     output = Path(output)
     verified = json.loads((output / "verified_inputs.json").read_text())
     artifacts, slots, manifests = inputs(output)

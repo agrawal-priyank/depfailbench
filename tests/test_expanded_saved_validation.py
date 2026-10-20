@@ -1,6 +1,7 @@
 """Guard selection of immutable actual outputs and no-generation evaluation."""
 
 import importlib.util
+import builtins
 import stat
 from pathlib import Path
 import zipfile
@@ -12,6 +13,18 @@ ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location("saved_validation", ROOT / "scripts/evaluate_saved_anthropic_validation.py")
 WRAPPER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(WRAPPER)
+
+
+def test_input_guards_do_not_require_the_optional_analysis_package(monkeypatch):
+    original_import = builtins.__import__
+    def without_numpy(name, *args, **kwargs):
+        if name.split(".")[0] == "numpy":
+            raise ModuleNotFoundError("optional analysis package unavailable")
+        return original_import(name, *args, **kwargs)
+    monkeypatch.setattr(builtins, "__import__", without_numpy)
+    module = importlib.util.module_from_spec(SPEC)
+    SPEC.loader.exec_module(module)
+    assert callable(module.prepare)
 
 
 @pytest.mark.parametrize("name", ["../outside.py", "/absolute.py", "dir/../../outside.py", "dir\\outside.py"])

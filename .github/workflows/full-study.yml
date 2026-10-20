@@ -1,80 +1,841 @@
-name: "Historical full-study generation ($35 study-rate estimate; current pricing applies)"
+name: Remaining excluded provider validation and saved OpenAI evaluation
+
 on:
   workflow_dispatch:
     inputs:
       confirm_paid_generation:
-        description: "Attempt up to 320 prespecified generation slots; $35 is a study-rate cap estimate and actual charges depend on current provider pricing"
+        description: Generate only Mistral48/Google16/xAI16 excluded outputs within scoped $1/$3/$8 allowances
         required: true
         default: false
         type: boolean
+      evaluate_saved_openai:
+        description: Test the 64 saved outputs from run 39474852218 without model calls or model credentials
+        required: true
+        default: false
+        type: boolean
+
 permissions:
   contents: read
+  actions: read
+
 concurrency:
-  group: depfailbench-full-study
+  group: depfailbench-remaining-excluded-validation
   cancel-in-progress: false
+
 jobs:
-  generate:
-    if: ${{ inputs.confirm_paid_generation }}
-    strategy:
-      fail-fast: false
-      matrix:
-        provider: [OpenAI, Anthropic]
-    runs-on: ubuntu-latest
-    timeout-minutes: 330
+  mistral-validation:
+    if: ${{ inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 350
+    env:
+      PYTHONUNBUFFERED: "1"
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12.14"
           cache: pip
-      - name: Install locked environment and validate
+      - name: Install exact reviewed dependencies
         run: |
-          pip install -r requirements.lock
-          pip install --no-deps -e .
-          pytest -q
-      - name: Generate within provider budget
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Verify the exact tested plan without model credentials
+        run: python scripts/expanded_remaining_validation.py check-plan --provider Mistral --state results/expanded/mistral_api_validation
+      - name: Check the stable prior-batch marker before preparation
         env:
-          OPENAI_API_KEY: ${{ matrix.provider == 'OpenAI' && secrets.OPENAI_API_KEY || '' }}
-          ANTHROPIC_API_KEY: ${{ matrix.provider == 'Anthropic' && secrets.ANTHROPIC_API_KEY || '' }}
-          ANTHROPIC_WORKSPACE_ID: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
-          PYTHONUNBUFFERED: '1'
-        run: python -m benchmark.full_generate --provider '${{ matrix.provider }}' --cap 17.50
-      - uses: actions/upload-artifact@v4
-        if: always()
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/expanded_remaining_validation.py prior-run-check --provider Mistral --state results/expanded/mistral_prior_guard.json
+      - name: Prepare exact excluded allocation and spending ledger
+        env:
+          CONFIRM_PAID_GENERATION: "true"
+        run: python scripts/expanded_remaining_validation.py prepare --provider Mistral --state results/expanded/mistral_api_validation --maximum-cost-usd 1 --guard results/expanded/mistral_prior_guard.json
+      - name: Save the stable prepared marker before any provider authentication
+        uses: actions/upload-artifact@v4
         with:
-          name: full-generated-${{ matrix.provider }}
-          path: full_results/
+          name: mistral-validation-20261020-v1-prepared
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
           retention-days: 90
-  evaluate:
-    needs: generate
-    if: ${{ always() && inputs.confirm_paid_generation }}
-    strategy:
-      fail-fast: false
-      matrix:
-        provider: [OpenAI, Anthropic]
-    runs-on: ubuntu-latest
-    timeout-minutes: 180
+      - name: Verify exact model metadata without generation
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py access --provider Mistral --state results/expanded/mistral_api_validation
+      - name: Generate excluded validation group 0
+        id: group0
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 0
+      - name: Preserve response journals and spending after group 0
+        if: ${{ always() && steps.group0.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-0
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 1
+        id: group1
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 1
+      - name: Preserve response journals and spending after group 1
+        if: ${{ always() && steps.group1.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-1
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 2
+        id: group2
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 2
+      - name: Preserve response journals and spending after group 2
+        if: ${{ always() && steps.group2.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-2
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 3
+        id: group3
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 3
+      - name: Preserve response journals and spending after group 3
+        if: ${{ always() && steps.group3.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-3
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 4
+        id: group4
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 4
+      - name: Preserve response journals and spending after group 4
+        if: ${{ always() && steps.group4.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-4
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 5
+        id: group5
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 5
+      - name: Preserve response journals and spending after group 5
+        if: ${{ always() && steps.group5.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-5
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 6
+        id: group6
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 6
+      - name: Preserve response journals and spending after group 6
+        if: ${{ always() && steps.group6.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-6
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 7
+        id: group7
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 7
+      - name: Preserve response journals and spending after group 7
+        if: ${{ always() && steps.group7.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-7
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 8
+        id: group8
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 8
+      - name: Preserve response journals and spending after group 8
+        if: ${{ always() && steps.group8.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-8
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 9
+        id: group9
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 9
+      - name: Preserve response journals and spending after group 9
+        if: ${{ always() && steps.group9.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-9
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 10
+        id: group10
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 10
+      - name: Preserve response journals and spending after group 10
+        if: ${{ always() && steps.group10.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-10
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 11
+        id: group11
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 11
+      - name: Preserve response journals and spending after group 11
+        if: ${{ always() && steps.group11.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-11
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 12
+        id: group12
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 12
+      - name: Preserve response journals and spending after group 12
+        if: ${{ always() && steps.group12.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-12
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 13
+        id: group13
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 13
+      - name: Preserve response journals and spending after group 13
+        if: ${{ always() && steps.group13.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-13
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 14
+        id: group14
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 14
+      - name: Preserve response journals and spending after group 14
+        if: ${{ always() && steps.group14.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-14
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 15
+        id: group15
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 15
+      - name: Preserve response journals and spending after group 15
+        if: ${{ always() && steps.group15.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-15
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 16
+        id: group16
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 16
+      - name: Preserve response journals and spending after group 16
+        if: ${{ always() && steps.group16.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-16
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 17
+        id: group17
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 17
+      - name: Preserve response journals and spending after group 17
+        if: ${{ always() && steps.group17.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-17
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 18
+        id: group18
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 18
+      - name: Preserve response journals and spending after group 18
+        if: ${{ always() && steps.group18.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-18
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 19
+        id: group19
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 19
+      - name: Preserve response journals and spending after group 19
+        if: ${{ always() && steps.group19.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-19
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 20
+        id: group20
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 20
+      - name: Preserve response journals and spending after group 20
+        if: ${{ always() && steps.group20.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-20
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 21
+        id: group21
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 21
+      - name: Preserve response journals and spending after group 21
+        if: ${{ always() && steps.group21.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-21
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 22
+        id: group22
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 22
+      - name: Preserve response journals and spending after group 22
+        if: ${{ always() && steps.group22.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-22
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 23
+        id: group23
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Mistral --state results/expanded/mistral_api_validation --index 23
+      - name: Preserve response journals and spending after group 23
+        if: ${{ always() && steps.group23.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-group-23
+          path: results/expanded/mistral_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Verify every output and record validation-only usage
+        run: python scripts/expanded_remaining_validation.py summarize --provider Mistral --state results/expanded/mistral_api_validation
+      - name: Preserve complete or interrupted evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mistral-validation-${{ github.run_id }}-final
+          path: results/expanded/
+          if-no-files-found: error
+          retention-days: 90
+  google-validation:
+    if: ${{ inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 350
+    env:
+      PYTHONUNBUFFERED: "1"
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-      - run: |
-          pip install -r requirements.lock
-          pip install --no-deps -e .
-      - uses: actions/download-artifact@v4
+          python-version: "3.12.14"
+          cache: pip
+      - name: Install exact reviewed dependencies
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Verify the exact tested plan without model credentials
+        run: python scripts/expanded_remaining_validation.py check-plan --provider Google --state results/expanded/google_api_validation
+      - name: Check the stable prior-batch marker before preparation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/expanded_remaining_validation.py prior-run-check --provider Google --state results/expanded/google_prior_guard.json
+      - name: Prepare exact excluded allocation and spending ledger
+        env:
+          CONFIRM_PAID_GENERATION: "true"
+        run: python scripts/expanded_remaining_validation.py prepare --provider Google --state results/expanded/google_api_validation --maximum-cost-usd 3 --guard results/expanded/google_prior_guard.json
+      - name: Save the stable prepared marker before any provider authentication
+        uses: actions/upload-artifact@v4
         with:
-          name: full-generated-${{ matrix.provider }}
-          path: full_results
-      - name: Evaluate unchanged artifacts three times in separate processes
-        run: python -m benchmark.full_batch_eval --repetitions 3
-      - uses: actions/upload-artifact@v4
+          name: google-validation-20261020-v1-prepared
+          path: results/expanded/google_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Verify exact model metadata without generation
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py access --provider Google --state results/expanded/google_api_validation
+      - name: Generate excluded validation group 0
+        id: group0
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 0
+      - name: Preserve response journals and spending after group 0
+        if: ${{ always() && steps.group0.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: google-validation-${{ github.run_id }}-group-0
+          path: results/expanded/google_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 1
+        id: group1
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 1
+      - name: Preserve response journals and spending after group 1
+        if: ${{ always() && steps.group1.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: google-validation-${{ github.run_id }}-group-1
+          path: results/expanded/google_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 2
+        id: group2
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 2
+      - name: Preserve response journals and spending after group 2
+        if: ${{ always() && steps.group2.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: google-validation-${{ github.run_id }}-group-2
+          path: results/expanded/google_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 3
+        id: group3
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 3
+      - name: Preserve response journals and spending after group 3
+        if: ${{ always() && steps.group3.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: google-validation-${{ github.run_id }}-group-3
+          path: results/expanded/google_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 4
+        id: group4
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 4
+      - name: Preserve response journals and spending after group 4
+        if: ${{ always() && steps.group4.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: google-validation-${{ github.run_id }}-group-4
+          path: results/expanded/google_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 5
+        id: group5
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 5
+      - name: Preserve response journals and spending after group 5
+        if: ${{ always() && steps.group5.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: google-validation-${{ github.run_id }}-group-5
+          path: results/expanded/google_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 6
+        id: group6
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 6
+      - name: Preserve response journals and spending after group 6
+        if: ${{ always() && steps.group6.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: google-validation-${{ github.run_id }}-group-6
+          path: results/expanded/google_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 7
+        id: group7
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider Google --state results/expanded/google_api_validation --index 7
+      - name: Preserve response journals and spending after group 7
+        if: ${{ always() && steps.group7.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: google-validation-${{ github.run_id }}-group-7
+          path: results/expanded/google_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Verify every output and record validation-only usage
+        run: python scripts/expanded_remaining_validation.py summarize --provider Google --state results/expanded/google_api_validation
+      - name: Preserve complete or interrupted evidence
         if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: full-evaluated-${{ matrix.provider }}
-          path: full_results/
+          name: google-validation-${{ github.run_id }}-final
+          path: results/expanded/
+          if-no-files-found: error
+          retention-days: 90
+  xai-validation:
+    if: ${{ inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 350
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.14"
+          cache: pip
+      - name: Install exact reviewed dependencies
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Verify the exact tested plan without model credentials
+        run: python scripts/expanded_remaining_validation.py check-plan --provider xAI --state results/expanded/xai_api_validation
+      - name: Check the stable prior-batch marker before preparation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/expanded_remaining_validation.py prior-run-check --provider xAI --state results/expanded/xai_prior_guard.json
+      - name: Prepare exact excluded allocation and spending ledger
+        env:
+          CONFIRM_PAID_GENERATION: "true"
+        run: python scripts/expanded_remaining_validation.py prepare --provider xAI --state results/expanded/xai_api_validation --maximum-cost-usd 8 --guard results/expanded/xai_prior_guard.json
+      - name: Save the stable prepared marker before any provider authentication
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-20261020-v1-prepared
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Verify exact model metadata without generation
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py access --provider xAI --state results/expanded/xai_api_validation
+      - name: Generate excluded validation group 0
+        id: group0
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 0
+      - name: Preserve response journals and spending after group 0
+        if: ${{ always() && steps.group0.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-0
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 1
+        id: group1
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 1
+      - name: Preserve response journals and spending after group 1
+        if: ${{ always() && steps.group1.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-1
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 2
+        id: group2
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 2
+      - name: Preserve response journals and spending after group 2
+        if: ${{ always() && steps.group2.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-2
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 3
+        id: group3
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 3
+      - name: Preserve response journals and spending after group 3
+        if: ${{ always() && steps.group3.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-3
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 4
+        id: group4
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 4
+      - name: Preserve response journals and spending after group 4
+        if: ${{ always() && steps.group4.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-4
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 5
+        id: group5
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 5
+      - name: Preserve response journals and spending after group 5
+        if: ${{ always() && steps.group5.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-5
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 6
+        id: group6
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 6
+      - name: Preserve response journals and spending after group 6
+        if: ${{ always() && steps.group6.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-6
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 7
+        id: group7
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 7
+      - name: Preserve response journals and spending after group 7
+        if: ${{ always() && steps.group7.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-7
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 8
+        id: group8
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 8
+      - name: Preserve response journals and spending after group 8
+        if: ${{ always() && steps.group8.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-8
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 9
+        id: group9
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 9
+      - name: Preserve response journals and spending after group 9
+        if: ${{ always() && steps.group9.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-9
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 10
+        id: group10
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 10
+      - name: Preserve response journals and spending after group 10
+        if: ${{ always() && steps.group10.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-10
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 11
+        id: group11
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 11
+      - name: Preserve response journals and spending after group 11
+        if: ${{ always() && steps.group11.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-11
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 12
+        id: group12
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 12
+      - name: Preserve response journals and spending after group 12
+        if: ${{ always() && steps.group12.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-12
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 13
+        id: group13
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 13
+      - name: Preserve response journals and spending after group 13
+        if: ${{ always() && steps.group13.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-13
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 14
+        id: group14
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 14
+      - name: Preserve response journals and spending after group 14
+        if: ${{ always() && steps.group14.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-14
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate excluded validation group 15
+        id: group15
+        env:
+          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: python scripts/expanded_remaining_validation.py group --provider xAI --state results/expanded/xai_api_validation --index 15
+      - name: Preserve response journals and spending after group 15
+        if: ${{ always() && steps.group15.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-group-15
+          path: results/expanded/xai_api_validation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Verify every output and record validation-only usage
+        run: python scripts/expanded_remaining_validation.py summarize --provider xAI --state results/expanded/xai_api_validation
+      - name: Preserve complete or interrupted evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xai-validation-${{ github.run_id }}-final
+          path: results/expanded/
+          if-no-files-found: error
+          retention-days: 90
+  saved-openai-evaluation:
+    if: ${{ inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 350
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.14"
+          cache: pip
+      - name: Install exact reviewed runtime and analysis dependencies
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Download the immutable completed OpenAI archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api repos/agrawal-priyank/depfailbench/actions/artifacts/12290279403/zip > "$RUNNER_TEMP/openai_validation_final.zip"
+      - name: Verify exact saved inputs before executing any generated source
+        run: python scripts/evaluate_saved_openai_validation.py prepare --archive "$RUNNER_TEMP/openai_validation_final.zip" --output results/expanded/openai_saved_evaluation
+      - name: Preserve verified original inputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: openai-saved-evaluation-${{ github.run_id }}-inputs
+          path: results/expanded/openai_saved_evaluation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Evaluate unchanged programs at all three deadlines and repeats without model credentials
+        run: python scripts/evaluate_saved_openai_validation.py evaluate --output results/expanded/openai_saved_evaluation
+      - name: Preserve every completed measurement even if interrupted
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openai-saved-evaluation-${{ github.run_id }}-final
+          path: results/expanded/openai_saved_evaluation/
+          if-no-files-found: error
           retention-days: 90

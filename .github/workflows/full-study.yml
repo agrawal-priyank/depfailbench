@@ -889,15 +889,15 @@ jobs:
           python -m pip install -r requirements.lock
           python -m pip install -r expanded_study/requirements-analysis.txt
           python -m pip install --no-deps --editable .
-      - name: Verify saved-provider input guards, execution isolation and recovery scope
+      - name: Verify changed Grok requests, scoped recovery and reviewed retry/accounting guards
         run: |
-          python -m pytest -q tests/test_saved_remaining_validation.py tests/test_expanded_openai_saved_validation.py tests/test_xai_metadata_recovery.py --junitxml=results/expanded/validation_orchestration_tests.junit.xml
+          python -m pytest -q tests/test_xai_request_recovery.py tests/test_expanded_providers.py --junitxml=results/expanded/validation_orchestration_tests.junit.xml
           python -m benchmark.expanded preflight --output results/expanded/preflight
           python - <<'PY'
           import json, os
           from pathlib import Path
           from benchmark.expanded.collect import environment, implementation_manifest
-          Path('results/expanded/runtime.json').write_text(json.dumps({'environment':environment(),'implementation':implementation_manifest(),'github_commit':os.environ['GITHUB_SHA'],'github_run_id':os.environ['GITHUB_RUN_ID'],'model_api_calls':0,'verification_scope':'saved-provider evaluation orchestration; measured core unchanged'},indent=2)+'\n')
+          Path('results/expanded/runtime.json').write_text(json.dumps({'environment':environment(),'implementation':implementation_manifest(),'github_commit':os.environ['GITHUB_SHA'],'github_run_id':os.environ['GITHUB_RUN_ID'],'model_api_calls':0,'verification_scope':'focused Grok request compatibility/recovery; complete433-test local gate and existing unchanged measurement-oracle Linux baseline also preserved'},indent=2)+'\n')
           PY
       - name: Preserve the focused Linux evidence
         if: always()

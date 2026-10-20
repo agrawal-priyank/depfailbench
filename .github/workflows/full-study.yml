@@ -3,6 +3,11 @@ name: Remaining excluded provider validation and saved OpenAI evaluation
 on:
   workflow_dispatch:
     inputs:
+      evaluate_uniform_saved_sources:
+        description: Retest only changed completed Mistral23 and Google3 saved responses under the approved extraction rule; no model calls
+        required: true
+        default: false
+        type: boolean
       resume_grok_request_fix:
         description: Resume only sixteen original unfilled Grok validation slots after reviewed request-format rejection
         required: true
@@ -44,12 +49,12 @@ permissions:
   actions: read
 
 concurrency:
-  group: depfailbench-remaining-${{ inputs.resume_grok_request_fix && 'grok-request-correction' || inputs.evaluate_saved_mistral_google && 'saved-mistral-google-evaluation' || inputs.recover_grok_after_key_fix && 'grok-metadata-recovery' || inputs.inspect_grok_access_only && 'grok-metadata-diagnostic' || inputs.verify_setup_only && 'setup-verification' || inputs.confirm_paid_generation && 'provider-generation' || 'saved-openai-evaluation' }}
+  group: depfailbench-remaining-${{ inputs.evaluate_uniform_saved_sources && 'uniform-saved-sources' || inputs.resume_grok_request_fix && 'grok-request-correction' || inputs.evaluate_saved_mistral_google && 'saved-mistral-google-evaluation' || inputs.recover_grok_after_key_fix && 'grok-metadata-recovery' || inputs.inspect_grok_access_only && 'grok-metadata-diagnostic' || inputs.verify_setup_only && 'setup-verification' || inputs.confirm_paid_generation && 'provider-generation' || 'saved-openai-evaluation' }}
   cancel-in-progress: false
 
 jobs:
   mistral-validation:
-    if: ${{ !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -411,7 +416,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   google-validation:
-    if: ${{ !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -565,7 +570,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   xai-validation:
-    if: ${{ !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.evaluate_saved_openai && ((inputs.confirm_paid_generation && !inputs.recover_grok_after_key_fix) || (inputs.recover_grok_after_key_fix && !inputs.confirm_paid_generation)) && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.evaluate_saved_openai && ((inputs.confirm_paid_generation && !inputs.recover_grok_after_key_fix) || (inputs.recover_grok_after_key_fix && !inputs.confirm_paid_generation)) && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -831,7 +836,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   saved-openai-evaluation:
-    if: ${{ !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -873,7 +878,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   verify-remaining-setup:
-    if: ${{ !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
@@ -908,7 +913,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   inspect-grok-access:
-    if: ${{ !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai }}
+    if: ${{ !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai }}
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
@@ -934,7 +939,7 @@ jobs:
           retention-days: 90
 
   saved-mistral-google-evaluation:
-    if: ${{ !inputs.resume_grok_request_fix && inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     strategy:
       fail-fast: false
       matrix:
@@ -990,7 +995,7 @@ jobs:
           retention-days: 90
 
   grok-request-recovery:
-    if: ${{ inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.evaluate_uniform_saved_sources && inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -1245,5 +1250,73 @@ jobs:
         with:
           name: xai-validation-${{ github.run_id }}-final
           path: results/expanded/
+          if-no-files-found: error
+          retention-days: 90
+
+  uniform-saved-source-evaluation:
+    if: ${{ inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - provider: Mistral
+            slug: mistral
+            artifact: 12293643835
+          - provider: Google
+            slug: google
+            artifact: 12295806138
+    runs-on: ubuntu-22.04
+    timeout-minutes: 350
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.14"
+          cache: pip
+      - name: Install the same reviewed runtime and analysis dependencies
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Verify the uniform processing rule and credential isolation before execution
+        run: python -m pytest -q tests/test_uniform_source_processing.py tests/test_saved_remaining_validation.py --junitxml=results/expanded/uniform_source_processing_tests.junit.xml
+      - name: Check the stable evaluation marker and download the original archive without source execution
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api 'repos/agrawal-priyank/depfailbench/actions/artifacts?per_page=100&name=${{ matrix.slug }}-uniform-source-20261020-v1-verified-inputs' > "$RUNNER_TEMP/prior_uniform_evaluation.json"
+          python -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["total_count"]==0 and not r["artifacts"], "Previous uniform evaluation exists; recover evidence instead of repeating"' "$RUNNER_TEMP/prior_uniform_evaluation.json"
+          gh api repos/agrawal-priyank/depfailbench/actions/artifacts/${{ matrix.artifact }}/zip > "$RUNNER_TEMP/provider_saved_validation.zip"
+      - name: Derive every changed completed response using the approved uniform rule
+        run: python scripts/evaluate_uniform_source_processing.py prepare --provider ${{ matrix.provider }} --archive "$RUNNER_TEMP/provider_saved_validation.zip" --output results/expanded/${{ matrix.slug }}_uniform_evaluation
+      - name: Preserve exact original and derived inputs before executing generated source
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.slug }}-uniform-source-20261020-v1-verified-inputs
+          path: results/expanded/${{ matrix.slug }}_uniform_evaluation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Record the pinned runtime without credentials
+        run: |
+          python - <<'PYTHON'
+          import json,os
+          from pathlib import Path
+          from benchmark.expanded.collect import environment,implementation_manifest
+          Path('results/expanded/${{ matrix.slug }}_uniform_evaluation/runtime.json').write_text(json.dumps({'environment':environment(),'implementation':implementation_manifest(),'github_commit':os.environ['GITHUB_SHA'],'github_run_id':os.environ['GITHUB_RUN_ID'],'model_api_calls':0},indent=2)+'\n')
+          PYTHON
+      - name: Test only changed completed saved sources at every deadline and prescribed repeat without credentials
+        run: python scripts/evaluate_uniform_source_processing.py evaluate --provider ${{ matrix.provider }} --output results/expanded/${{ matrix.slug }}_uniform_evaluation
+      - name: Preserve complete or interrupted derived measurements and test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.slug }}-uniform-evaluation-${{ github.run_id }}-final
+          path: |
+            results/expanded/${{ matrix.slug }}_uniform_evaluation/
+            results/expanded/uniform_source_processing_tests.junit.xml
           if-no-files-found: error
           retention-days: 90

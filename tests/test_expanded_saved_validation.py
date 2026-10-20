@@ -27,6 +27,31 @@ def test_input_guards_do_not_require_the_optional_analysis_package(monkeypatch):
     assert callable(module.prepare)
 
 
+def test_bytecode_is_derived_and_cannot_hide_original_source_changes(tmp_path):
+    source = tmp_path / "original/anthropic_api_validation/artifacts/validation_E6_claude_sonnet_5_5_C1/app.py"
+    source.parent.mkdir(parents=True)
+    source.write_text("original source bytes")
+    relative = str(source.relative_to(tmp_path / "original"))
+    verified = {"inputs": {source.parent.name: {}}, "original_files": {relative: WRAPPER.digest(source)}}
+    cache = source.parent / "__pycache__/app.cpython-312.pyc"
+    cache.parent.mkdir()
+    cache.write_bytes(b"derived bytecode")
+    assert WRAPPER.original_hashes(tmp_path, verified) == verified["original_files"]
+    source.write_text("modified source bytes")
+    assert WRAPPER.original_hashes(tmp_path, verified) != verified["original_files"]
+
+
+@pytest.mark.parametrize("extra", ["app_other.py", "__pycache__/other.py", "attempt_99/injected.json"])
+def test_derived_file_exception_rejects_unrelated_evidence_changes(tmp_path, extra):
+    base = tmp_path / "original/anthropic_api_validation/artifacts/validation_E6_claude_sonnet_5_5_C1"
+    path = base / extra
+    path.parent.mkdir(parents=True)
+    path.write_text("unexpected")
+    verified = {"inputs": {base.name: {}}, "original_files": {}}
+    with pytest.raises(ValueError, match="unexpected file"):
+        WRAPPER.original_hashes(tmp_path, verified)
+
+
 @pytest.mark.parametrize("name", ["../outside.py", "/absolute.py", "dir/../../outside.py", "dir\\outside.py"])
 def test_unsafe_archive_cannot_write(tmp_path, name):
     archive = tmp_path / "bad.zip"

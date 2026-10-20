@@ -7,7 +7,7 @@ import pytest
 
 from benchmark.expanded.contracts import Settings, TASKS, scenarios
 from benchmark.expanded.evaluate import evaluate, probe
-from benchmark.expanded.oracles import matches
+from benchmark.expanded.oracles import classify, matches
 from benchmark.expanded.planning import allocation, assets_root, check
 
 
@@ -33,6 +33,45 @@ def test_common_prompt_change_in_one_condition_is_rejected(tmp_path):
 @pytest.mark.parametrize("actual,expected", [(7.0, 7), (True, 1), (0, False), ({"quantity": True}, {"quantity": 1})])
 def test_typed_oracles_do_not_accept_python_equality_shortcuts(actual, expected):
     assert not matches(actual, expected)
+
+
+@pytest.mark.parametrize("task,identity,table,label,receipt", [
+    ("E5", "order-1", "orders", "PAID", {"order_id": "order-1", "charge_id": "charge-1"}),
+    ("E6", "request-1", "reservations", "RESERVED", {"request_id": "request-1", "reservation_id": "reservation-1", "item_id": "widget", "quantity": 3, "status": "reserved"}),
+])
+@pytest.mark.parametrize("representation", ["string", "status_record", "receipt_record"])
+def test_action_state_representation_does_not_change_truth_checks(task, identity, table, label, receipt, representation):
+    body = ({**receipt, "status": "PAID"} if task == "E5" else receipt)
+    stored = label if representation == "string" else {"status": label}
+    if representation == "receipt_record":
+        stored = {**receipt, "status": label}
+    evidence = {"responses": [{"status": 200, "body": body, "wall_latency_s": .01}],
+        "dependency": {"attempts": [{}], "effects": [receipt], "contract_violations": [], "stock": {"widget": 7, "gadget": 8}},
+        "application_state": {table: {identity: stored}}}
+    assert classify(task, "clean", Settings(), evidence)["pass"]
+    evidence["responses"][0]["body"] = {**body, "charge_id" if task == "E5" else "reservation_id": "invented"}
+    assert not classify(task, "clean", Settings(), evidence)["pass"]
+    evidence["responses"][0]["body"] = body
+    evidence["application_state"][table][identity] = "UNRESOLVED"
+    assert not classify(task, "clean", Settings(), evidence)["pass"]
+    evidence["application_state"][table][identity] = {"status": label, "charge_id" if task == "E5" else "reservation_id": "invented"}
+    assert not classify(task, "clean", Settings(), evidence)["pass"]
+
+
+@pytest.mark.parametrize("stored", ["PAID", {"status": "PAID"}, None, [], 7])
+def test_state_without_a_confirmed_effect_is_never_false_success_or_oracle_crash(stored):
+    evidence = {"responses": [{"status": 200, "body": {"order_id": "order-1", "status": "PAID", "charge_id": "invented"}, "wall_latency_s": .01}],
+        "dependency": {"attempts": [{}], "effects": [], "contract_violations": []},
+        "application_state": {"orders": {"order-1": stored}}}
+    assert not classify("E5", "clean", Settings(), evidence)["pass"]
+
+
+@pytest.mark.parametrize("stored,passes", [("UNRESOLVED", True), ({"status": "UNRESOLVED"}, True), ("UNPAID", False), (None, False), ([], False)])
+def test_unconfirmed_committed_action_requires_truthful_state(stored, passes):
+    evidence = {"responses": [{"status": 503, "wall_latency_s": .01}],
+        "dependency": {"attempts": [{}], "effects": [{"order_id": "order-1", "charge_id": "charge-1"}], "contract_violations": []},
+        "application_state": {"orders": {"order-1": stored}}}
+    assert classify("E5", "hanging_dependency", Settings(), evidence)["pass"] is passes
 
 
 @pytest.mark.parametrize("task", list(TASKS))

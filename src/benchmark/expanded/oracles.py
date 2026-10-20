@@ -107,15 +107,21 @@ def classify(task_id, scenario, settings, evidence):
             notes.append("duplicate non-idempotent effect")
         first = requests[0]
         identity = first["path"].split("/")[2] if task_id == "E5" else first["path"].split("/")[-1]
-        record = state.get("orders" if task_id == "E5" else "reservations", {}).get(identity, {})
+        table = state.get("orders" if task_id == "E5" else "reservations", {})
+        record = table.get(identity) if isinstance(table, dict) else None
+        # The task specifies a keyed status, not its internal representation.
+        # The public receipt is checked against the external effect above.
+        label_state = record.get("status") if isinstance(record, dict) else record
         if effects and responses and responses[0].get("status") == 200:
             label = "PAID" if task_id == "E5" else "RESERVED"
             receipt_key = "charge_id" if task_id == "E5" else "reservation_id"
-            if record.get("status") != label or record.get(receipt_key) != effects[0].get(receipt_key):
+            wrong_stored_receipt = (isinstance(record, dict) and receipt_key in record
+                                    and record[receipt_key] != effects[0].get(receipt_key))
+            if label_state != label or wrong_stored_receipt:
                 notes.append("application state does not match confirmed external receipt")
-        elif effects and record.get("status") != "UNRESOLVED":
+        elif effects and label_state != "UNRESOLVED":
             notes.append("committed but unconfirmed action must be UNRESOLVED")
-        elif not effects and record.get("status") in {"PAID", "RESERVED"}:
+        elif not effects and label_state in ("PAID", "RESERVED"):
             notes.append("application claims success without external effect")
         if task_id == "E6":
             expected_stock = {"widget": 10, "gadget": 8}

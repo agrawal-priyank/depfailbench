@@ -1,7 +1,8 @@
 """Evaluate the immutable, excluded 16-program Anthropic validation batch.
 
 This wrapper has no provider/generation imports, API requests or credentials.
-The original collection/evaluation implementation and study assets are unchanged.
+The original study assets are unchanged. One explicitly hashed oracle correction
+accepts the status representations permitted by the unchanged action-task text.
 """
 
 from __future__ import annotations
@@ -22,6 +23,14 @@ from benchmark.expanded.report_collection import export
 ARCHIVE_SHA256 = "064fa01b5c82b2065ee02b1d66a11ad9ab84f27bd5993ede5a6e7d9c4027fe9e"
 SOURCE_RUN_ID = 39458106201
 SOURCE_ARTIFACT_ID = 12281573442
+MEASUREMENT_AMENDMENT = {
+    "file": "implementation/oracles.py",
+    "original_sha256": "ea77ea68423b9f8fce7e0ddd5908f8b24f5200603ccaabaa473803f41f325701",
+    "evaluation_sha256": "a3c24b3140cbd0a2aa89de20fe05bb585c6bb219b35f6cb821a2fea2c344d064",
+    "reason": "Accept keyed status strings or status records as permitted by E5/E6; retain public receipt, external effect and truthful-state checks. Do not impose an undocumented requirement that receipts be duplicated inside status records.",
+    "applies_uniformly_to_all_providers_conditions_deadlines": True,
+    "generation_inputs_changed": False,
+}
 
 
 def extract_checked(archive, destination):
@@ -50,6 +59,10 @@ def inputs(output):
         raise ValueError("saved generation plan differs from the reviewed plan")
     for name, expected in plan["snapshot"].items():
         path = (Path(__file__).resolve().parents[1] / "src/benchmark/expanded" / name.removeprefix("implementation/")) if name.startswith("implementation/") else root.parent / name
+        if name == MEASUREMENT_AMENDMENT["file"]:
+            if expected != MEASUREMENT_AMENDMENT["original_sha256"]:
+                raise ValueError("original oracle differs from the documented correction")
+            expected = MEASUREMENT_AMENDMENT["evaluation_sha256"]
         if digest(path) != expected:
             raise ValueError(f"original study/core changed: {name}")
     declared = [s for s in allocation(root)[1] if s["provider"] == "Anthropic"]
@@ -76,6 +89,7 @@ def prepare(archive, output):
     _, slots, manifests = inputs(output)
     report = {"source_generation_run_id": SOURCE_RUN_ID, "source_artifact_id": SOURCE_ARTIFACT_ID,
         "archive_sha256": ARCHIVE_SHA256, "cohort": "validation", "excluded_from_main": True,
+        "measurement_amendment": MEASUREMENT_AMENDMENT,
         "programs": len(slots), "inputs": manifests, "implementation": implementation_manifest(),
         "original_files": {str(p.relative_to(output / "original")): digest(p)
                            for p in sorted((output / "original").rglob("*")) if p.is_file()},
@@ -91,6 +105,7 @@ def evaluate_saved(output):
     original_files = lambda: {str(p.relative_to(output / "original")): digest(p)
                               for p in sorted((output / "original").rglob("*")) if p.is_file()}
     if (verified["archive_sha256"] != ARCHIVE_SHA256 or verified["inputs"] != manifests
+            or verified["measurement_amendment"] != MEASUREMENT_AMENDMENT
             or verified["implementation"] != implementation_manifest()
             or verified["original_files"] != original_files()):
         raise ValueError("verified inputs changed before evaluation")

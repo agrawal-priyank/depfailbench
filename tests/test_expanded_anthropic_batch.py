@@ -15,6 +15,23 @@ batch = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(batch)
 
 
+@pytest.fixture(autouse=True)
+def current_core_mock_plan(tmp_path, monkeypatch):
+    # The historical live plan stays immutable. Rehearse batch guards against
+    # today's core with a temporary plan; this fixture never permits paid calls.
+    plan=json.loads(batch.PLAN_PATH.read_text())
+    plan['snapshot']=batch.execution_snapshot()
+    path=tmp_path/'mock_reviewed_plan.json'
+    path.write_text(json.dumps(plan))
+    monkeypatch.setattr(batch,'PLAN_PATH',path)
+
+
+def test_original_live_plan_blocks_a_changed_measurement_core(monkeypatch):
+    monkeypatch.setattr(batch,'PLAN_PATH',batch.SCRIPT.with_name('expanded_anthropic_validation_plan.json'))
+    with pytest.raises(DispatchPaused,match='snapshot'):
+        batch.load_plan()
+
+
 @pytest.mark.parametrize('limit', ['0', '-1', '6.01', 'NaN'])
 def test_budget_rejected_before_creating_any_state(tmp_path, limit):
     state = tmp_path / 'state'

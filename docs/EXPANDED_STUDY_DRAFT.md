@@ -208,6 +208,19 @@ reported and blocks confirmatory analysis pending review; it never selects the
 best repeat. Main analysis additionally rejects repeat IDs other than 1 and
 explicitly flagged disagreements.
 
+The prospective `linked-internal-payment-uuid-2026-10-20` rule preserves literal
+trace differences separately. Only a canonical UUID in E5's stored internal
+`orders[order_id].idempotency_key`, linked to a recorded downstream key in that
+same independently run scenario, may receive a first-occurrence comparison
+alias. Recorded key reuse/distinctness across retries and public requests,
+request identity/payload, receipts, side effects, response bodies and every other
+state field remain comparable. Raw records are never normalized or overwritten.
+The rule applies without provider/model/condition/outcome filters. It arose
+during excluded validation before main collection; all historical summaries
+retain their original literal flags. Collection and export summaries report
+literal-only variations alongside blocking behavioral disagreements.
+
+
 `benchmark.expanded.report_collection` exports the chosen-repeat program table,
 cell Wilson intervals, per-scenario reached and unconditional denominators,
 one shared failure taxonomy with disjoint priority counts plus overlapping flags,
@@ -244,3 +257,17 @@ produces full-cohort inference. Output directories retain evidence; use a new
 collection/export path for a documented reanalysis rather than overwriting an
 earlier run. These commands evaluate saved programs only and contain no model
 generation calls. Re-execution and collection controls consume local compute.
+
+
+## Final review draft, 20 October 2026
+
+The selected Gemini baseline is now `gemini_3_8_flash_low`, thinking level low,
+following the author's choice and completed excluded validation. The earlier
+medium validation remains separate. Selected panel: four families, six models,
+nine configurations; 4,320 main outputs and 144 excluded validation coordinates.
+The prospective linked-internal-payment UUID repeat rule is declared in
+`study.json`. Main execution remains disabled until author approval and a final
+hash-bound frozen execution record. Proposed model-call envelope is $45; the
+pilot-linear token projection is $35.263545 and is not an invoice guarantee.
+Historical paid validation plans remain immutable and stale for this draft;
+none may be refreshed to regenerate their outputs.

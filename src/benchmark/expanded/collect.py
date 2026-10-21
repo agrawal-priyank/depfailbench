@@ -21,6 +21,7 @@ import time
 from .contracts import Settings, scenarios
 from .evaluate import evaluate
 from .planning import allocation, assets_root, check, digest
+from .repeat_audit import POLICY as REPEAT_COMPARISON_POLICY
 
 
 class CollectionError(ValueError):
@@ -121,18 +122,15 @@ def record_path(output, identity, deadline, repeat):
 
 
 def behavior_signature(result):
-    """Compare scientific outputs/state, excluding naturally variable timings."""
-    return value_hash({"clean_qualified": result["clean_qualified"], "primary_pass": result["primary_pass"],
-        "generation_failure": result.get("generation_failure"), "integrity_error": result.get("integrity_error"),
-        "observations": [{"scenario": o["scenario"], "pass": o["pass"], "outcome_class": o.get("outcome_class"),
-            "watchdog_intervened": o.get("watchdog_intervened", False),
-            "responses": [{"status": r["status"], "successful_body": r.get("body") if r["status"] == 200 else None}
-                          for r in o.get("responses", [])],
-            "effects": (o.get("dependency") or {}).get("effects", []),
-            "objects": (o.get("dependency") or {}).get("objects", {}),
-            "preferences": (o.get("dependency") or {}).get("preferences", {}),
-            "stock": (o.get("dependency") or {}).get("stock", {}),
-            "application_state": o.get("application_state", {})} for o in result.get("observations", [])]})
+    """Compare behavior under the declared linked-internal-UUID policy."""
+    from .repeat_audit import behavior_view
+    return value_hash(behavior_view(result))
+
+
+def literal_behavior_signature(result):
+    """Retain the earlier literal-state audit alongside behavioral comparison."""
+    from .repeat_audit import literal_view
+    return value_hash(literal_view(result))
 
 
 def validate_result(result, metadata, deadline):
@@ -187,7 +185,7 @@ def collect(artifacts, output, *, cohort="main", artifact_ids=None, root=None, p
         "synthetic_data": next(iter(inputs.values()))["synthetic_data"],
         "deadlines": deadlines, "repeats": 3, "selected_repeat": 1, "seed": design["seed"],
         "inputs": inputs, "assets": asset_manifest(root), "implementation": implementation_manifest(),
-        "environment": environment(), "settings": asdict(Settings())}
+        "environment": environment(), "settings": asdict(Settings()), "repeat_comparison_policy": REPEAT_COMPARISON_POLICY}
     manifest = {**invariant, "run_fingerprint": value_hash(invariant)}
     output.mkdir(parents=True, exist_ok=True)
     manifest_path = output / "collection_manifest.json"
@@ -256,6 +254,7 @@ def audit_collection(output):
     if manifest.get("run_fingerprint") != value_hash({k: v for k, v in manifest.items() if k != "run_fingerprint"}):
         raise CollectionError("collection manifest was modified")
     disagreements, records, probes = [], 0, 0
+    literal_disagreements, identifier_variations = [], []
     selected_rows = []
     for identity, data in manifest["inputs"].items():
         for deadline in manifest["deadlines"]:
@@ -270,6 +269,13 @@ def audit_collection(output):
                 records += 1
                 probes += len(row["result"].get("observations", []))
             disagree = len({behavior_signature(r["result"]) for r in repeated}) > 1
+            literal_disagree = len({literal_behavior_signature(r["result"]) for r in repeated}) > 1
+            trace = {"artifact_id": identity, "deadline_s": deadline,
+                     "repeat_passes": [r["result"]["primary_pass"] for r in repeated]}
+            if literal_disagree:
+                literal_disagreements.append(trace)
+            if literal_disagree and not disagree:
+                identifier_variations.append(trace)
             if disagree:
                 disagreements.append({"artifact_id": identity, "deadline_s": deadline,
                                       "repeat_passes": [r["result"]["primary_pass"] for r in repeated]})
@@ -286,6 +292,9 @@ def audit_collection(output):
         "expected_evaluation_records": expected_records, "complete_matrix": records == expected_records,
         "diagnostic_subset": manifest["diagnostic_subset"], "selected_repeat": 1,
         "reproducibility_disagreements": disagreements,
+        "literal_trace_disagreements": literal_disagreements,
+        "permitted_internal_identifier_variations": identifier_variations,
+        "repeat_comparison_policy": REPEAT_COMPARISON_POLICY,
         "confirmatory_ready": manifest["cohort"] == "main" and not manifest["diagnostic_subset"] and
                               not manifest["synthetic_data"] and not disagreements,
         "run_fingerprint": manifest["run_fingerprint"], "selected_outcomes": selected_rows,

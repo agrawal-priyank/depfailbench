@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "protocol_version": "array-expanded-draft-2026-10-19",
-  "status": "draft_four_families_output_policy_integrated_pending_gemini_budget_review",
+  "status": "final_review_draft_four_families_gemini_low_repeat_policy_pending_main_approval",
   "frozen": false,
   "paid_execution_authorized": false,
   "seed": 20261019,
@@ -61,12 +61,12 @@
       "output_limit_semantics": "provider_accounted_generated_tokens"
     },
     {
-      "id": "gemini_3_8_flash",
+      "id": "gemini_3_8_flash_low",
       "model_id": "gemini-3.8-flash",
       "provider": "Google",
       "baseline": true,
       "generation_settings": {
-        "thinking_level": "medium",
+        "thinking_level": "low",
         "temperature": null,
         "top_p": null,
         "top_k": null
@@ -152,8 +152,9 @@
   "retained_original_programs": 320,
   "main_outputs": 4320,
   "excluded_validation_outputs": 144,
-  "proposed_budget_usd": 200,
+  "proposed_budget_usd": 45,
   "budget_authorized": false,
-  "cost_note": "Measured retained-panel token estimates and runtime require final review. Grok withdrawn for operational feasibility; its historical diagnostics remain separate.",
-  "source_processing_policy": "single-unambiguous-python-fence-2026-10-20"
+  "cost_note": "Selected-panel excluded pilots project $35.263545 model-token cost; proposed $45 operational envelope requires author approval. Invoice cost and future usage may differ. Prior validation and withdrawn Grok spending are separate.",
+  "source_processing_policy": "single-unambiguous-python-fence-2026-10-20",
+  "repeat_comparison_policy": "linked-internal-payment-uuid-2026-10-20"
 }

@@ -53,7 +53,7 @@ def test_exact_selected_request_and_omissions(config):
         assert b["thinking"] == {"type": "adaptive"} and b["output_config"] == {"effort": "high"}
         assert b["max_tokens"] == 32000 and r["headers"]["anthropic-version"] == "2023-06-01"
     elif provider == "Google":
-        assert b["generation_config"] == {"max_output_tokens": 32000, "thinking_level": "medium"}
+        assert b["generation_config"] == {"max_output_tokens": 32000, "thinking_level": "low"}
         assert "contents" not in b and "generationConfig" not in b
     elif provider == "xAI":
         assert b["tools"] == [] and "tool_choice" not in b
@@ -68,7 +68,7 @@ def test_exact_selected_request_and_omissions(config):
 
 
 def test_unknown_parameter_or_changed_api_fails_instead_of_silently_dropping_it():
-    c = deepcopy(CONFIGS["gemini_3_8_flash"])
+    c = deepcopy(CONFIGS["gemini_3_8_flash_low"])
     c["api"] = "GenerateContent"
     with pytest.raises(ValueError, match="API"):
         build_request(c, "hello")

@@ -1,5 +1,6 @@
 """One uniform extraction rule: no block selection, repair or status rescue."""
 import sys
+import re
 from pathlib import Path
 import pytest
 sys.path.insert(0,str(Path(__file__).parents[1]/'scripts'))
@@ -94,7 +95,7 @@ def test_core_extraction_cannot_turn_an_incomplete_response_into_a_completed_pro
 
 def test_uniform_workflow_has_no_model_credentials_and_token_is_only_in_download_step():
     text=(Path(__file__).parents[1]/'.github/workflows/full-study.yml').read_text()
-    job=text.split('  uniform-saved-source-evaluation:',1)[1]
+    job=re.split(r'\n  [a-zA-Z0-9_-]+:\n',text.split('  uniform-saved-source-evaluation:',1)[1],maxsplit=1)[0]
     assert 'secrets.' not in job and 'persist-credentials: false' in job
     token_steps=[s for s in job.split('      - ') if 'GH_TOKEN:' in s]
     assert len(token_steps)==1 and 'gh api' in token_steps[0]
@@ -107,7 +108,9 @@ def test_uniform_workflow_has_no_model_credentials_and_token_is_only_in_download
 
 def test_every_other_job_is_excluded_from_uniform_evaluation_dispatch():
     text=(Path(__file__).parents[1]/'.github/workflows/full-study.yml').read_text()
-    other=text.split('jobs:',1)[1].split('  uniform-saved-source-evaluation:',1)[0]
+    jobs=text.split('jobs:',1)[1]
+    target=re.split(r'\n  [a-zA-Z0-9_-]+:\n',jobs.split('  uniform-saved-source-evaluation:',1)[1],maxsplit=1)[0]
+    other=jobs.replace(target,'',1)
     guards=[line for line in other.splitlines() if line.startswith('    if:')]
-    assert len(guards)==10
+    assert len(guards)==11
     assert all('!inputs.evaluate_uniform_saved_sources' in line for line in guards)

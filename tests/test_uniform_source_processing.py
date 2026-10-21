@@ -112,5 +112,5 @@ def test_every_other_job_is_excluded_from_uniform_evaluation_dispatch():
     target=re.split(r'\n  [a-zA-Z0-9_-]+:\n',jobs.split('  uniform-saved-source-evaluation:',1)[1],maxsplit=1)[0]
     other=jobs.replace(target,'',1)
     guards=[line for line in other.splitlines() if line.startswith('    if:')]
-    assert len(guards)==12
+    assert len(guards)==14
     assert all('!inputs.evaluate_uniform_saved_sources' in line for line in guards)

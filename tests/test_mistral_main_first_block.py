@@ -62,7 +62,7 @@ def test_live_prepare_requires_workflow_guard_without_creating_state(tmp_path,mo
     assert not(tmp_path/'state').exists()
 
 def test_workflow_scope_keys_and_stable_marker():
-    text=(ROOT/'.github/workflows/full-study.yml').read_text();job=text.split('  mistral-main-first-block:',1)[1]
+    text=(ROOT/'.github/workflows/full-study.yml').read_text();job=text.split('  mistral-main-first-block:',1)[1].split('  mistral-main-overnight:',1)[0]
     keyed=[s for s in job.split('      - ') if 'secrets.MISTRAL_API_KEY' in s]
     assert len(keyed)==10 and all(f'--index {i}' in keyed[i] for i in range(10))
     assert all(s not in job for s in ['secrets.OPENAI_API_KEY','secrets.ANTHROPIC_API_KEY','secrets.GEMINI_API_KEY','secrets.GROK_API_KEY'])

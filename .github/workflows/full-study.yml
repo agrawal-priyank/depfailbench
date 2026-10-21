@@ -1958,3 +1958,607 @@ jobs:
             results/expanded/main_first_block_runtime.json
           if-no-files-found: error
           retention-days: 90
+
+  mistral-main-overnight:
+    if: ${{ inputs.confirm_paid_generation && inputs.verify_setup_only && inputs.continue_grok_budget && !inputs.gemini_low_feasibility && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 350
+    env:
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+          cache: pip
+      - name: Install pinned dependencies
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Verify frozen core and overnight continuation without credentials
+        run: python -m pytest -q tests/test_expanded_study.py tests/test_expanded_analysis.py tests/test_expanded_providers.py tests/test_expanded_collection.py tests/test_expanded_live_recovery.py tests/test_expanded_reclassification.py tests/test_expanded_status_policy.py tests/test_uniform_source_processing.py tests/test_repeat_audit.py tests/test_mistral_main_first_block.py tests/test_mistral_main_overnight.py --junitxml=results/expanded/overnight_tests.junit.xml
+      - name: Read first-main archive and stable overnight marker before model authentication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/mistral_main_overnight.py prior-run-check --state results/expanded/overnight_guard.json
+          gh api repos/agrawal-priyank/depfailbench/actions/artifacts/12316580074/zip > "$RUNNER_TEMP/first_main.zip"
+      - name: Preserve first ten and explicitly amend the copied cumulative Mistral allowance
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+        run: python scripts/mistral_main_overnight.py prepare --state results/expanded/mistral_main_overnight --archive "$RUNNER_TEMP/first_main.zip" --guard results/expanded/overnight_guard.json
+      - name: Preserve stable overnight prepared marker before paid calls
+        uses: actions/upload-artifact@v4
+        with:
+          name: array-main-mistral-overnight-20261020-v1-prepared
+          path: results/expanded/mistral_main_overnight/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 0
+        id: wave0
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 0
+      - name: Preserve wave 0 responses and cumulative ledger
+        if: ${{ always() && steps.wave0.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-0
+          path: results/expanded/mistral_wave_checkpoints/wave_0/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 1
+        id: wave1
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 1
+      - name: Preserve wave 1 responses and cumulative ledger
+        if: ${{ always() && steps.wave1.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-1
+          path: results/expanded/mistral_wave_checkpoints/wave_1/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 2
+        id: wave2
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 2
+      - name: Preserve wave 2 responses and cumulative ledger
+        if: ${{ always() && steps.wave2.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-2
+          path: results/expanded/mistral_wave_checkpoints/wave_2/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 3
+        id: wave3
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 3
+      - name: Preserve wave 3 responses and cumulative ledger
+        if: ${{ always() && steps.wave3.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-3
+          path: results/expanded/mistral_wave_checkpoints/wave_3/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 4
+        id: wave4
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 4
+      - name: Preserve wave 4 responses and cumulative ledger
+        if: ${{ always() && steps.wave4.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-4
+          path: results/expanded/mistral_wave_checkpoints/wave_4/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 5
+        id: wave5
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 5
+      - name: Preserve wave 5 responses and cumulative ledger
+        if: ${{ always() && steps.wave5.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-5
+          path: results/expanded/mistral_wave_checkpoints/wave_5/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 6
+        id: wave6
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 6
+      - name: Preserve wave 6 responses and cumulative ledger
+        if: ${{ always() && steps.wave6.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-6
+          path: results/expanded/mistral_wave_checkpoints/wave_6/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 7
+        id: wave7
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 7
+      - name: Preserve wave 7 responses and cumulative ledger
+        if: ${{ always() && steps.wave7.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-7
+          path: results/expanded/mistral_wave_checkpoints/wave_7/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 8
+        id: wave8
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 8
+      - name: Preserve wave 8 responses and cumulative ledger
+        if: ${{ always() && steps.wave8.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-8
+          path: results/expanded/mistral_wave_checkpoints/wave_8/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 9
+        id: wave9
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 9
+      - name: Preserve wave 9 responses and cumulative ledger
+        if: ${{ always() && steps.wave9.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-9
+          path: results/expanded/mistral_wave_checkpoints/wave_9/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 10
+        id: wave10
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 10
+      - name: Preserve wave 10 responses and cumulative ledger
+        if: ${{ always() && steps.wave10.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-10
+          path: results/expanded/mistral_wave_checkpoints/wave_10/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 11
+        id: wave11
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 11
+      - name: Preserve wave 11 responses and cumulative ledger
+        if: ${{ always() && steps.wave11.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-11
+          path: results/expanded/mistral_wave_checkpoints/wave_11/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 12
+        id: wave12
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 12
+      - name: Preserve wave 12 responses and cumulative ledger
+        if: ${{ always() && steps.wave12.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-12
+          path: results/expanded/mistral_wave_checkpoints/wave_12/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 13
+        id: wave13
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 13
+      - name: Preserve wave 13 responses and cumulative ledger
+        if: ${{ always() && steps.wave13.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-13
+          path: results/expanded/mistral_wave_checkpoints/wave_13/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 14
+        id: wave14
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 14
+      - name: Preserve wave 14 responses and cumulative ledger
+        if: ${{ always() && steps.wave14.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-14
+          path: results/expanded/mistral_wave_checkpoints/wave_14/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 15
+        id: wave15
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 15
+      - name: Preserve wave 15 responses and cumulative ledger
+        if: ${{ always() && steps.wave15.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-15
+          path: results/expanded/mistral_wave_checkpoints/wave_15/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 16
+        id: wave16
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 16
+      - name: Preserve wave 16 responses and cumulative ledger
+        if: ${{ always() && steps.wave16.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-16
+          path: results/expanded/mistral_wave_checkpoints/wave_16/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 17
+        id: wave17
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 17
+      - name: Preserve wave 17 responses and cumulative ledger
+        if: ${{ always() && steps.wave17.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-17
+          path: results/expanded/mistral_wave_checkpoints/wave_17/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 18
+        id: wave18
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 18
+      - name: Preserve wave 18 responses and cumulative ledger
+        if: ${{ always() && steps.wave18.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-18
+          path: results/expanded/mistral_wave_checkpoints/wave_18/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 19
+        id: wave19
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 19
+      - name: Preserve wave 19 responses and cumulative ledger
+        if: ${{ always() && steps.wave19.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-19
+          path: results/expanded/mistral_wave_checkpoints/wave_19/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 20
+        id: wave20
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 20
+      - name: Preserve wave 20 responses and cumulative ledger
+        if: ${{ always() && steps.wave20.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-20
+          path: results/expanded/mistral_wave_checkpoints/wave_20/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 21
+        id: wave21
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 21
+      - name: Preserve wave 21 responses and cumulative ledger
+        if: ${{ always() && steps.wave21.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-21
+          path: results/expanded/mistral_wave_checkpoints/wave_21/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 22
+        id: wave22
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 22
+      - name: Preserve wave 22 responses and cumulative ledger
+        if: ${{ always() && steps.wave22.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-22
+          path: results/expanded/mistral_wave_checkpoints/wave_22/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 23
+        id: wave23
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 23
+      - name: Preserve wave 23 responses and cumulative ledger
+        if: ${{ always() && steps.wave23.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-23
+          path: results/expanded/mistral_wave_checkpoints/wave_23/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 24
+        id: wave24
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 24
+      - name: Preserve wave 24 responses and cumulative ledger
+        if: ${{ always() && steps.wave24.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-24
+          path: results/expanded/mistral_wave_checkpoints/wave_24/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 25
+        id: wave25
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 25
+      - name: Preserve wave 25 responses and cumulative ledger
+        if: ${{ always() && steps.wave25.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-25
+          path: results/expanded/mistral_wave_checkpoints/wave_25/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 26
+        id: wave26
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 26
+      - name: Preserve wave 26 responses and cumulative ledger
+        if: ${{ always() && steps.wave26.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-26
+          path: results/expanded/mistral_wave_checkpoints/wave_26/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 27
+        id: wave27
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 27
+      - name: Preserve wave 27 responses and cumulative ledger
+        if: ${{ always() && steps.wave27.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-27
+          path: results/expanded/mistral_wave_checkpoints/wave_27/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 28
+        id: wave28
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 28
+      - name: Preserve wave 28 responses and cumulative ledger
+        if: ${{ always() && steps.wave28.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-28
+          path: results/expanded/mistral_wave_checkpoints/wave_28/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 29
+        id: wave29
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 29
+      - name: Preserve wave 29 responses and cumulative ledger
+        if: ${{ always() && steps.wave29.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-29
+          path: results/expanded/mistral_wave_checkpoints/wave_29/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 30
+        id: wave30
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 30
+      - name: Preserve wave 30 responses and cumulative ledger
+        if: ${{ always() && steps.wave30.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-30
+          path: results/expanded/mistral_wave_checkpoints/wave_30/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 31
+        id: wave31
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 31
+      - name: Preserve wave 31 responses and cumulative ledger
+        if: ${{ always() && steps.wave31.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-31
+          path: results/expanded/mistral_wave_checkpoints/wave_31/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 32
+        id: wave32
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 32
+      - name: Preserve wave 32 responses and cumulative ledger
+        if: ${{ always() && steps.wave32.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-32
+          path: results/expanded/mistral_wave_checkpoints/wave_32/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 33
+        id: wave33
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 33
+      - name: Preserve wave 33 responses and cumulative ledger
+        if: ${{ always() && steps.wave33.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-33
+          path: results/expanded/mistral_wave_checkpoints/wave_33/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 34
+        id: wave34
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 34
+      - name: Preserve wave 34 responses and cumulative ledger
+        if: ${{ always() && steps.wave34.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-34
+          path: results/expanded/mistral_wave_checkpoints/wave_34/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate frozen Mistral main wave 35
+        id: wave35
+        env:
+          CONFIRM_MISTRAL_OVERNIGHT: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_overnight.py wave --state results/expanded/mistral_main_overnight --index 35
+      - name: Preserve wave 35 responses and cumulative ledger
+        if: ${{ always() && steps.wave35.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-wave-35
+          path: results/expanded/mistral_wave_checkpoints/wave_35/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Preserve final or interrupted full Mistral generation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-overnight-${{ github.run_id }}-final
+          path: |
+            results/expanded/mistral_main_overnight/
+            results/expanded/overnight_tests.junit.xml
+          if-no-files-found: error
+          retention-days: 90
+
+  mistral-main-saved-evaluation:
+    needs: mistral-main-overnight
+    if: ${{ inputs.confirm_paid_generation && inputs.verify_setup_only && inputs.continue_grok_budget && !inputs.gemini_low_feasibility && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        task: [E1, E2, E3, E4, E5, E6, E7, E8]
+        configuration: [ministral_3b_2512, ministral_14b_2512, ministral_14b_2512_temperature_0p2]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 350
+    env:
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+          cache: pip
+      - name: Install same pinned evaluation runtime
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Download same-run Mistral generation archive without executing code
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/agrawal-priyank/depfailbench/actions/runs/${{ github.run_id }}/artifacts?per_page=100 > "$RUNNER_TEMP/mistral_artifacts.json"
+          python -c 'import json,os; a=json.load(open(os.environ["RUNNER_TEMP"]+"/mistral_artifacts.json")); found=[x for x in a["artifacts"] if x["name"]=="main-mistral-overnight-"+os.environ["GITHUB_RUN_ID"]+"-final"]; assert len(found)==1; open(os.environ["RUNNER_TEMP"]+"/source_artifact_id","w").write(str(found[0]["id"]))'
+          source_artifact_id=$(cat "$RUNNER_TEMP/source_artifact_id")
+          gh api repos/agrawal-priyank/depfailbench/actions/artifacts/"$source_artifact_id" > "$RUNNER_TEMP/source_metadata.json"
+          gh api repos/agrawal-priyank/depfailbench/actions/artifacts/"$source_artifact_id"/zip > "$RUNNER_TEMP/mistral_main.zip"
+      - name: Verify every saved source and select exact frozen task configuration cell pair
+        run: python scripts/evaluate_main_mistral.py prepare --archive "$RUNNER_TEMP/mistral_main.zip" --metadata "$RUNNER_TEMP/source_metadata.json" --output results/expanded/mistral_main_evaluation --task ${{ matrix.task }} --configuration ${{ matrix.configuration }}
+      - name: Evaluate all sixty saved programs at all deadlines and repeats without credentials
+        run: python scripts/evaluate_main_mistral.py evaluate --output results/expanded/mistral_main_evaluation
+      - name: Preserve complete or interrupted measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-evaluation-${{ github.run_id }}-${{ matrix.task }}-${{ matrix.configuration }}
+          path: |
+            results/expanded/mistral_main_evaluation/collection/
+            results/expanded/mistral_main_evaluation/verified_inputs.json
+            results/expanded/mistral_main_evaluation/evaluation_summary.json
+          if-no-files-found: error
+          retention-days: 90

@@ -3,6 +3,11 @@ name: Remaining excluded provider validation and saved OpenAI evaluation
 on:
   workflow_dispatch:
     inputs:
+      amended_prompt_checks:
+        description: Ninety excluded amended-prompt checks within $3 reserved from $45; no main calls
+        required: true
+        default: false
+        type: boolean
       gemini_low_feasibility:
         description: Fourteen remaining approved Gemini low-thinking validation responses within $2; no main-study outputs
         required: true
@@ -59,12 +64,12 @@ permissions:
   actions: read
 
 concurrency:
-  group: depfailbench-remaining-${{ inputs.gemini_low_feasibility && 'gemini-low-feasibility' || inputs.continue_grok_budget && 'grok-budget-continuation' || inputs.evaluate_uniform_saved_sources && 'uniform-saved-sources' || inputs.resume_grok_request_fix && 'grok-request-correction' || inputs.evaluate_saved_mistral_google && 'saved-mistral-google-evaluation' || inputs.recover_grok_after_key_fix && 'grok-metadata-recovery' || inputs.inspect_grok_access_only && 'grok-metadata-diagnostic' || inputs.verify_setup_only && 'setup-verification' || inputs.confirm_paid_generation && 'provider-generation' || 'saved-openai-evaluation' }}
+  group: depfailbench-remaining-${{ inputs.amended_prompt_checks && 'amended-prompts-20261021' || inputs.gemini_low_feasibility && 'gemini-low-feasibility' || inputs.continue_grok_budget && 'grok-budget-continuation' || inputs.evaluate_uniform_saved_sources && 'uniform-saved-sources' || inputs.resume_grok_request_fix && 'grok-request-correction' || inputs.evaluate_saved_mistral_google && 'saved-mistral-google-evaluation' || inputs.recover_grok_after_key_fix && 'grok-metadata-recovery' || inputs.inspect_grok_access_only && 'grok-metadata-diagnostic' || inputs.verify_setup_only && 'setup-verification' || inputs.confirm_paid_generation && 'provider-generation' || 'saved-openai-evaluation' }}
   cancel-in-progress: false
 
 jobs:
   mistral-validation:
-    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.amended_prompt_checks && (!inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation') }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -426,7 +431,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   google-validation:
-    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.amended_prompt_checks && (!inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation') }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -580,7 +585,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   xai-validation:
-    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.evaluate_saved_openai && ((inputs.confirm_paid_generation && !inputs.recover_grok_after_key_fix) || (inputs.recover_grok_after_key_fix && !inputs.confirm_paid_generation)) && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.amended_prompt_checks && (!inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.evaluate_saved_openai && ((inputs.confirm_paid_generation && !inputs.recover_grok_after_key_fix) || (inputs.recover_grok_after_key_fix && !inputs.confirm_paid_generation)) && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation') }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -846,7 +851,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   saved-openai-evaluation:
-    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.amended_prompt_checks && (!inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation') }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -888,7 +893,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   verify-remaining-setup:
-    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.amended_prompt_checks && (!inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && github.ref == 'refs/heads/array-revision-linux-validation') }}
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
@@ -936,7 +941,7 @@ jobs:
           retention-days: 90
 
   inspect-grok-access:
-    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai }}
+    if: ${{ !inputs.amended_prompt_checks && (!inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai) }}
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
@@ -962,7 +967,7 @@ jobs:
           retention-days: 90
 
   saved-mistral-google-evaluation:
-    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.amended_prompt_checks && (!inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation') }}
     strategy:
       fail-fast: false
       matrix:
@@ -1018,7 +1023,7 @@ jobs:
           retention-days: 90
 
   grok-request-recovery:
-    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.amended_prompt_checks && (!inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation') }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -1277,7 +1282,7 @@ jobs:
           retention-days: 90
 
   grok-budget-continuation:
-    if: ${{ !inputs.gemini_low_feasibility && inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.amended_prompt_checks && (!inputs.gemini_low_feasibility && inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation') }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -1523,7 +1528,7 @@ jobs:
           retention-days: 90
 
   gemini-low-remaining:
-    if: ${{ inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.amended_prompt_checks && (inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation') }}
     runs-on: ubuntu-22.04
     timeout-minutes: 45
     env:
@@ -1650,7 +1655,7 @@ jobs:
           retention-days: 90
 
   uniform-saved-source-evaluation:
-    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.amended_prompt_checks && (!inputs.gemini_low_feasibility && !inputs.continue_grok_budget && inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation') }}
     strategy:
       fail-fast: false
       matrix:
@@ -1718,7 +1723,7 @@ jobs:
           retention-days: 90
 
   gemini-low-saved-evaluation:
-    if: ${{ inputs.gemini_low_feasibility && inputs.evaluate_saved_openai && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.amended_prompt_checks && (inputs.gemini_low_feasibility && inputs.evaluate_saved_openai && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation') }}
     runs-on: ubuntu-22.04
     timeout-minutes: 120
     env:
@@ -1763,7 +1768,7 @@ jobs:
           retention-days: 90
 
   mistral-main-first-block:
-    if: ${{ inputs.confirm_paid_generation && inputs.verify_setup_only && !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.amended_prompt_checks && (inputs.confirm_paid_generation && inputs.verify_setup_only && !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation') }}
     runs-on: ubuntu-22.04
     timeout-minutes: 45
     env:
@@ -1960,7 +1965,7 @@ jobs:
           retention-days: 90
 
   mistral-main-overnight:
-    if: ${{ inputs.confirm_paid_generation && inputs.verify_setup_only && inputs.continue_grok_budget && !inputs.gemini_low_feasibility && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.amended_prompt_checks && (inputs.confirm_paid_generation && inputs.verify_setup_only && inputs.continue_grok_budget && !inputs.gemini_low_feasibility && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation') }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -2514,7 +2519,7 @@ jobs:
 
   mistral-main-saved-evaluation:
     needs: mistral-main-overnight
-    if: ${{ inputs.confirm_paid_generation && inputs.verify_setup_only && inputs.continue_grok_budget && !inputs.gemini_low_feasibility && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.amended_prompt_checks && (inputs.confirm_paid_generation && inputs.verify_setup_only && inputs.continue_grok_budget && !inputs.gemini_low_feasibility && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation') }}
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -2562,3 +2567,454 @@ jobs:
             results/expanded/mistral_main_evaluation/evaluation_summary.json
           if-no-files-found: error
           retention-days: 90
+
+  amended-prompt-gate:
+    if: ${{ inputs.amended_prompt_checks && !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.14"
+          cache: pip
+      - name: Install pinned environment
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Focused checks and ninety mocked requests without provider credentials
+        run: python -m pytest tests/test_amended_prompt_validation.py tests/test_expanded_study.py tests/test_expanded_status_policy.py -q --junitxml=amended_scope_tests.junit.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: amended-validation-${{ github.run_id }}-scope-tests
+          path: amended_scope_tests.junit.xml
+          if-no-files-found: error
+
+  amended-prompt-generation:
+    name: amended-prompt-generation-${{ matrix.provider }}
+    needs: amended-prompt-gate
+    if: ${{ inputs.amended_prompt_checks && !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - provider: Anthropic
+            slug: anthropic
+            secret_name: ANTHROPIC_API_KEY
+            pairs: 5
+          - provider: OpenAI
+            slug: openai
+            secret_name: OPENAI_API_KEY
+            pairs: 20
+          - provider: Google
+            slug: google
+            secret_name: GEMINI_API_KEY
+            pairs: 5
+          - provider: Mistral
+            slug: mistral
+            secret_name: MISTRAL_API_KEY
+            pairs: 15
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.14"
+          cache: pip
+      - name: Install pinned environment
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Verify exact amended plan
+        run: python scripts/amended_prompt_validation.py check --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }}
+      - name: Verify no prior prepared batch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/amended_prompt_validation.py prior --provider ${{ matrix.provider }} --state results/amended/guards/${{ matrix.slug }}.json
+      - name: Prepare bounded excluded batch
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+        run: python scripts/amended_prompt_validation.py prepare --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --guard results/amended/guards/${{ matrix.slug }}.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: amended-prompts-20261021-v1-${{ matrix.slug }}-prepared
+          path: results/amended/${{ matrix.slug }}/run_manifest.json
+          if-no-files-found: error
+      - name: Generate excluded pair 0
+        if: ${{ matrix.pairs > 0 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 0
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 0 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-0
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 1
+        if: ${{ matrix.pairs > 1 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 1
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 1 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-1
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 2
+        if: ${{ matrix.pairs > 2 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 2
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 2 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-2
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 3
+        if: ${{ matrix.pairs > 3 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 3
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 3 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-3
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 4
+        if: ${{ matrix.pairs > 4 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 4
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 4 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-4
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 5
+        if: ${{ matrix.pairs > 5 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 5
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 5 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-5
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 6
+        if: ${{ matrix.pairs > 6 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 6
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 6 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-6
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 7
+        if: ${{ matrix.pairs > 7 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 7
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 7 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-7
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 8
+        if: ${{ matrix.pairs > 8 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 8
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 8 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-8
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 9
+        if: ${{ matrix.pairs > 9 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 9
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 9 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-9
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 10
+        if: ${{ matrix.pairs > 10 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 10
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 10 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-10
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 11
+        if: ${{ matrix.pairs > 11 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 11
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 11 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-11
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 12
+        if: ${{ matrix.pairs > 12 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 12
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 12 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-12
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 13
+        if: ${{ matrix.pairs > 13 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 13
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 13 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-13
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 14
+        if: ${{ matrix.pairs > 14 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 14
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 14 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-14
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 15
+        if: ${{ matrix.pairs > 15 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 15
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 15 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-15
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 16
+        if: ${{ matrix.pairs > 16 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 16
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 16 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-16
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 17
+        if: ${{ matrix.pairs > 17 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 17
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 17 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-17
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 18
+        if: ${{ matrix.pairs > 18 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 18
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 18 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-18
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Generate excluded pair 19
+        if: ${{ matrix.pairs > 19 }}
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+          AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
+        run: python scripts/amended_prompt_validation.py pair --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }} --index 19
+      - uses: actions/upload-artifact@v4
+        if: ${{ success() && matrix.pairs > 19 }}
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-pair-19
+          path: |
+            results/amended/${{ matrix.slug }}/artifacts/
+            results/amended/${{ matrix.slug }}/spending.sqlite
+            results/amended/${{ matrix.slug }}/pair_*.json
+          if-no-files-found: error
+      - name: Verify complete evidence and settled usage
+        env:
+          CONFIRM_AMENDED_PROMPT_CHECKS: "true"
+        run: python scripts/amended_prompt_validation.py summarize --provider ${{ matrix.provider }} --state results/amended/${{ matrix.slug }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: amended-validation-${{ github.run_id }}-${{ matrix.slug }}-final
+          path: results/amended/
+          if-no-files-found: error
+
+  amended-prompt-saved-evaluation:
+    name: amended-prompt-saved-evaluation-${{ matrix.provider }}
+    needs: amended-prompt-generation
+    if: ${{ inputs.amended_prompt_checks && !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - provider: Anthropic
+            slug: anthropic
+            secret_name: ANTHROPIC_API_KEY
+            pairs: 5
+          - provider: OpenAI
+            slug: openai
+            secret_name: OPENAI_API_KEY
+            pairs: 20
+          - provider: Google
+            slug: google
+            secret_name: GEMINI_API_KEY
+            pairs: 5
+          - provider: Mistral
+            slug: mistral
+            secret_name: MISTRAL_API_KEY
+            pairs: 15
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.14"
+          cache: pip
+      - name: Install pinned environment
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Fetch exact saved archive before source execution
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/evaluate_amended_validation.py fetch --provider ${{ matrix.provider }} --archive saved/${{ matrix.slug }}.zip --metadata saved/${{ matrix.slug }}.metadata.json --output results/amended_evaluation
+      - name: Verify saved inputs and hashes
+        run: python scripts/evaluate_amended_validation.py prepare --provider ${{ matrix.provider }} --archive saved/${{ matrix.slug }}.zip --metadata saved/${{ matrix.slug }}.metadata.json --output results/amended_evaluation
+      - name: Evaluate saved programs without provider credentials
+        run: python scripts/evaluate_amended_validation.py evaluate --provider ${{ matrix.provider }} --output results/amended_evaluation
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: amended-evaluation-${{ github.run_id }}-${{ matrix.slug }}-final
+          path: results/amended_evaluation/
+          if-no-files-found: error

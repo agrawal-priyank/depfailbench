@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "protocol_version": "array-expanded-draft-2026-10-19",
-  "status": "final_review_draft_four_families_gemini_low_repeat_policy_pending_main_approval",
+  "protocol_version": "array-expanded-prompt-amendment-2026-10-21",
+  "status": "prompt_clarifications_author_approved_local_focused_checks_passed_pending_execution_plan",
   "frozen": false,
   "paid_execution_authorized": false,
   "seed": 20261019,
@@ -154,7 +154,24 @@
   "excluded_validation_outputs": 144,
   "proposed_budget_usd": 45,
   "budget_authorized": false,
-  "cost_note": "Selected-panel excluded pilots project $35.263545 model-token cost; proposed $45 operational envelope requires author approval. Invoice cost and future usage may differ. Prior validation and withdrawn Grok spending are separate.",
+  "cost_note": "Original $45 main operational envelope remains recorded; this prompt amendment authorizes local application and focused checks, not a new paid dispatch. Revised readiness and task-version cohort handling precede execution.",
   "source_processing_policy": "single-unambiguous-python-fence-2026-10-20",
-  "repeat_comparison_policy": "linked-internal-payment-uuid-2026-10-20"
+  "repeat_comparison_policy": "linked-internal-payment-uuid-2026-10-20",
+  "prompt_amendment": {
+    "id": "task-interface-clarifications-2026-10-21",
+    "author_approved_date": "2026-10-21",
+    "changed_tasks": [
+      "E4",
+      "E5",
+      "E6",
+      "E7",
+      "E8"
+    ],
+    "original_main_run": 39533790606,
+    "original_main_commit": "ad4709017a2b90135dca790d4987478aac9e24b7",
+    "models_settings_oracles_allocation_unchanged": true,
+    "new_paid_generation_started": false,
+    "prior_main_results_preserved": true,
+    "main_cohort_handling": "Pending documented execution plan; preserve old task-version outputs separately; do not pool superseded prompt versions silently."
+  }
 }

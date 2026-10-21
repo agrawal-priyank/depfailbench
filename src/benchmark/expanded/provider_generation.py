@@ -59,7 +59,7 @@ def publish_output(target, *, slot, config, request, parsed, cost, simulation_on
         "provider_usage": parsed["usage"], "estimated_token_cost_usd": cost,
         "source_sha256": sha256(parsed["source"]) if parsed["source"] else None,
         "finish_reason": parsed["finish_reason"], "unexpected_tool_use": parsed["unexpected_tool_use"],
-        "generated_at": generated_at}
+        "generated_at": generated_at, "source_processing": parsed["source_processing"]}
     files = {"response.txt": parsed["text"].encode()}
     if parsed["source"]:
         files["app.py"] = parsed["source"].encode()

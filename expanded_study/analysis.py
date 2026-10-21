@@ -234,7 +234,7 @@ def summarize(rows, *, bootstraps=20000, seed=20261019, root=None):
     return {"status": "SYNTHETIC PIPELINE CHECK — NOT MODEL RESULTS" if True in synthetic else "main-study analysis",
             "synthetic_data": True in synthetic, "programs": len(observed), "programs_per_cell": 30,
             "fixed_tasks": 8, "bootstrap_resamples": bootstraps, "seed": seed,
-            "primary_family_size": 7, "secondary_family_size": 3,
+            "primary_family_size": len(primary), "secondary_family_size": len(secondary),
             "failure_priority": list(PRIORITY),
             "primary": primary, "secondary": secondary, "configuration_estimates": config_stats,
             "cells": cell_report, "failure_reconciliation": failure_report, "per_scenario": scenario_report,

@@ -64,7 +64,7 @@ async def test_missing_permission_never_reads_a_credential_or_sends_http(tmp_pat
     assert calls==[] and ledger.snapshot()['attempts']==[]
 
 
-@pytest.mark.parametrize('provider',list(ENDPOINTS))
+@pytest.mark.parametrize('provider', sorted({s['provider'] for s in allocation()[1]}))
 async def test_authenticated_stream_is_exact_and_keys_never_enter_saved_records(tmp_path,provider):
     authorization=ExecutionPermit(permit_file(tmp_path))
     ledger=SpendingLedger(tmp_path/'live.sqlite',limit_usd='10',simulation_only=False,authorization=authorization)
@@ -137,7 +137,7 @@ class CrashStream(httpx.AsyncByteStream):
         raise ProcessStopped('simulated process death')
 
 
-@pytest.mark.parametrize('provider',list(ENDPOINTS))
+@pytest.mark.parametrize('provider', sorted({s['provider'] for s in allocation()[1]}))
 async def test_crash_after_terminal_response_recovers_exact_source_without_another_call(tmp_path,provider):
     calls=[]
     def handler(request):

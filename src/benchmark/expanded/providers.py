@@ -184,10 +184,9 @@ class TokenRates:
 
 
 def extract_source(text):
-    """Only remove one whole-response Python fence; never repair generated code."""
-    match = re.fullmatch(r"\s*```(?:python)?\s*\n(.*?)\n```\s*", text, re.I | re.S)
-    source = match.group(1) if match else text
-    return source.strip() + "\n" if source.strip() else ""
+    """Apply the uniform approved policy without choosing or repairing code."""
+    from .source_processing import process
+    return process(text)["source"]
 
 
 def parse_response(provider, raw, *, stream_complete=True):
@@ -239,7 +238,14 @@ def parse_response(provider, raw, *, stream_complete=True):
     status = ("refused" if refusal else "truncated" if truncated else
               "incomplete" if not complete or not stream_complete or tool_use else
               "completed" if text.strip() else "no_code")
-    return {"generation_status": status, "text": text, "source": extract_source(text),
+    from .source_processing import process
+    processed = process(text)
+    if status == "completed" and not processed["source"]:
+        status = "no_code"
+    processing = {k: v for k, v in processed.items() if k not in {"source", "original_strict_source"}}
+    processing["original_strict_source_sha256"] = sha256(processed["original_strict_source"]) if processed["original_strict_source"] else None
+    return {"generation_status": status, "text": text, "source": processed["source"],
+            "source_processing": processing,
             "provider_response_id": raw.get("id"), "resolved_model_id": raw.get("model"),
             "finish_reason": reason, "unexpected_tool_use": tool_use,
             "usage": normalise_usage(provider, raw)}

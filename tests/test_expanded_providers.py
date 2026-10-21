@@ -143,7 +143,7 @@ def test_unknown_or_inconsistent_usage_is_not_free_and_xai_shapes_do_not_double_
     assert normalise_usage("xAI", raw)["billable_output_tokens"] == normalise_usage("xAI", old)["billable_output_tokens"] == 60
     raw["usage"]["total_tokens"] = 300
     assert not normalise_usage("xAI", raw)["complete"]
-    assert RATES["grok-4.7"].estimate(normalise_usage("xAI", raw)) is None
+    assert TokenRates("2", "6", "synthetic://retired-adapter-control", "2026-10-20").estimate(normalise_usage("xAI", raw)) is None
 
 
 @pytest.mark.parametrize("mode,status", [("max_tokens", "truncated"), ("refusal", "refused"), ("empty", "no_code"), ("tool", "incomplete")])
@@ -202,7 +202,7 @@ def test_ledger_reservations_are_atomic_across_separate_connections(tmp_path):
     assert SpendingLedger(path, limit_usd="1").snapshot()["committed"] == 600000000
 
 
-@pytest.mark.parametrize("provider,maximum", [("OpenAI", 2), ("xAI", 1)])
+@pytest.mark.parametrize("provider,maximum", [("OpenAI", 2), ("Anthropic", 2), ("Google", 2), ("Mistral", 2)])
 async def test_provider_parallelism_limits(tmp_path, provider, maximum):
     active, peak = 0, 0
     async def handler(request):
@@ -304,7 +304,7 @@ async def test_partial_stream_keeps_code_and_never_retries(tmp_path):
 
 
 async def test_acknowledged_stream_without_content_pauses_for_recovery(tmp_path):
-    events = stream_events("xAI", fixture("xAI"))[:1]
+    events = stream_events("OpenAI", fixture("OpenAI"))[:1]
     calls = []
     def handler(request):
         calls.append(1)
@@ -312,8 +312,8 @@ async def test_acknowledged_stream_without_content_pauses_for_recovery(tmp_path)
                               stream=InterruptedStream(sse_bytes(events)), request=request)
     runner = generator(tmp_path, handler)
     with pytest.raises(DispatchPaused):
-        await runner.generate(selected("xAI")[0], allowance_usd=".01")
-    assert len(calls) == 1 and runner.ledger.snapshot()["attempts"][0]["response_id"] == "synthetic-xai"
+        await runner.generate(selected("OpenAI")[0], allowance_usd=".01")
+    assert len(calls) == 1 and runner.ledger.snapshot()["attempts"][0]["response_id"] == "synthetic-openai"
 
 
 async def test_no_live_transport_or_credential_access_and_metadata_remains_synthetic(tmp_path, monkeypatch):

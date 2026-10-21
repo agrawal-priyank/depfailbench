@@ -38,8 +38,10 @@ def allocation(root=None):
     root = assets_root(root)
     design = json.loads((root / "study.json").read_text())
     configs = design["configurations"]
-    if len(configs) != 10 or len({c["id"] for c in configs}) != 10:
-        raise ValueError("expected seven baseline and three extra configurations")
+    if (len(configs) != 9 or len({c["id"] for c in configs}) != 9 or
+            sum(c["baseline"] is True for c in configs) != 6 or
+            len({c["provider"] for c in configs}) != 4 or any(c["provider"] == "xAI" for c in configs)):
+        raise ValueError("expected six baseline and three extra configurations across four retained providers")
     rng = random.Random(design["seed"])
     main = []
     for round_id in range(1, 7):
@@ -103,15 +105,15 @@ def check(root=None):
     main, validation = allocation(root)
     counts = Counter((r["task"], r["configuration_id"], r["condition"]) for r in main)
     blocks = Counter((r["block_id"], r["condition"]) for r in main)
-    if len(main) != 4800 or len(validation) != 160 or len(counts) != 160 or set(counts.values()) != {30}:
+    if len(main) != 4320 or len(validation) != 144 or len(counts) != 144 or set(counts.values()) != {30}:
         raise ValueError("unbalanced or incomplete expanded allocation")
-    if set(blocks.values()) != {5} or len(blocks) != 960:
+    if set(blocks.values()) != {5} or len(blocks) != 864:
         raise ValueError("generation block does not match the statistical randomization design")
     ids = [r["artifact_id"] for r in main + validation]
     if len(set(ids)) != len(ids):
         raise ValueError("main/validation identifiers overlap")
     baseline_outputs = sum(r["baseline"] for r in main)
-    if baseline_outputs != 3360:
+    if baseline_outputs != 2880:
         raise ValueError("focused settings duplicated or displaced a primary baseline")
     return {"protocol": PROTOCOL_VERSION, "status": "local draft checked; not frozen or execution-authorized",
             "main_slots": len(main), "primary_slots": baseline_outputs,

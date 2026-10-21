@@ -13,8 +13,8 @@ from benchmark.expanded.planning import allocation, assets_root, check
 
 def test_expanded_allocation_reuses_baselines_and_excludes_validation():
     report = check()
-    assert (report["main_slots"], report["primary_slots"], report["extra_setting_slots"]) == (4800, 3360, 1440)
-    assert report["excluded_validation_slots"] == 160
+    assert (report["main_slots"], report["primary_slots"], report["extra_setting_slots"]) == (4320, 2880, 1440)
+    assert report["excluded_validation_slots"] == 144
     main, validation = allocation()
     assert (main, validation) == allocation()
     assert {r["cohort"] for r in validation} == {"validation"}

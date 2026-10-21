@@ -100,10 +100,10 @@ def synthetic_reporting(output, bootstraps=20000):
     primary = analysis_module().summarize([r for r in rows if r["deadline_s"] == 1], bootstraps=bootstraps)
     save_new(output / "primary_analysis.json", primary)
     result = {"status": "SYNTHETIC THREE-DEADLINE REPORTING — NOT MODEL RESULTS", "synthetic_data": True,
-        "distinct_programs": 4800, "repeat_1_deadline_rows": len(rows), "primary_family_size": primary["primary_family_size"],
+        "distinct_programs": primary["programs"], "repeat_1_deadline_rows": len(rows), "primary_family_size": primary["primary_family_size"],
         "secondary_family_size": primary["secondary_family_size"], "table_rows": {k: len(v) for k, v in data.items()},
         "bootstrap_resamples": bootstraps, "model_api_calls": 0,
-        "passed": len(rows) == 14400 and len(data["cells"]) == 480 and len(data["paired_deadlines"]) == 320 and
+        "passed": len(rows) == 12960 and len(data["cells"]) == 432 and len(data["paired_deadlines"]) == 288 and
                   all(sum(r["disjoint_priority_counts"].values()) == r["failed_programs"] for r in data["failures"]) and
                   any(r["worsened"] for r in data["paired_deadlines"]) and any(r["improved"] for r in data["paired_deadlines"])}
     save_new(output / "summary.json", result)

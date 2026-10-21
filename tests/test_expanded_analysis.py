@@ -62,8 +62,8 @@ def test_simulated_metadata_cannot_be_mislabelled_as_actual_results():
 def test_synthetic_full_pipeline_reconciles_failures_without_becoming_research_data():
     report = analysis.summarize(analysis.synthetic_demo(), bootstraps=200)
     assert report["synthetic_data"] and "NOT MODEL RESULTS" in report["status"]
-    assert report["programs"] == 4800 and len(report["cells"]) == 160
-    assert len(report["primary"]) == 7 and len(report["secondary"]) == 3
+    assert report["programs"] == 4320 and len(report["cells"]) == 144
+    assert len(report["primary"]) == 6 and len(report["secondary"]) == 3
     assert all(sum(row["disjoint_priority_counts"].values()) == row["failed_programs"] for row in report["failure_reconciliation"])
     assert all(row["passed_n"] <= row["reached_n"] <= row["generated_n"] == 30 for row in report["per_scenario"])
     assert all(row["shared_baseline_preserved"] for row in report["secondary"].values())

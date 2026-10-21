@@ -1,4 +1,4 @@
-"""Rehearse all 160 validation slots with explicitly SYNTHETIC HTTP responses."""
+"""Rehearse all selected validation slots with explicitly SYNTHETIC HTTP responses."""
 
 import argparse
 import asyncio

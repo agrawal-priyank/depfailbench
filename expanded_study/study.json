@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "protocol_version": "array-expanded-draft-2026-10-19",
-  "status": "draft_local_validation",
+  "status": "draft_four_families_output_policy_integrated_pending_gemini_budget_review",
   "frozen": false,
   "paid_execution_authorized": false,
   "seed": 20261019,
@@ -74,20 +74,6 @@
       "api": "Interactions",
       "initial_output_parameter_limit": 32000,
       "output_limit_semantics": "provider_accounted_generated_tokens"
-    },
-    {
-      "id": "grok_4_7",
-      "model_id": "grok-4.7",
-      "provider": "xAI",
-      "baseline": true,
-      "generation_settings": {
-        "reasoning_effort": "high",
-        "temperature": 0.7,
-        "top_p": 0.95
-      },
-      "api": "Responses",
-      "initial_output_parameter_limit": 32000,
-      "output_limit_semantics": "visible_only_reasoning_excluded"
     },
     {
       "id": "ministral_3b_2512",
@@ -164,9 +150,10 @@
   ],
   "generation_procedure": "independent single response, no tools, no feedback or repair",
   "retained_original_programs": 320,
-  "main_outputs": 4800,
-  "excluded_validation_outputs": 160,
+  "main_outputs": 4320,
+  "excluded_validation_outputs": 144,
   "proposed_budget_usd": 200,
   "budget_authorized": false,
-  "cost_note": "Grok separately bills reasoning beyond visible-output cap; validate total usage before main freeze."
+  "cost_note": "Measured retained-panel token estimates and runtime require final review. Grok withdrawn for operational feasibility; its historical diagnostics remain separate.",
+  "source_processing_policy": "single-unambiguous-python-fence-2026-10-20"
 }

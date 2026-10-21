@@ -3,8 +3,8 @@ name: Remaining excluded provider validation and saved OpenAI evaluation
 on:
   workflow_dispatch:
     inputs:
-      grok_medium_sample:
-        description: One author-approved medium-effort Grok feasibility response; no main-study outputs
+      gemini_low_feasibility:
+        description: Two author-approved Gemini low-thinking feasibility responses within $0.50; no main-study outputs
         required: true
         default: false
         type: boolean
@@ -59,12 +59,12 @@ permissions:
   actions: read
 
 concurrency:
-  group: depfailbench-remaining-${{ inputs.grok_medium_sample && 'grok-medium-sample' || inputs.continue_grok_budget && 'grok-budget-continuation' || inputs.evaluate_uniform_saved_sources && 'uniform-saved-sources' || inputs.resume_grok_request_fix && 'grok-request-correction' || inputs.evaluate_saved_mistral_google && 'saved-mistral-google-evaluation' || inputs.recover_grok_after_key_fix && 'grok-metadata-recovery' || inputs.inspect_grok_access_only && 'grok-metadata-diagnostic' || inputs.verify_setup_only && 'setup-verification' || inputs.confirm_paid_generation && 'provider-generation' || 'saved-openai-evaluation' }}
+  group: depfailbench-remaining-${{ inputs.gemini_low_feasibility && 'gemini-low-feasibility' || inputs.continue_grok_budget && 'grok-budget-continuation' || inputs.evaluate_uniform_saved_sources && 'uniform-saved-sources' || inputs.resume_grok_request_fix && 'grok-request-correction' || inputs.evaluate_saved_mistral_google && 'saved-mistral-google-evaluation' || inputs.recover_grok_after_key_fix && 'grok-metadata-recovery' || inputs.inspect_grok_access_only && 'grok-metadata-diagnostic' || inputs.verify_setup_only && 'setup-verification' || inputs.confirm_paid_generation && 'provider-generation' || 'saved-openai-evaluation' }}
   cancel-in-progress: false
 
 jobs:
   mistral-validation:
-    if: ${{ !inputs.grok_medium_sample && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -426,7 +426,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   google-validation:
-    if: ${{ !inputs.grok_medium_sample && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -580,7 +580,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   xai-validation:
-    if: ${{ !inputs.grok_medium_sample && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.evaluate_saved_openai && ((inputs.confirm_paid_generation && !inputs.recover_grok_after_key_fix) || (inputs.recover_grok_after_key_fix && !inputs.confirm_paid_generation)) && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.evaluate_saved_openai && ((inputs.confirm_paid_generation && !inputs.recover_grok_after_key_fix) || (inputs.recover_grok_after_key_fix && !inputs.confirm_paid_generation)) && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -846,7 +846,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   saved-openai-evaluation:
-    if: ${{ !inputs.grok_medium_sample && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -888,7 +888,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   verify-remaining-setup:
-    if: ${{ !inputs.grok_medium_sample && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
@@ -923,7 +923,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   inspect-grok-access:
-    if: ${{ !inputs.grok_medium_sample && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai }}
+    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai }}
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
@@ -949,7 +949,7 @@ jobs:
           retention-days: 90
 
   saved-mistral-google-evaluation:
-    if: ${{ !inputs.grok_medium_sample && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     strategy:
       fail-fast: false
       matrix:
@@ -1005,7 +1005,7 @@ jobs:
           retention-days: 90
 
   grok-request-recovery:
-    if: ${{ !inputs.grok_medium_sample && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -1264,7 +1264,7 @@ jobs:
           retention-days: 90
 
   grok-budget-continuation:
-    if: ${{ !inputs.grok_medium_sample && inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.gemini_low_feasibility && inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     env:
@@ -1509,10 +1509,10 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-  grok-medium-sample:
-    if: ${{ inputs.grok_medium_sample && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+  gemini-low-feasibility:
+    if: ${{ inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
-    timeout-minutes: 40
+    timeout-minutes: 30
     env:
       PYTHONUNBUFFERED: "1"
     steps:
@@ -1523,41 +1523,72 @@ jobs:
         with:
           python-version: "3.12.14"
           cache: pip
-      - name: Install exact reviewed runtime
+      - name: Install the exact reviewed runtime and analysis dependencies
         run: |
           python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
           python -m pip install --no-deps --editable .
-      - name: Check the stable one-sample marker without model credentials
+      - name: Verify current allocation, extraction and exact sample scope without model credentials
+        run: |
+          python -m pytest -q tests/test_expanded_study.py tests/test_expanded_analysis.py tests/test_expanded_providers.py tests/test_expanded_collection.py tests/test_expanded_live_recovery.py tests/test_expanded_reclassification.py tests/test_expanded_status_policy.py tests/test_uniform_source_processing.py tests/test_gemini_low_feasibility.py --junitxml=results/expanded/gemini_low_tests.junit.xml
+          python -m benchmark.expanded preflight --output results/expanded/gemini_low_main_preview
+      - name: Record Linux runtime and current measured implementation without model credentials
+        run: |
+          python - <<'PYCODE'
+          import json, os, sys
+          from pathlib import Path
+          from benchmark.expanded.collect import environment, implementation_manifest
+          assert sys.platform == 'linux'
+          Path('results/expanded/gemini_low_runtime.json').write_text(json.dumps({'environment':environment(),'implementation':implementation_manifest(),'github_run_id':os.environ['GITHUB_RUN_ID'],'github_commit':os.environ['GITHUB_SHA'],'model_api_calls':0},indent=2)+'\n')
+          PYCODE
+      - name: Check the stable two-response marker before authentication
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api 'repos/agrawal-priyank/depfailbench/actions/artifacts?per_page=100&name=grok-medium-sample-20261020-v1-prepared' > "$RUNNER_TEMP/medium_prior.json"
-          python -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["total_count"]==0 and not r["artifacts"], "Sample already prepared; inspect evidence rather than repeat"' "$RUNNER_TEMP/medium_prior.json"
-      - name: Verify isolated medium setup and exact one-response budget before authentication
-        run: python scripts/grok_medium_sample.py prepare --state results/expanded/grok_medium_sample
-      - name: Preserve stable prepared marker before provider authentication
+        run: python scripts/gemini_low_feasibility.py prior-run-check --state results/expanded/gemini_low_prior_guard.json
+      - name: Prepare the isolated low-thinking configuration and exact two-response budget
+        env:
+          CONFIRM_GEMINI_LOW_FEASIBILITY: "true"
+        run: python scripts/gemini_low_feasibility.py prepare --state results/expanded/gemini_low_feasibility --guard results/expanded/gemini_low_prior_guard.json
+      - name: Preserve the stable prepared marker before any provider authentication
         uses: actions/upload-artifact@v4
         with:
-          name: grok-medium-sample-20261020-v1-prepared
-          path: results/expanded/grok_medium_sample/
+          name: gemini-low-feasibility-20261020-v1-prepared
+          path: results/expanded/gemini_low_feasibility/
           if-no-files-found: error
           retention-days: 90
-      - name: Generate exactly one medium-effort feasibility response
+      - name: Generate only the approved E1 C0 low-thinking response
         env:
-          CONFIRM_GROK_MEDIUM_SAMPLE: "true"
-          XAI_API_KEY: ${{ secrets.GROK_API_KEY }}
-        run: python scripts/grok_medium_sample.py generate --state results/expanded/grok_medium_sample
-      - name: Preserve complete or interrupted sample evidence
+          CONFIRM_GEMINI_LOW_FEASIBILITY: "true"
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_feasibility.py generate --state results/expanded/gemini_low_feasibility --index 0
+      - name: Preserve the first response and ledger
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: grok-medium-sample-${{ github.run_id }}-final
-          path: results/expanded/grok_medium_sample/
+          name: gemini-low-feasibility-${{ github.run_id }}-after-first
+          path: results/expanded/gemini_low_feasibility/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate only the approved E5 C1 low-thinking response
+        env:
+          CONFIRM_GEMINI_LOW_FEASIBILITY: "true"
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_feasibility.py generate --state results/expanded/gemini_low_feasibility --index 1
+      - name: Preserve complete or interrupted two-response evidence and Linux checks
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gemini-low-feasibility-${{ github.run_id }}-final
+          path: |
+            results/expanded/gemini_low_feasibility/
+            results/expanded/gemini_low_tests.junit.xml
+            results/expanded/gemini_low_runtime.json
+            results/expanded/gemini_low_main_preview/
           if-no-files-found: error
           retention-days: 90
 
   uniform-saved-source-evaluation:
-    if: ${{ !inputs.grok_medium_sample && !inputs.continue_grok_budget && inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    if: ${{ !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     strategy:
       fail-fast: false
       matrix:

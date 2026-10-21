@@ -1,5 +1,20 @@
 # Expanded Array study: local preparation
 
+Current panel update, 20 October 2026: Grok was withdrawn for operational
+feasibility before main generation. The draft now contains four providers, six
+baseline models and three additional settings, with 4,320 main slots and 144
+excluded validation coordinates. Primary multiplicity covers six models;
+secondary multiplicity covers three settings contrasts. Uniform extraction of
+one unambiguous complete Python/unlabelled code block is applied identically
+to every provider and condition; raw response format and extraction metadata
+are preserved separately. Incomplete or refused responses are not rescued.
+Historical paid-validation plans remain immutable and intentionally fail their
+snapshot checks against the amended draft. Reproduce those historical drivers
+at their recorded commits; do not update their permits to authorize new work.
+The latest current-core check covers 271 local tests and 144 mocked responses.
+The final Gemini configuration, target-platform gate, protocol freeze and main
+spending approval remain pending.
+
 This is a **draft under local validation**, not a frozen or executed model study.
 The original four-task release, prompts, evaluators and results remain unchanged.
 The expanded evaluator is in `benchmark.expanded`; it does not use the historical
@@ -31,7 +46,7 @@ python -m benchmark.expanded.collection_dry_run --mode synthetic-reporting \
 ```
 
 Preflight checks all sixteen prompts against their shared source and scaffold,
-then creates deterministic previews of 4,800 main slots and 160 separate API
+then creates deterministic previews of 4,320 main slots and 144 separate API
 validation slots. These previews are **not** evidence that any model generation
 has happened. `expanded_study/study.json` keeps frozen and paid-execution flags
 false. No paid execution command is supplied by this local preparation module.
@@ -61,7 +76,7 @@ Deliberately faulty controls cover missing retries, partial or duplicated pages,
 duplicate side effects, false success, wrong object identity, patch-versus-
 replacement errors, unavailable startup and synchronous event-loop blocking.
 
-The reporting dry-run uses 4,800 explicitly synthetic records, never generated
+The reporting dry-run uses 4,320 explicitly synthetic records, never generated
 research outcomes. It enforces the complete allocation and prompt metadata,
 rejects validation/missing/duplicate records, reconciles failure counts and
 per-scenario denominators, and computes the prespecified primary and secondary
@@ -111,7 +126,7 @@ using these measurements as the main study; local macOS validation does not prov
 Linux/container timing reproducibility. The proposed $200 spending envelope is
 not permission to launch generation and is not a provider-enforced hard cap.
 
-The main denominator stays 4,800, with the original 320 and the excluded API
+The main denominator stays 4,320, with the original 320 and the excluded API
 validation outputs kept distinct. Preserve all outputs and records. A negative or
 inconclusive result is not grounds for another paid generation campaign.
 
@@ -201,13 +216,13 @@ aggregate deadline estimates with nominal bootstrap intervals and conservative
 exact-binomial bounds. Deadline tables introduce no additional confirmatory
 tests. Within-deadline intervals do not test cross-deadline changes. The full
 primary and three secondary inference tables remain limited to the complete
-4,800-output main allocation at the 1-second deadline and prespecified repeat.
+4,320-output main allocation at the 1-second deadline and prespecified repeat.
 
 Each selected row links back to its full immutable record; those records retain
 dependency requests, state, receipts, timing and error details. Per-program and
 per-probe counts are separate. Repeats do not create additional independent
 programs. In a complete main collection the matrix has **43,200 program-level
-evaluation records**, while the generated-program denominator remains **4,800**
+evaluation records**, while the generated-program denominator remains **4,320**
 and the repeat-1 deadline exports have **14,400 rows**.
 
 Dependency attempts include monotonic start/end offsets relative to their public

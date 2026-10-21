@@ -1703,3 +1703,48 @@ jobs:
             results/expanded/uniform_source_processing_tests.junit.xml
           if-no-files-found: error
           retention-days: 90
+
+  gemini-low-saved-evaluation:
+    if: ${{ inputs.gemini_low_feasibility && inputs.evaluate_saved_openai && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    env:
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+          cache: pip
+      - name: Install unchanged pinned evaluation dependencies
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Download the two immutable low-thinking archives without executing source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/agrawal-priyank/depfailbench/actions/artifacts/12311904269/zip > "$RUNNER_TEMP/gemini_first_two.zip"
+          gh api repos/agrawal-priyank/depfailbench/actions/artifacts/12312993426/zip > "$RUNNER_TEMP/gemini_remaining_fourteen.zip"
+      - name: Verify and preserve exactly sixteen saved sources without credentials
+        run: python scripts/evaluate_gemini_low_validation.py prepare --archives "$RUNNER_TEMP/gemini_first_two.zip" "$RUNNER_TEMP/gemini_remaining_fourteen.zip" --output results/expanded/gemini_low_saved_evaluation
+      - name: Preserve verified immutable inputs before testing
+        uses: actions/upload-artifact@v4
+        with:
+          name: gemini-low-evaluation-${{ github.run_id }}-inputs
+          path: results/expanded/gemini_low_saved_evaluation/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Evaluate saved sources at one two and five seconds with three repeats and no credentials
+        run: python scripts/evaluate_gemini_low_validation.py evaluate --output results/expanded/gemini_low_saved_evaluation
+      - name: Preserve every measurement including partial evidence if interrupted
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gemini-low-evaluation-${{ github.run_id }}-final
+          path: results/expanded/gemini_low_saved_evaluation/
+          if-no-files-found: error
+          retention-days: 90

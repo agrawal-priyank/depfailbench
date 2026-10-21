@@ -67,7 +67,7 @@ def test_plan_excludes_the_retained_slot_and_keeps_original_model_settings():
 
 def test_continuation_workflow_isolates_keys_and_cannot_select_completed_coordinate():
     text=(ROOT/'.github/workflows/full-study.yml').read_text()
-    job=text.split('  grok-budget-continuation:',1)[1].split('  uniform-saved-source-evaluation:',1)[0]
+    job=text.split('  grok-budget-continuation:',1)[1].split('  grok-medium-sample:',1)[0]
     assert 'inputs.continue_grok_budget &&' in job and 'persist-credentials: false' in job
     assert 'github.run_attempt == \'1\'' in job
     keyed=[s for s in job.split('      - ') if 'secrets.GROK_API_KEY' in s]
@@ -83,6 +83,6 @@ def test_continuation_workflow_isolates_keys_and_cannot_select_completed_coordin
 def test_all_other_jobs_exclude_budget_continuation():
     text=(ROOT/'.github/workflows/full-study.yml').read_text()
     before,after=text.split('  grok-budget-continuation:',1)
-    after=after.split('  uniform-saved-source-evaluation:',1)[1]
+    after=after.split('  grok-medium-sample:',1)[1]
     guards=[line for line in (before+after).splitlines() if line.startswith('    if:')]
-    assert len(guards)==9 and all('!inputs.continue_grok_budget' in line for line in guards)
+    assert len(guards)==10 and all('!inputs.continue_grok_budget' in line for line in guards)

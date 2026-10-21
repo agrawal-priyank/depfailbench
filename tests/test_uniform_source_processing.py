@@ -65,5 +65,5 @@ def test_every_other_job_is_excluded_from_uniform_evaluation_dispatch():
     text=(Path(__file__).parents[1]/'.github/workflows/full-study.yml').read_text()
     other=text.split('jobs:',1)[1].split('  uniform-saved-source-evaluation:',1)[0]
     guards=[line for line in other.splitlines() if line.startswith('    if:')]
-    assert len(guards)==9
+    assert len(guards)==10
     assert all('!inputs.evaluate_uniform_saved_sources' in line for line in guards)

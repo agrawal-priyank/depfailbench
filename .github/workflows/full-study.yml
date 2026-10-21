@@ -1761,3 +1761,200 @@ jobs:
           path: results/expanded/gemini_low_saved_evaluation/
           if-no-files-found: error
           retention-days: 90
+
+  mistral-main-first-block:
+    if: ${{ inputs.confirm_paid_generation && inputs.verify_setup_only && !inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.recover_grok_after_key_fix && !inputs.inspect_grok_access_only && !inputs.evaluate_saved_openai && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    env:
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+          cache: pip
+      - name: Install unchanged pinned dependencies
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Verify current core and exact first-main-block scope without credentials
+        run: python -m pytest -q tests/test_expanded_study.py tests/test_expanded_analysis.py tests/test_expanded_providers.py tests/test_expanded_collection.py tests/test_expanded_live_recovery.py tests/test_expanded_reclassification.py tests/test_expanded_status_policy.py tests/test_uniform_source_processing.py tests/test_repeat_audit.py tests/test_mistral_main_first_block.py --junitxml=results/expanded/main_first_block_tests.junit.xml
+      - name: Record Linux implementation before any main request
+        run: |
+          python - <<'PYCODE'
+          import json,os,sys
+          from pathlib import Path
+          from benchmark.expanded.collect import environment,implementation_manifest
+          assert sys.platform=='linux'
+          Path('results/expanded/main_first_block_runtime.json').write_text(json.dumps({'environment':environment(),'implementation':implementation_manifest(),'github_run_id':os.environ['GITHUB_RUN_ID'],'github_commit':os.environ['GITHUB_SHA'],'model_api_calls_at_this_step':0},indent=2)+'\n')
+          PYCODE
+      - name: Check stable first-main marker before authentication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/mistral_main_first_block.py prior-run-check --state results/expanded/main_mistral_first_guard.json
+      - name: Prepare frozen main snapshot and Mistral cumulative ledger
+        env:
+          CONFIRM_MISTRAL_MAIN_FIRST_BLOCK: 'true'
+        run: python scripts/mistral_main_first_block.py prepare --state results/expanded/main_mistral_first_block --guard results/expanded/main_mistral_first_guard.json
+      - name: Preserve stable first-main marker before any paid call
+        uses: actions/upload-artifact@v4
+        with:
+          name: array-main-mistral-first-block-20261020-v1-prepared
+          path: results/expanded/main_mistral_first_block/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate main scheduled output 0
+        id: main0
+        env:
+          CONFIRM_MISTRAL_MAIN_FIRST_BLOCK: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_first_block.py generate --state results/expanded/main_mistral_first_block --index 0
+      - name: Preserve main response and ledger after output 0
+        if: ${{ always() && steps.main0.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-first-${{ github.run_id }}-after-0
+          path: results/expanded/main_mistral_first_block/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate main scheduled output 1
+        id: main1
+        env:
+          CONFIRM_MISTRAL_MAIN_FIRST_BLOCK: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_first_block.py generate --state results/expanded/main_mistral_first_block --index 1
+      - name: Preserve main response and ledger after output 1
+        if: ${{ always() && steps.main1.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-first-${{ github.run_id }}-after-1
+          path: results/expanded/main_mistral_first_block/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate main scheduled output 2
+        id: main2
+        env:
+          CONFIRM_MISTRAL_MAIN_FIRST_BLOCK: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_first_block.py generate --state results/expanded/main_mistral_first_block --index 2
+      - name: Preserve main response and ledger after output 2
+        if: ${{ always() && steps.main2.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-first-${{ github.run_id }}-after-2
+          path: results/expanded/main_mistral_first_block/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate main scheduled output 3
+        id: main3
+        env:
+          CONFIRM_MISTRAL_MAIN_FIRST_BLOCK: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_first_block.py generate --state results/expanded/main_mistral_first_block --index 3
+      - name: Preserve main response and ledger after output 3
+        if: ${{ always() && steps.main3.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-first-${{ github.run_id }}-after-3
+          path: results/expanded/main_mistral_first_block/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate main scheduled output 4
+        id: main4
+        env:
+          CONFIRM_MISTRAL_MAIN_FIRST_BLOCK: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_first_block.py generate --state results/expanded/main_mistral_first_block --index 4
+      - name: Preserve main response and ledger after output 4
+        if: ${{ always() && steps.main4.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-first-${{ github.run_id }}-after-4
+          path: results/expanded/main_mistral_first_block/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate main scheduled output 5
+        id: main5
+        env:
+          CONFIRM_MISTRAL_MAIN_FIRST_BLOCK: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_first_block.py generate --state results/expanded/main_mistral_first_block --index 5
+      - name: Preserve main response and ledger after output 5
+        if: ${{ always() && steps.main5.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-first-${{ github.run_id }}-after-5
+          path: results/expanded/main_mistral_first_block/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate main scheduled output 6
+        id: main6
+        env:
+          CONFIRM_MISTRAL_MAIN_FIRST_BLOCK: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_first_block.py generate --state results/expanded/main_mistral_first_block --index 6
+      - name: Preserve main response and ledger after output 6
+        if: ${{ always() && steps.main6.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-first-${{ github.run_id }}-after-6
+          path: results/expanded/main_mistral_first_block/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate main scheduled output 7
+        id: main7
+        env:
+          CONFIRM_MISTRAL_MAIN_FIRST_BLOCK: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_first_block.py generate --state results/expanded/main_mistral_first_block --index 7
+      - name: Preserve main response and ledger after output 7
+        if: ${{ always() && steps.main7.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-first-${{ github.run_id }}-after-7
+          path: results/expanded/main_mistral_first_block/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate main scheduled output 8
+        id: main8
+        env:
+          CONFIRM_MISTRAL_MAIN_FIRST_BLOCK: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_first_block.py generate --state results/expanded/main_mistral_first_block --index 8
+      - name: Preserve main response and ledger after output 8
+        if: ${{ always() && steps.main8.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-first-${{ github.run_id }}-after-8
+          path: results/expanded/main_mistral_first_block/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate main scheduled output 9
+        id: main9
+        env:
+          CONFIRM_MISTRAL_MAIN_FIRST_BLOCK: 'true'
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python scripts/mistral_main_first_block.py generate --state results/expanded/main_mistral_first_block --index 9
+      - name: Preserve main response and ledger after output 9
+        if: ${{ always() && steps.main9.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-first-${{ github.run_id }}-after-9
+          path: results/expanded/main_mistral_first_block/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Preserve final or interrupted first-main evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-mistral-first-${{ github.run_id }}-final
+          path: |
+            results/expanded/main_mistral_first_block/
+            results/expanded/main_first_block_tests.junit.xml
+            results/expanded/main_first_block_runtime.json
+          if-no-files-found: error
+          retention-days: 90

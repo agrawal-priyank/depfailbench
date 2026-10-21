@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       gemini_low_feasibility:
-        description: Two author-approved Gemini low-thinking feasibility responses within $0.50; no main-study outputs
+        description: Fourteen remaining approved Gemini low-thinking validation responses within $2; no main-study outputs
         required: true
         default: false
         type: boolean
@@ -1509,81 +1509,130 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-  gemini-low-feasibility:
+  gemini-low-remaining:
     if: ${{ inputs.gemini_low_feasibility && !inputs.continue_grok_budget && !inputs.evaluate_uniform_saved_sources && !inputs.resume_grok_request_fix && !inputs.evaluate_saved_mistral_google && !inputs.inspect_grok_access_only && !inputs.verify_setup_only && !inputs.confirm_paid_generation && !inputs.evaluate_saved_openai && !inputs.recover_grok_after_key_fix && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
     runs-on: ubuntu-22.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
-      PYTHONUNBUFFERED: "1"
+      PYTHONUNBUFFERED: '1'
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12.14"
+          python-version: '3.12.14'
           cache: pip
-      - name: Install the exact reviewed runtime and analysis dependencies
+      - name: Install reviewed dependencies
         run: |
           python -m pip install -r requirements.lock
           python -m pip install -r expanded_study/requirements-analysis.txt
           python -m pip install --no-deps --editable .
-      - name: Verify current allocation, extraction and exact sample scope without model credentials
-        run: |
-          python -m pytest -q tests/test_expanded_study.py tests/test_expanded_analysis.py tests/test_expanded_providers.py tests/test_expanded_collection.py tests/test_expanded_live_recovery.py tests/test_expanded_reclassification.py tests/test_expanded_status_policy.py tests/test_uniform_source_processing.py tests/test_gemini_low_feasibility.py --junitxml=results/expanded/gemini_low_tests.junit.xml
-          python -m benchmark.expanded preflight --output results/expanded/gemini_low_main_preview
-      - name: Record Linux runtime and current measured implementation without model credentials
+      - name: Verify fourteen-response scope without credentials
+        run: python -m pytest -q tests/test_gemini_low_remaining.py tests/test_uniform_source_processing.py --junitxml=results/expanded/gemini_remaining_tests.junit.xml
+      - name: Record Linux runtime
         run: |
           python - <<'PYCODE'
-          import json, os, sys
+          import json,os,sys
           from pathlib import Path
-          from benchmark.expanded.collect import environment, implementation_manifest
-          assert sys.platform == 'linux'
-          Path('results/expanded/gemini_low_runtime.json').write_text(json.dumps({'environment':environment(),'implementation':implementation_manifest(),'github_run_id':os.environ['GITHUB_RUN_ID'],'github_commit':os.environ['GITHUB_SHA'],'model_api_calls':0},indent=2)+'\n')
+          from benchmark.expanded.collect import environment,implementation_manifest
+          assert sys.platform=='linux'
+          Path('results/expanded/gemini_remaining_runtime.json').write_text(json.dumps({'environment':environment(),'implementation':implementation_manifest(),'github_run_id':os.environ['GITHUB_RUN_ID'],'github_commit':os.environ['GITHUB_SHA']},indent=2)+'\n')
           PYCODE
-      - name: Check the stable two-response marker before authentication
+      - name: Check stable marker before authentication
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python scripts/gemini_low_feasibility.py prior-run-check --state results/expanded/gemini_low_prior_guard.json
-      - name: Prepare the isolated low-thinking configuration and exact two-response budget
+        run: python scripts/gemini_low_remaining.py prior-run-check --state results/expanded/gemini_remaining_prior_guard.json
+      - name: Prepare only fourteen authorized response coordinates
         env:
-          CONFIRM_GEMINI_LOW_FEASIBILITY: "true"
-        run: python scripts/gemini_low_feasibility.py prepare --state results/expanded/gemini_low_feasibility --guard results/expanded/gemini_low_prior_guard.json
-      - name: Preserve the stable prepared marker before any provider authentication
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+        run: python scripts/gemini_low_remaining.py prepare --state results/expanded/gemini_low_remaining --guard results/expanded/gemini_remaining_prior_guard.json
+      - name: Preserve stable marker before authentication
         uses: actions/upload-artifact@v4
         with:
-          name: gemini-low-feasibility-20261020-v1-prepared
-          path: results/expanded/gemini_low_feasibility/
+          name: gemini-low-remaining-20261020-v1-prepared
+          path: results/expanded/gemini_low_remaining/
           if-no-files-found: error
           retention-days: 90
-      - name: Generate only the approved E1 C0 low-thinking response
+      - name: Generate remaining coordinate 0
         env:
-          CONFIRM_GEMINI_LOW_FEASIBILITY: "true"
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python scripts/gemini_low_feasibility.py generate --state results/expanded/gemini_low_feasibility --index 0
-      - name: Preserve the first response and ledger
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 0
+      - name: Generate remaining coordinate 1
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 1
+      - name: Generate remaining coordinate 2
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 2
+      - name: Generate remaining coordinate 3
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 3
+      - name: Generate remaining coordinate 4
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 4
+      - name: Generate remaining coordinate 5
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 5
+      - name: Generate remaining coordinate 6
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 6
+      - name: Generate remaining coordinate 7
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 7
+      - name: Generate remaining coordinate 8
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 8
+      - name: Generate remaining coordinate 9
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 9
+      - name: Generate remaining coordinate 10
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 10
+      - name: Generate remaining coordinate 11
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 11
+      - name: Generate remaining coordinate 12
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 12
+      - name: Generate remaining coordinate 13
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 13
+      - name: Preserve complete or interrupted evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: gemini-low-feasibility-${{ github.run_id }}-after-first
-          path: results/expanded/gemini_low_feasibility/
-          if-no-files-found: error
-          retention-days: 90
-      - name: Generate only the approved E5 C1 low-thinking response
-        env:
-          CONFIRM_GEMINI_LOW_FEASIBILITY: "true"
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python scripts/gemini_low_feasibility.py generate --state results/expanded/gemini_low_feasibility --index 1
-      - name: Preserve complete or interrupted two-response evidence and Linux checks
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gemini-low-feasibility-${{ github.run_id }}-final
+          name: gemini-low-remaining-${{ github.run_id }}-final
           path: |
-            results/expanded/gemini_low_feasibility/
-            results/expanded/gemini_low_tests.junit.xml
-            results/expanded/gemini_low_runtime.json
-            results/expanded/gemini_low_main_preview/
+            results/expanded/gemini_low_remaining/
+            results/expanded/gemini_remaining_tests.junit.xml
+            results/expanded/gemini_remaining_runtime.json
           if-no-files-found: error
           retention-days: 90
 

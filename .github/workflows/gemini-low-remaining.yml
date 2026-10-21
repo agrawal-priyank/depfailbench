@@ -1,0 +1,142 @@
+name: Complete fourteen approved Gemini low validation responses
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Fourteen remaining excluded responses, $2 operational allowance; no main outputs
+        required: true
+        default: false
+        type: boolean
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: gemini-low-remaining-20261020-v1
+  cancel-in-progress: false
+jobs:
+  gemini-low-remaining:
+    if: ${{ inputs.confirm && github.run_attempt == '1' && github.ref == 'refs/heads/array-revision-linux-validation' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    env:
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+          cache: pip
+      - name: Install reviewed dependencies
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install -r expanded_study/requirements-analysis.txt
+          python -m pip install --no-deps --editable .
+      - name: Verify fourteen-response scope without credentials
+        run: python -m pytest -q tests/test_gemini_low_remaining.py tests/test_uniform_source_processing.py --junitxml=results/expanded/gemini_remaining_tests.junit.xml
+      - name: Record Linux runtime
+        run: |
+          python - <<'PYCODE'
+          import json,os,sys
+          from pathlib import Path
+          from benchmark.expanded.collect import environment,implementation_manifest
+          assert sys.platform=='linux'
+          Path('results/expanded/gemini_remaining_runtime.json').write_text(json.dumps({'environment':environment(),'implementation':implementation_manifest(),'github_run_id':os.environ['GITHUB_RUN_ID'],'github_commit':os.environ['GITHUB_SHA']},indent=2)+'\n')
+          PYCODE
+      - name: Check stable marker before authentication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/gemini_low_remaining.py prior-run-check --state results/expanded/gemini_remaining_prior_guard.json
+      - name: Prepare only fourteen authorized response coordinates
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+        run: python scripts/gemini_low_remaining.py prepare --state results/expanded/gemini_low_remaining --guard results/expanded/gemini_remaining_prior_guard.json
+      - name: Preserve stable marker before authentication
+        uses: actions/upload-artifact@v4
+        with:
+          name: gemini-low-remaining-20261020-v1-prepared
+          path: results/expanded/gemini_low_remaining/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Generate remaining coordinate 0
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 0
+      - name: Generate remaining coordinate 1
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 1
+      - name: Generate remaining coordinate 2
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 2
+      - name: Generate remaining coordinate 3
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 3
+      - name: Generate remaining coordinate 4
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 4
+      - name: Generate remaining coordinate 5
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 5
+      - name: Generate remaining coordinate 6
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 6
+      - name: Generate remaining coordinate 7
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 7
+      - name: Generate remaining coordinate 8
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 8
+      - name: Generate remaining coordinate 9
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 9
+      - name: Generate remaining coordinate 10
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 10
+      - name: Generate remaining coordinate 11
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 11
+      - name: Generate remaining coordinate 12
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 12
+      - name: Generate remaining coordinate 13
+        env:
+          CONFIRM_GEMINI_LOW_REMAINING: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_low_remaining.py generate --state results/expanded/gemini_low_remaining --index 13
+      - name: Preserve complete or interrupted evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gemini-low-remaining-${{ github.run_id }}-final
+          path: |
+            results/expanded/gemini_low_remaining/
+            results/expanded/gemini_remaining_tests.junit.xml
+            results/expanded/gemini_remaining_runtime.json
+          if-no-files-found: error
+          retention-days: 90

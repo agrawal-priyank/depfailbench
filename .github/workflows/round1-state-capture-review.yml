@@ -1,0 +1,90 @@
+name: Array saved first-round state-capture review (no model calls)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: array-round1-state-capture-review
+  cancel-in-progress: false
+jobs:
+  software:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12.14', cache: pip}
+      - run: |
+          python -m pip install -r requirements.lock
+          python -m pip install --no-deps --editable .
+      - run: |
+          python -m pytest -q tests/test_expanded_state_capture.py tests/test_round1_state_capture_review.py tests/test_expanded_study.py tests/test_repeat_audit.py tests/test_expanded_status_policy.py --junitxml=results/software.xml
+          python scripts/reevaluate_round1_state_capture.py check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: round1-state-software-${{ github.run_id }}
+          path: results/
+          if-no-files-found: error
+          retention-days: 90
+  evaluate:
+    needs: software
+    if: ${{ github.run_attempt == '1' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        provider: [Anthropic, OpenAI, Google, Mistral]
+        shard: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12.14', cache: pip}
+      - run: |
+          python -m pip install -r requirements.lock
+          python -m pip install --no-deps --editable .
+      - name: Fetch and verify original sources without executing them
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/reevaluate_round1_state_capture.py prepare --provider ${{ matrix.provider }} --shard ${{ matrix.shard }} --output results/review
+      - name: Re-evaluate only original sources with no credentials
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: python scripts/reevaluate_round1_state_capture.py evaluate --provider ${{ matrix.provider }} --shard ${{ matrix.shard }} --output results/review
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: round1-state-evaluation-${{ github.run_id }}-${{ matrix.provider }}-${{ matrix.shard }}
+          path: results/review/
+          if-no-files-found: error
+          retention-days: 90
+  audit:
+    needs: evaluate
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12.14', cache: pip}
+      - run: |
+          python -m pip install -r requirements.lock
+          python -m pip install --no-deps --editable .
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: round1-state-evaluation-${{ github.run_id }}-*
+          path: downloaded/
+      - name: Verify all 720 sources and 6480 new records without executing them
+        run: python scripts/reevaluate_round1_state_capture.py audit --folder downloaded --output results/independent_review_audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: round1-state-audit-${{ github.run_id }}
+          path: results/
+          if-no-files-found: error
+          retention-days: 90

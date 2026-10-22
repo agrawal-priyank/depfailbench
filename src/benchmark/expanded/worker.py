@@ -42,6 +42,10 @@ def normalize(value):
         return {str(k): normalize(v) for k, v in value.items()}
     if isinstance(value, (list, tuple)):
         return [normalize(v) for v in value]
+    if isinstance(value, str):
+        # Preserve the underlying string value, including str/Enum subclasses.
+        # Calling a user-defined __str__ could replace the actual status value.
+        return str.__str__(value)
     if value is None or type(value) in {str, int, float, bool}:
         return value
     return {"unrecognized_state_type": type(value).__name__}

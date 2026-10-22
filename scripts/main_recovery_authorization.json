@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "authorized_by": "Priyank Agrawal",
+  "author_message": "Sounds good. Let\u2019s resume pls.",
+  "approval_context": "Author approved the concrete proposal to resume only2674 unmade requests, preserve all1646 existing response coordinates and record exactlyone interrupted accepted OpenAI request at its existing full0.025USD allowance on a preserved ledger copy. Actual usage remains unknown. Original45USD envelope and provider caps unchanged. No retry or replacement of consumed coordinates.",
+  "recorded_at_utc": "2026-10-22T22:31:04.706615+00:00",
+  "maximum_new_outputs": 2674,
+  "saved_partial_outputs": 206,
+  "fully_audited_outputs": 1440,
+  "stop_at": 4320,
+  "overall_envelope_usd": "45",
+  "exception": {
+    "scope": "one exact interrupted response only",
+    "artifact_id": "expanded_E3_gpt_6_luna_reasoning_effort_high_C1_g12",
+    "wire_sha256": "18da56c9da1ebd01d3cc7e2d7eaf96347cdd658de3f11b95e71e6f966926fed3",
+    "amount_usd": "0.025",
+    "meaning": "Conservative operational accounting amount from its existing full request allowance, NOT actual usage, measured token cost, provider charge or verified invoice. Keep raw usage null/unknown and original ledger/archive immutable; any approved continuation uses an explicitly annotated copied ledger and audit exception. No automatic exception for another interrupted response.",
+    "frozen_guard_requires_explicit_author_amendment": true
+  },
+  "proposal_sha256": "fea45302733708e4faef68fc1142d72e0a2fdd31dc13b62fb1989106c11fbc88"
+}

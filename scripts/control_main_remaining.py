@@ -25,7 +25,16 @@ def entry(output):
     proof=load(output/'software/contents/software_gate.json')
     require(proof=={'passed':True,'tests':p['expected_software_tests'],'commit':os.environ['GITHUB_SHA'],
         'run_id':verified,'attempt':1,'mode':'software','plan_sha256':sha(PLAN),'model_api_calls':0},'Wrong software gate proof')
-    if r==2:require(os.environ.get('PREVIOUS_ROUND_RUN','0')=='0','Initial round cannot have a preceding remaining run')
+    if r==3:
+        require(os.environ.get('PREVIOUS_ROUND_RUN')==str(p['partial_sources']['OpenAI']['run_id']),'Wrong interrupted original run')
+        prior=get('actions/runs/'+os.environ['PREVIOUS_ROUND_RUN']);origin=p['partial_sources']['OpenAI']
+        require(prior['status']=='completed' and prior['conclusion']=='failure' and prior['run_attempt']==1 and
+            prior['head_sha']==origin['commit'] and prior['workflow_id']==p['workflow_id'],'Interrupted original identity differs')
+        completed=p['original_round2'];r2=get('actions/runs/'+str(completed['run_id']))
+        require(r2['status']=='completed' and r2['conclusion']=='success' and r2['run_attempt']==1 and r2['head_sha']==completed['commit'],'Original completed round2 differs')
+        fetch_named(completed['run_id'],completed['commit'],f"remaining-main-completion-{completed['run_id']}",output/'original_round2')
+        proof=load(output/'original_round2/contents/round_completion.json')
+        require(proof['passed'] and proof['round']==2 and proof['new_outputs']==720 and proof['records']==6480 and proof['groups']==14,'Original round2 proof incomplete')
     else:
         prior=int(os.environ['PREVIOUS_ROUND_RUN']);prev=get(f'actions/runs/{prior}')
         require(prev['status']=='completed' and prev['conclusion']=='success' and prev['run_attempt']==1 and
@@ -56,11 +65,14 @@ def complete(output):
     require(estimate<=45,'Cumulative cost envelope exceeded')
     save(output/'round_completion.json',{'passed':True,'round':r,'new_outputs':720,'records':6480,'groups':14,'run_id':run,'commit':commit,
         'cumulative_main_outputs':720*r,'estimated_cumulative_token_cost_usd':str(estimate),'provider_campaign_estimates_usd':costs,
-        'invoice_cost_verified':False,'audits':audits,'next_round':r+1 if r<6 else None,'stop_at':4320,'model_api_calls':0,
+        'invoice_cost_verified':False,'known_usage_token_estimate_usd':str(estimate-Decimal('0.025')),
+        'approved_unknown_usage_responses':1,'approved_operational_allowance_usd':'0.025',
+        'new_model_call_coordinates':514 if r==3 else 720,'saved_partial_outputs_evaluated':206 if r==3 else 0,
+        'accounting_note':'Operational estimate includes single author-approved0.025USD allowance; actual interrupted-response usage remains unknown.', 'audits':audits,'next_round':r+1 if r<6 else None,'stop_at':4320,'model_api_calls':0,
         'completed_audit_at_utc':datetime.now(timezone.utc).isoformat(),'minimum_pass_rate':None})
 
 
-def marker_name(r):return CAMPAIGN+f'-remaining-advance-r{r}'
+def marker_name(r):return CAMPAIGN+f'-recovery-advance-r{r}'
 
 
 def advance_intent(output):

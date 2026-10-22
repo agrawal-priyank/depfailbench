@@ -13,7 +13,7 @@ from benchmark.expanded.spending import DispatchPaused
 
 def test_exact_remaining_scope_and_cell_balance():
     p,old=gen.plan();all_slots=[]
-    for r in range(2,7):
+    for r in range(3,7):
         group=[]
         for w in range(6):
             for provider in gen.PROVIDERS:
@@ -24,18 +24,18 @@ def test_exact_remaining_scope_and_cell_balance():
         assert len(group)==720 and len({s['artifact_id'] for s in group})==720
         assert set(Counter((s['task'],s['configuration_id'],s['condition']) for s in group).values())=={5}
         all_slots+=group
-    assert len(all_slots)==len({s['artifact_id'] for s in all_slots})==3600
-    assert set(Counter((s['task'],s['configuration_id'],s['condition']) for s in all_slots).values())=={25}
+    assert len(all_slots)==len({s['artifact_id'] for s in all_slots})==2880
+    assert set(Counter((s['task'],s['configuration_id'],s['condition']) for s in all_slots).values())=={20}
     assert old['new_campaign_caps_usd']==p['new_campaign_caps_usd']
 
 
-@pytest.mark.parametrize('round_id',[1,7,True,'2',None])
+@pytest.mark.parametrize('round_id',[1,7,True,'3',2,None])
 def test_outside_authorized_round_rejected(round_id,monkeypatch):
     if round_id is None:monkeypatch.setenv('REMAINING_ROUND','7')
     with pytest.raises(DispatchPaused):gen.slots('OpenAI',0,round_id=round_id)
 
 
-@pytest.mark.parametrize('r',range(2,7))
+@pytest.mark.parametrize('r',range(3,7))
 def test_partition_keeps_all_nine_measurements_on_same_machine(r,monkeypatch):
     monkeypatch.setenv('REMAINING_ROUND',str(r))
     for provider in gen.PROVIDERS:
@@ -86,7 +86,7 @@ def test_workflow_credential_isolation_and_wave_dependencies():
     text=(ROOT/'.github/workflows/expanded-local-validation.yml').read_text()
     assert 'cancel-in-progress: false' in text and "github.run_attempt == '1'" in text
     assert 'actions: write' in text and text.count('secrets[')==6
-    assert "options: ['2', '3', '4', '5', '6']" in text and 'max-parallel: 16' in text
+    assert "options: ['3', '4', '5', '6']" in text and 'max-parallel: 16' in text
     for w in range(6):
         block=text.split(f'  w{w}-evaluation:',1)[1].split(f'  w{w}-audit:',1)[0]
         assert 'secrets' not in block

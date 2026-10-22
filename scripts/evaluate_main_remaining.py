@@ -1,5 +1,5 @@
 """Four independent Linux shards per batch; saved-record and raw-stream audit."""
-import argparse, ast, json, os, shutil, sqlite3
+import argparse, ast, json, os, shutil, sqlite3, hashlib
 from collections import Counter
 from decimal import Decimal
 from pathlib import Path
@@ -9,7 +9,7 @@ from benchmark.expanded.contracts import Settings
 from benchmark.expanded.oracles import classify
 from benchmark.expanded.providers import build_request, TokenRates
 from benchmark.expanded.provider_recovery import replay_wire
-from continue_main_remaining import PLAN, CAMPAIGN, PROVIDERS, plan, slots, prefix, round_number, identity, artifact_name, fetch_named, files, ledger_rows, load, sha, require
+from continue_main_remaining import PLAN, CAMPAIGN, PROVIDERS, plan, slots, generation_slots, prefix, round_number, identity, artifact_name, fetch_named, files, ledger_rows, load, sha, require
 from record_evaluation_host import write_record
 
 
@@ -40,7 +40,7 @@ def verify_generation(source,provider,wave,run,commit):
             m['provider']==provider and m['wave']==wave and m['round']==r and m['plan_sha256']==sha(PLAN),'Batch identity differs')
     require(not m['synthetic_data'] and m['campaign_namespace']==CAMPAIGN and m['source_repairs']==0,'Source integrity differs')
     require(permission['snapshot']==execution_snapshot(root) and permission['cohort']=='main' and permission['allowed_providers']==[provider] and
-            permission['allowed_artifact_ids']==[s['artifact_id'] for s in slots(provider,wave,root)] and
+            permission['allowed_artifact_ids']==[s['artifact_id'] for s in generation_slots(provider,wave,root)] and
             permission['maximum_cost_usd']==financial['new_campaign_caps_usd'][provider],'Permission identity differs')
     require(summary['complete'] and summary['programs']==len(slots(provider,wave,root)) and summary['cumulative_programs']==len(prefix(provider,wave,root)) and
             not summary['ledger']['held'] and not summary['ledger']['pauses'],'Incomplete generation or unresolved usage')
@@ -80,6 +80,24 @@ def evaluate(provider,wave,shard,output):
     save(output/'evaluation_summary.json',summary)
 
 
+def verify_single_unknown_usage(art,attempt,provider,slot,j,headers,complete,metadata):
+    """Narrow hash-bound exemption; a second unknown response still fails closed."""
+    e=load(PLAN)['approved_usage_exception']
+    if slot['artifact_id']!=e['artifact_id']:return False
+    require(provider=='OpenAI' and slot['round']==3 and len(list(art.glob('attempt_*')))==1 and
+        complete['wire_sha256']==sha(attempt/'wire_response.bin')==e['wire_sha256'] and headers['http_status']==200 and headers['x-request-id']==e['request_id'] and j['id']==e['attempt_id'] and j['number']==1 and
+        j['consumed'] and j['billing_uncertain'] and j['estimated_token_cost_usd'] is None and
+        not j['usage']['complete'] and metadata['estimated_token_cost_usd'] is None and
+        metadata['provider_response_id']==e['response_id'] and metadata['generation_status']=='incomplete' and
+        metadata['source_sha256'] is None and not(art/'app.py').exists(),'Approved interrupted coordinate differs')
+    replay=replay_wire(provider,(attempt/'wire_response.bin').read_bytes(),headers,complete);parsed=replay['parsed']
+    require(not replay['terminal_received'] and replay['consumed'] and replay['raw']==load(attempt/'assembled_response.json') and
+        parsed['usage']==j['usage']==metadata['provider_usage'] and parsed['usage']['raw'] is None and
+        parsed['generation_status']==metadata['generation_status'] and parsed['source_processing']==metadata['source_processing'] and
+        not parsed['source'] and parsed['text']==(art/'response.txt').read_text(),'Approved raw unknown-usage outcome differs')
+    return True
+
+
 def audit_finance(outer,state,root,provider,wave):
     """Replay every cumulative request, wire response, usage and settled charge."""
     financial=load(state/'reviewed_plan.json');current=load(outer/'wave_manifest.json');permission=load(state/current['permission_path'])
@@ -92,7 +110,11 @@ def audit_finance(outer,state,root,provider,wave):
         for attempt in sorted(art.glob('attempt_*')):
             attempt_count+=1;j=load(attempt/'attempt.json');headers=load(attempt/'response_headers.json');complete=load(attempt/'wire_complete.json')
             require(load(attempt/'request.json')==expected_request and complete['wire_sha256']==sha(attempt/'wire_response.bin') and
-                    not j['billing_uncertain'] and not j['simulation_only'],'Request/wire/usage integrity issue')
+                    not j['simulation_only'],'Request/wire integrity issue')
+            exception=verify_single_unknown_usage(art,attempt,provider,slot,j,headers,complete,metadata)
+            if exception:
+                consumed+=1;cost+=Decimal('0.025');continue
+            require(not j['billing_uncertain'],'Unapproved usage uncertainty')
             cost+=Decimal(j['estimated_token_cost_usd'])
             if headers['http_status']!=200:
                 require(j['retryable'] and not j['consumed'] and Decimal(j['estimated_token_cost_usd'])==0,'Unexpected unsuccessful attempt');continue
@@ -116,6 +138,15 @@ def audit_finance(outer,state,root,provider,wave):
     require(sum(a['charged'] for a in attempts)==int(cost*Decimal(10**9)) and cost<=Decimal(permission['maximum_cost_usd']) and
         settings['limit']==str(int(Decimal(permission['maximum_cost_usd'])*10**9)) and settings['execution_permit']==sha(state/current['permission_path']) and
         Decimal(load(outer/'generation_summary.json')['estimated_cumulative_token_cost_usd'])==cost,'Ledger cost/cap/permission differs')
+    exception_rows=[a for a in attempts if a['id']==load(PLAN)['approved_usage_exception']['attempt_id']]
+    if exception_rows:
+        require(len(exception_rows)==1 and exception_rows[0]['charged']==25000000,'Approved allowance differs')
+        evidence=[a for a in rows['audit'] if a['event']=='reconcile_cost' and json.loads(a['details'])['attempt_id']==exception_rows[0]['id']]
+        require(len(evidence)==1 and json.loads(evidence[0]['details'])['evidence']['sha256']==load(PLAN)['approved_recovery_authorization_sha256'],'Author exception audit evidence differs')
+    if round_number()==3 and wave==0:
+        spec=load(PLAN)['partial_sources'][provider]
+        require(load(outer/'original_interrupted_ledger_rows.json')==ledger_rows(outer/'original_interrupted_ledger.sqlite') and sha(outer/'original_interrupted_ledger.sqlite')==spec['original_ledger_sha256'],'Original interrupted ledger not preserved')
+        require(hashlib.sha256(json.dumps(load(outer/'prior_campaign_files.json'),sort_keys=True).encode()).hexdigest()==spec['campaign_files_sha256'],'Retained source manifest differs')
     prior=load(outer/'prior_ledger_rows.json')
     require(all(a in attempts for a in prior['attempts']) and all(s in rows['slots'] for s in prior['slots']) and
         rows['audit'][:len(prior['audit'])]==prior['audit'] and all(sha(state/name)==h for name,h in load(outer/'prior_campaign_files.json').items() if name!='spending.sqlite'),'Prior bytes or charges changed')
@@ -166,7 +197,11 @@ def audit_saved(source,shards,provider,wave,run,commit):
         'main_programs':n,'records':9*n,'cumulative_provider_programs':len(prefix(provider,wave,root)),'raw_probes_reclassified':probes,
         'counts_by_deadline':counts,'source_parse_counts':parses,'estimated_cumulative_token_cost_usd':str(cost),'estimated_token_cost_usd':str(new_cost),
         'generation_archive_sha256':sha(source/'archive.zip'),'generation_artifact_id':meta['id'],'evaluation_shards':proofs,'invoice_cost_verified':False,
-        'http_attempts':attempts,'unresolved_reservations':0,'behavioral_repeat_disagreements':flags,'literal_trace_disagreements':literal,
+        'http_attempts':attempts,'unresolved_reservations':0,
+        'approved_unknown_usage_responses':1 if provider=='OpenAI' else 0,'approved_operational_allowance_usd':'0.025' if provider=='OpenAI' else '0',
+        'known_usage_token_estimate_usd':str(cost-(Decimal('0.025') if provider=='OpenAI' else Decimal(0))),
+        'accounting_note':'Compatibility cost fields are operational estimates including the single approved allowance; actual usage for that response remains unknown, never invoice verified.',
+        'new_model_call_coordinates':len(generation_slots(provider,wave,root)),'behavioral_repeat_disagreements':flags,'literal_trace_disagreements':literal,
         'permitted_internal_identifier_variations':variations,'evidence_complete':True,'model_api_calls':0,'generated_program_executions_by_audit':0,
         'gate_note':'Integrity and original spending limits only; generated-program failures remain outcomes. No pass-rate threshold, repairs or replacements.'}
 

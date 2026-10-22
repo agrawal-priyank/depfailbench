@@ -11,9 +11,6 @@
   "frozen_study_sha256": "533fc5da04fb7f50b377bd32db8aba7d85743f15906ed5a1f75a5fea20cf8df1",
   "unchanged_core_files": {
     "expanded_study/analysis.py": "3c547e59dcbd988c03fdf1602d4cadd94a0131f6899c50dd450b68a80c246cc1",
-    "expanded_study/plan_preview/local_preflight.json": "480d57813752fdc97cbaf9d675b52cd0ab60148bf6955cfcd5b87b4033376202",
-    "expanded_study/plan_preview/main_schedule.csv": "607074b89e1e2de3fb61dfd8e2abae15a89ce9879f81ec136a14418c4f8edc97",
-    "expanded_study/plan_preview/validation_schedule.csv": "6d0b66f09cd63eb73c8d9428a9a75cd77f4cf0eceb36e6aa0cd767515dad47b1",
     "expanded_study/prompts/E1_C0.md": "f38980b096137a40cf48e94cdb5267306a38b947224a7d72c446f592e22c9126",
     "expanded_study/prompts/E1_C1.md": "83b2ec4a8660affb553e5847d44a82a858ffe1c53b5d0f7bae3e55bf4af63caf",
     "expanded_study/prompts/E2_C0.md": "08bbc3e2c267aa6fe8e288849fedc024176eed9e16ed5e788e6f1659c2d53adb",
@@ -13057,5 +13054,14 @@
       "previous_primary_pass": false,
       "previous_clean_qualified": true
     }
-  ]
+  ],
+  "manifest_packaging_note": {
+    "excluded_local_preview_outputs": [
+      "expanded_study/plan_preview/local_preflight.json",
+      "expanded_study/plan_preview/main_schedule.csv",
+      "expanded_study/plan_preview/validation_schedule.csv"
+    ],
+    "reason": "Generated local preflight reports are not repository source or study inputs. All published scientific assets and unchanged benchmark implementation files retain exact original SHA256 checks.",
+    "superseded_review_run": 39779302912
+  }
 }

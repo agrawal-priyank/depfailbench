@@ -97,7 +97,9 @@ def prepare(provider,wave,state):
         run=int(os.environ['GITHUB_RUN_ID']);commit=os.environ['GITHUB_SHA'];source=None
         genname=artifact_name('generation',run,provider,wave-1)
         auditname=artifact_name('audit',run,provider,wave-1)
-    prior=state.parent/'prior'/provider.lower()/str(wave)
+    # Keep downloaded archives outside the upload tree so later waves do not
+    # recursively embed all previous ZIPs and their extracted copies.
+    prior=state.parent.parent/'prior'/provider.lower()/str(wave)
     gm=fetch_named(run,commit,genname,prior/'generation');am=fetch_named(run,commit,auditname,prior/'audit')
     if source:
         require(gm['id']==source['generation_artifact_id'] and gm['digest']=='sha256:'+source['generation_sha256'] and

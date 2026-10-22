@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "protocol_version": "array-expanded-fresh-staged-2026-10-21",
+  "status": "author_approved_fresh_staged_main_2026-10-21",
+  "frozen": true,
+  "paid_execution_authorized": true,
+  "seed": 20261019,
+  "programs_per_group": 30,
+  "primary_deadline_s": 1,
+  "secondary_deadlines_s": [
+    2,
+    5
+  ],
+  "measurement_tolerance_s": 0.05,
+  "evaluation_repeats": 3,
+  "configurations": [
+    {
+      "id": "gpt_6_1_sol",
+      "model_id": "gpt-6.1-sol",
+      "provider": "OpenAI",
+      "baseline": true,
+      "generation_settings": {
+        "reasoning_mode": "standard",
+        "reasoning_effort": "medium",
+        "temperature": null,
+        "top_p": null
+      },
+      "api": "Responses",
+      "initial_output_parameter_limit": 32000,
+      "output_limit_semantics": "provider_accounted_generated_tokens"
+    },
+    {
+      "id": "gpt_6_luna",
+      "model_id": "gpt-6-luna",
+      "provider": "OpenAI",
+      "baseline": true,
+      "generation_settings": {
+        "reasoning_mode": "standard",
+        "reasoning_effort": "medium",
+        "temperature": null,
+        "top_p": null
+      },
+      "api": "Responses",
+      "initial_output_parameter_limit": 32000,
+      "output_limit_semantics": "provider_accounted_generated_tokens"
+    },
+    {
+      "id": "claude_sonnet_5_5",
+      "model_id": "claude-sonnet-5-5",
+      "provider": "Anthropic",
+      "baseline": true,
+      "generation_settings": {
+        "thinking_type": "adaptive",
+        "effort": "high",
+        "temperature": null,
+        "top_p": null,
+        "top_k": null
+      },
+      "api": "Messages",
+      "initial_output_parameter_limit": 32000,
+      "output_limit_semantics": "provider_accounted_generated_tokens"
+    },
+    {
+      "id": "gemini_3_8_flash_low",
+      "model_id": "gemini-3.8-flash",
+      "provider": "Google",
+      "baseline": true,
+      "generation_settings": {
+        "thinking_level": "low",
+        "temperature": null,
+        "top_p": null,
+        "top_k": null
+      },
+      "api": "Interactions",
+      "initial_output_parameter_limit": 32000,
+      "output_limit_semantics": "provider_accounted_generated_tokens"
+    },
+    {
+      "id": "ministral_3b_2512",
+      "model_id": "ministral-3b-2512",
+      "provider": "Mistral",
+      "baseline": true,
+      "generation_settings": {
+        "reasoning_effort": null,
+        "temperature": 0.7,
+        "top_p": 1.0
+      },
+      "api": "Chat Completions",
+      "initial_output_parameter_limit": 32000,
+      "output_limit_semantics": "provider_accounted_generated_tokens"
+    },
+    {
+      "id": "ministral_14b_2512",
+      "model_id": "ministral-14b-2512",
+      "provider": "Mistral",
+      "baseline": true,
+      "generation_settings": {
+        "reasoning_effort": null,
+        "temperature": 0.7,
+        "top_p": 1.0
+      },
+      "api": "Chat Completions",
+      "initial_output_parameter_limit": 32000,
+      "output_limit_semantics": "provider_accounted_generated_tokens"
+    },
+    {
+      "id": "gpt_6_luna_reasoning_effort_low",
+      "model_id": "gpt-6-luna",
+      "provider": "OpenAI",
+      "baseline": false,
+      "generation_settings": {
+        "reasoning_mode": "standard",
+        "reasoning_effort": "low",
+        "temperature": null,
+        "top_p": null
+      },
+      "api": "Responses",
+      "initial_output_parameter_limit": 32000,
+      "output_limit_semantics": "provider_accounted_generated_tokens"
+    },
+    {
+      "id": "gpt_6_luna_reasoning_effort_high",
+      "model_id": "gpt-6-luna",
+      "provider": "OpenAI",
+      "baseline": false,
+      "generation_settings": {
+        "reasoning_mode": "standard",
+        "reasoning_effort": "high",
+        "temperature": null,
+        "top_p": null
+      },
+      "api": "Responses",
+      "initial_output_parameter_limit": 32000,
+      "output_limit_semantics": "provider_accounted_generated_tokens"
+    },
+    {
+      "id": "ministral_14b_2512_temperature_0p2",
+      "model_id": "ministral-14b-2512",
+      "provider": "Mistral",
+      "baseline": false,
+      "generation_settings": {
+        "reasoning_effort": null,
+        "temperature": 0.2,
+        "top_p": 1.0
+      },
+      "api": "Chat Completions",
+      "initial_output_parameter_limit": 32000,
+      "output_limit_semantics": "provider_accounted_generated_tokens"
+    }
+  ],
+  "generation_procedure": "independent single response, no tools, no feedback or repair",
+  "retained_original_programs": 320,
+  "main_outputs": 4320,
+  "excluded_validation_outputs": 144,
+  "proposed_budget_usd": 45,
+  "budget_authorized": true,
+  "cost_note": "Current-envelope observed token estimates1.22654970;4320fresh calls project34.692387;25percent on future calls totals44.59203345 within45. Estimates, not invoices. Original ledgers and uncertain historical Grok spending remain preserved separately.",
+  "source_processing_policy": "single-unambiguous-python-fence-2026-10-20",
+  "repeat_comparison_policy": "linked-internal-payment-uuid-2026-10-20",
+  "prompt_amendment": {
+    "id": "task-interface-clarifications-2026-10-21",
+    "author_approved_date": "2026-10-21",
+    "changed_tasks": [
+      "E4",
+      "E5",
+      "E6",
+      "E7",
+      "E8"
+    ],
+    "original_main_run": 39533790606,
+    "original_main_commit": "ad4709017a2b90135dca790d4987478aac9e24b7",
+    "models_settings_oracles_allocation_unchanged": true,
+    "new_paid_generation_started": false,
+    "prior_main_results_preserved": true,
+    "main_cohort_handling": "All4320 main outputs freshly generated under clarified prompts; original1440 Mistral outputs preserved separately as superseded original-prompt main evidence; no source reuse or relabelling as validation."
+  },
+  "campaign_namespace": "main-clarified-prompts-20261021-fresh-v1",
+  "staged_execution": {
+    "first_gate_outputs_per_provider": 10,
+    "first_gate_total": 40,
+    "first_round_coverage_gate_outputs": 720,
+    "later_batch_maximum_per_provider": 60,
+    "same_fixed_schedule": true,
+    "no_automatic_continuation_from_first_gate": true
+  }
+}

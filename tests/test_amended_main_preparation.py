@@ -106,7 +106,7 @@ def test_missing_hardware_fields_remain_unknown(monkeypatch):
 def test_readiness_selector_cannot_enable_other_workflow_jobs():
     text=(ROOT/'.github/workflows/full-study.yml').read_text()
     jobs=re.split(r'^  ([a-z][a-z0-9-]+):\n',text.split('jobs:\n',1)[1],flags=re.M)
-    assert len(jobs[1::2])==19
+    assert len(jobs[1::2])==23
     for i in range(1,len(jobs),2):
         name,body=jobs[i],jobs[i+1]
         condition=body.split('    runs-on:',1)[0]

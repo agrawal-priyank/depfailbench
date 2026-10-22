@@ -35,6 +35,6 @@ def test_workflow_isolation_and_credential_scope():
   name,body=jobs[i],jobs[i+1];seen.append(name)
   if not name.startswith('amended-prompt-'):assert '!inputs.amended_prompt_checks' in body.split('    runs-on:',1)[0]
  assert {'amended-prompt-gate','amended-prompt-generation','amended-prompt-saved-evaluation'}<=set(seen)
- evaluation=text.split('  amended-prompt-saved-evaluation:',1)[1];assert 'secrets' not in evaluation and 'AMENDMENT_PROVIDER_API_KEY' not in evaluation
+ evaluation=text.split('  amended-prompt-saved-evaluation:',1)[1].split('\n  amended-main-readiness:',1)[0];assert 'secrets' not in evaluation and 'AMENDMENT_PROVIDER_API_KEY' not in evaluation
  generation=text.split('  amended-prompt-generation:',1)[1].split('  amended-prompt-saved-evaluation:',1)[0]
  assert generation.count('AMENDMENT_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}')==20 and 'needs: amended-prompt-gate' in generation and 'no main calls' in text

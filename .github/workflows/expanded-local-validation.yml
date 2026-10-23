@@ -1,15 +1,15 @@
-name: Array main scoped recovery
-run-name: Array main recovery round ${{ inputs.round_id }} (${{ inputs.mode }})
+name: Array main scoped resume
+run-name: Array main resume round ${{ inputs.round_id }} (${{ inputs.mode }})
 on:
   workflow_dispatch:
     inputs:
       mode: {description: 'Software gate or authorized paid continuation', type: choice, options: [software, paid], default: software, required: true}
-      round_id: {description: 'Fixed coverage round2 through6', type: choice, options: ['3', '4', '5', '6'], default: '3', required: true}
+      round_id: {description: 'Fixed coverage round2 through6', type: choice, options: ['4', '5', '6'], default: '4', required: true}
       previous_run: {description: 'Prior completed round run, zero for initial round', type: string, default: '0', required: true}
       verified_software_run: {description: 'Successful exact-commit software-only run', type: string, default: '0', required: true}
 permissions: {contents: read, actions: read}
 concurrency:
-  group: array-main-recovery-20261022
+  group: array-main-resume-20261023
   cancel-in-progress: false
 env:
   REMAINING_ROUND: ${{ inputs.round_id }}
@@ -19,7 +19,7 @@ env:
   PYTHONUNBUFFERED: '1'
 jobs:
   software:
-    if: ${{ github.run_attempt == '1' && github.ref == 'refs/heads/array-main-recovery-20261022' }}
+    if: ${{ github.run_attempt == '1' && github.ref == 'refs/heads/array-main-resume-20261023' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 25
     steps:
@@ -71,6 +71,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w0-generation:
+    if: ${{ inputs.round_id != '4' }}
     needs: entry
     runs-on: ubuntu-22.04
     timeout-minutes: 350
@@ -97,7 +98,7 @@ jobs:
       - name: Preserve stable round guard before providing any model key
         uses: actions/upload-artifact@v4
         with:
-          name: main-clarified-prompts-20261021-fresh-v1-recovery-r${{ inputs.round_id }}-prepared-${{ matrix.slug }}
+          name: main-clarified-prompts-20261021-fresh-v1-resume-r${{ inputs.round_id }}-w0-prepared-${{ matrix.slug }}
           path: results/generation/${{ matrix.slug }}/wave_manifest.json
           if-no-files-found: error
           retention-days: 90
@@ -113,6 +114,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w0-evaluation:
+    if: ${{ always() && needs.w0-generation.result == 'success' }}
     needs: w0-generation
     runs-on: ubuntu-22.04
     timeout-minutes: 180
@@ -145,6 +147,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w0-audit:
+    if: ${{ always() && needs.w0-evaluation.result == 'success' }}
     needs: w0-evaluation
     runs-on: ubuntu-22.04
     timeout-minutes: 40
@@ -174,7 +177,8 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w1-generation:
-    needs: w0-audit
+    if: ${{ always() && needs.entry.result == 'success' && (inputs.round_id == '4' || needs.w0-audit.result == 'success') }}
+    needs: [entry, w0-audit]
     runs-on: ubuntu-22.04
     timeout-minutes: 350
     strategy:
@@ -197,6 +201,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python scripts/continue_main_remaining.py prepare --provider ${{ matrix.provider }} --wave 1 --state results/generation/${{ matrix.slug }}
+      - name: Preserve stable round guard before providing any model key
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-clarified-prompts-20261021-fresh-v1-resume-r${{ inputs.round_id }}-w1-prepared-${{ matrix.slug }}
+          path: results/generation/${{ matrix.slug }}/wave_manifest.json
+          if-no-files-found: error
+          retention-days: 90
       - name: Generate fixed batch with at most two inflight calls
         env:
           REMAINING_PROVIDER_API_KEY: ${{ secrets[matrix.secret_name] }}
@@ -209,6 +220,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w1-evaluation:
+    if: ${{ always() && needs.w1-generation.result == 'success' }}
     needs: w1-generation
     runs-on: ubuntu-22.04
     timeout-minutes: 180
@@ -241,6 +253,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w1-audit:
+    if: ${{ always() && needs.w1-evaluation.result == 'success' }}
     needs: w1-evaluation
     runs-on: ubuntu-22.04
     timeout-minutes: 40
@@ -270,6 +283,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w2-generation:
+    if: ${{ always() && needs.w1-audit.result == 'success' }}
     needs: w1-audit
     runs-on: ubuntu-22.04
     timeout-minutes: 350
@@ -305,6 +319,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w2-evaluation:
+    if: ${{ always() && needs.w2-generation.result == 'success' }}
     needs: w2-generation
     runs-on: ubuntu-22.04
     timeout-minutes: 180
@@ -337,6 +352,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w2-audit:
+    if: ${{ always() && needs.w2-evaluation.result == 'success' }}
     needs: w2-evaluation
     runs-on: ubuntu-22.04
     timeout-minutes: 40
@@ -366,6 +382,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w3-generation:
+    if: ${{ always() && needs.w2-audit.result == 'success' }}
     needs: w2-audit
     runs-on: ubuntu-22.04
     timeout-minutes: 350
@@ -401,6 +418,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w3-evaluation:
+    if: ${{ always() && needs.w3-generation.result == 'success' }}
     needs: w3-generation
     runs-on: ubuntu-22.04
     timeout-minutes: 180
@@ -433,6 +451,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w3-audit:
+    if: ${{ always() && needs.w3-evaluation.result == 'success' }}
     needs: w3-evaluation
     runs-on: ubuntu-22.04
     timeout-minutes: 40
@@ -462,6 +481,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w4-generation:
+    if: ${{ always() && needs.w3-audit.result == 'success' }}
     needs: w3-audit
     runs-on: ubuntu-22.04
     timeout-minutes: 350
@@ -497,6 +517,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w4-evaluation:
+    if: ${{ always() && needs.w4-generation.result == 'success' }}
     needs: w4-generation
     runs-on: ubuntu-22.04
     timeout-minutes: 180
@@ -529,6 +550,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w4-audit:
+    if: ${{ always() && needs.w4-evaluation.result == 'success' }}
     needs: w4-evaluation
     runs-on: ubuntu-22.04
     timeout-minutes: 40
@@ -558,6 +580,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w5-generation:
+    if: ${{ always() && needs.w4-audit.result == 'success' }}
     needs: w4-audit
     runs-on: ubuntu-22.04
     timeout-minutes: 350
@@ -593,6 +616,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w5-evaluation:
+    if: ${{ always() && needs.w5-generation.result == 'success' }}
     needs: w5-generation
     runs-on: ubuntu-22.04
     timeout-minutes: 180
@@ -625,6 +649,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w5-audit:
+    if: ${{ always() && needs.w5-evaluation.result == 'success' }}
     needs: w5-evaluation
     runs-on: ubuntu-22.04
     timeout-minutes: 40
@@ -654,6 +679,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   completion:
+    if: ${{ always() && needs.w1-audit.result == 'success' && needs.w2-audit.result == 'success' && needs.w3-audit.result == 'success' && needs.w4-audit.result == 'success' && needs.w5-audit.result == 'success' && (inputs.round_id == '4' || needs.w0-audit.result == 'success') }}
     needs: [w0-audit, w1-audit, w2-audit, w3-audit, w4-audit, w5-audit]
     permissions: {contents: read, actions: write}
     runs-on: ubuntu-22.04
@@ -687,7 +713,7 @@ jobs:
         if: ${{ inputs.round_id != '6' }}
         uses: actions/upload-artifact@v4
         with:
-          name: main-clarified-prompts-20261021-fresh-v1-recovery-advance-r${{ inputs.round_id }}
+          name: main-clarified-prompts-20261021-fresh-v1-resume-advance-r${{ inputs.round_id }}
           path: results/completion/advance_intent.json
           if-no-files-found: error
           retention-days: 90

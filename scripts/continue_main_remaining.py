@@ -19,8 +19,8 @@ API='repos/agrawal-priyank/depfailbench/'
 
 
 def round_number():
-    value=os.environ.get('REMAINING_ROUND','3')
-    require(value in ['3','4','5','6'],'Outside approved remaining rounds')
+    value=os.environ.get('REMAINING_ROUND','4')
+    require(value in ['4','5','6'],'Outside approved remaining rounds')
     return int(value)
 
 
@@ -38,7 +38,7 @@ def schedule(root=None):
 
 def slots(provider,wave,root=None,round_id=None):
     r=round_number() if round_id is None else round_id
-    require(provider in PROVIDERS and type(wave) is int and 0<=wave<6 and type(r) is int and 3<=r<=6,'Outside remaining scope')
+    require(provider in PROVIDERS and type(wave) is int and 0<=wave<6 and type(r) is int and 4<=r<=6,'Outside remaining scope')
     lane=[s for s in schedule(root) if s['provider']==provider and s['round']==r]
     return lane[60*wave:60*(wave+1)]
 
@@ -57,7 +57,7 @@ def last_wave(provider):
 
 def plan():
     p=load(PLAN);old=load(ROOT/'scripts/staged_main_first_gate_plan.json')
-    require(p['author_approved'] is True and p['maximum_new_outputs']==2674 and p['stop_at_cumulative_main']==4320,'Unapproved remaining scope')
+    require(p['author_approved'] is True and p['maximum_new_outputs']==1760 and p['stop_at_cumulative_main']==4320,'Unapproved remaining scope')
     require(p['campaign_namespace']==CAMPAIGN and p['overall_envelope_usd']=='45' and
             p['maximum_inflight_per_provider']==2 and p['maximum_new_outputs_per_provider_batch']==60 and p['evaluation_shards']==4,'Execution bounds changed')
     require(sha(ROOT/'scripts/staged_main_first_gate_plan.json')==p['initial_plan_sha256'],'Original financial plan changed')
@@ -70,9 +70,11 @@ def plan():
     require(p['rounds']=={str(r):[{v:[s['artifact_id'] for s in schedule() if s['provider']==v and s['round']==r][60*w:60*(w+1)]
             for v in PROVIDERS if [s for s in schedule() if s['provider']==v and s['round']==r][60*w:60*(w+1)]} for w in range(6)] for r in range(2,7)},'Fixed allocation changed')
     require(sum(len(ids) for waves in p['rounds'].values() for wave in waves for ids in wave.values())==3600,'Wrong remaining total')
-    retained={i for v in p['partial_sources'].values() for i in v['retained_ids']}
-    desired={s['artifact_id'] for s in schedule() if 3<=s['round']<=6}
-    require(len(retained)==206 and set(p['missing_artifact_ids'])==desired-retained and len(p['missing_artifact_ids'])==2674,'Recovery coordinates differ')
+    newauth=load(ROOT/'scripts/main_resume_authorization.json');google=p['approved_google_exception']
+    require(sha(ROOT/'scripts/main_resume_authorization.json')==p['new_resume_authorization_sha256']==google['authorization_sha256'] and
+        all(google[k]==v for k,v in newauth['exception'].items()) and newauth['maximum_new_outputs']==1760 and newauth['stop_at']==4320,'New author approval differs')
+    retained=set(p['all_retained_artifact_ids']);desired={s['artifact_id'] for s in schedule()}
+    require(len(retained)==2560 and set(p['missing_artifact_ids'])==desired-retained and len(p['missing_artifact_ids'])==1760,'Resume coordinates differ')
     return p,old
 
 
@@ -138,7 +140,7 @@ def prepare_from_saved(provider,wave,state,prior,gm,am):
     require({f.name for f in (previous_campaign/'artifacts').iterdir()}=={s['artifact_id'] for s in expected_before},'Prior provider prefix incomplete or excessive')
     require(sha(root/'study.json')==p['frozen_study_sha256'] and load(previous_campaign/'reviewed_plan.json')==old,'Frozen study or financial plan changed')
     previous_files=files(previous_campaign);shutil.copytree(previous_campaign,state/'campaign');campaign=state/'campaign'
-    if (r,wave)==(3,1):old_permission=campaign/'recovery_permissions/r3_w0.json'
+    if (r,wave)==(4,2):old_permission=campaign/'resume_permissions/r4_w1.json'
     elif wave:old_permission=campaign/f'remaining_permissions/r{r}_w{wave-1}.json'
     elif r>2:old_permission=campaign/f'remaining_permissions/r{r-1}_w{last_wave(provider)}.json'
     else:old_permission=campaign/f'continuation_permissions/wave_{p["initial_sources"][provider]["last_wave"]}.json'
@@ -162,16 +164,16 @@ def prepare_from_saved(provider,wave,state,prior,gm,am):
 def prepare(provider,wave,state):
     p,_=plan();identity();r=round_number()
     require(os.environ.get('CONFIRM_REMAINING_MAIN')=='true' and not state.exists() and slots(provider,wave),'Unapproved or repeated batch')
-    if (r,wave)==(3,0):
-        marker=CAMPAIGN+'-recovery-r3-prepared-'+provider.lower()
+    if (r,wave)==(4,1):
+        marker=CAMPAIGN+'-resume-r4-w1-prepared-'+provider.lower()
         pages=json.loads(subprocess.run(['gh','api','--paginate','--slurp',API+'actions/artifacts?per_page=100&name='+marker],capture_output=True,check=True).stdout)
         require(pages and all(x['total_count']==0 and not x['artifacts'] for x in pages),'Recovery already prepared; never retry')
-        source=p['partial_sources'][provider];prior=state.parent.parent/'prior'/provider.lower()/'interrupted_r3w0'
+        source=p['partial_sources'][provider];prior=state.parent.parent/'prior'/provider.lower()/'interrupted_r4w1'
         gm=fetch_named(source['run_id'],source['commit'],source['artifact_name'],prior/'generation')
         require(gm['id']==source['artifact_id'] and gm['digest']=='sha256:'+source['archive_sha256'],'Interrupted source archive differs')
         return prepare_partial(provider,state,prior/'generation',gm)
     if wave==0:
-        marker=CAMPAIGN+f'-recovery-r{r}-prepared-'+provider.lower()
+        marker=CAMPAIGN+f'-resume-r{r}-w0-prepared-'+provider.lower()
         pages=json.loads(subprocess.run(['gh','api','--paginate','--slurp',API+'actions/artifacts?per_page=100&name='+marker],capture_output=True,check=True).stdout)
         require(pages and all(x['total_count']==0 and not x['artifacts'] for x in pages),'Round already prepared; never redispatch blindly')
     prior=state.parent.parent/'prior'/provider.lower()/f'r{r}_w{wave}'
@@ -240,7 +242,7 @@ def summarize(provider,wave,state):
     report={'complete':True,'provider':provider,'round':m['round'],'wave':wave,'programs':len(m['slots']),
         'cumulative_programs':m['expected_cumulative'],'estimated_cumulative_token_cost_usd':str(Decimal(budget['cost'])/Decimal(10**9)),
         'invoice_cost_verified':False,'ledger':budget,'minimum_model_pass_rate':None,'source_repairs':0}
-    report.update(new_model_calls=len(generation_slots(provider,wave,root)),retained_partial_outputs=len(m['slots'])-len(generation_slots(provider,wave,root)),accounting_note='Operational total includes exactlyone author-approved0.025USD allowance when that consumed coordinate is in the provider prefix; actual usage stays unknown; not an invoice or a measured token charge.')
+    report.update(new_model_calls=len(generation_slots(provider,wave,root)),retained_partial_outputs=len(m['slots'])-len(generation_slots(provider,wave,root)),accounting_note='Operational total includes author-approved0.025USD OpenAI and0.15USD Google allowances when that consumed coordinate is in the provider prefix; actual usage stays unknown; not an invoice or a measured token charge.')
     save_json(state/'generation_summary.json',report);return {k:v for k,v in report.items() if k!='ledger'}
 
 
@@ -251,56 +253,50 @@ def generation_slots(provider,wave,root=None):
 
 
 def apply_single_allowance_copy(dbpath,evidence):
-    """One author-approved operational estimate on a COPY. Raw usage is untouched."""
-    p,_=plan();e=p['approved_usage_exception'];before=ledger_rows(dbpath)
+    """Only the newly approved rejected Google503 allowance, on a copied ledger."""
+    p,_=plan();e=p['approved_google_exception'];before=ledger_rows(dbpath)
     pending=[a for a in before['attempts'] if a['state']!='settled' or a['charged'] is None]
     require(len(pending)==1 and pending[0]['id']==e['attempt_id'] and pending[0]['state']=='uncertain' and
-        pending[0]['charged'] is None and pending[0]['reserved']==25000000 and pending[0]['response_id']==e['response_id'] and
-        before['pauses']==[{'provider':'OpenAI','reason':'output retained but billing usage requires reconciliation'}], 'Exception does not match the single reviewed uncertain attempt')
-    evidence.write_bytes((ROOT/'scripts/main_recovery_authorization.json').read_bytes())
+        pending[0]['charged'] is None and pending[0]['reserved']==150000000 and pending[0]['provider']=='Google' and
+        pending[0]['outcome']=='service_unfilled' and pending[0]['response_id'] is None and not before['pauses'],'New exception identity differs')
+    evidence.write_bytes((ROOT/'scripts/main_resume_authorization.json').read_bytes())
     ledger=SpendingLedger.open_for_recovery(dbpath)
-    reason='Explicit author-approved conservative operational allowance0.025USD for exactlyone interrupted request. Actual provider usage and invoice remain UNKNOWN; never regenerate this consumed coordinate.'
-    ledger.reconcile_cost(e['attempt_id'],cost_usd='0.025',evidence_path=evidence,reason=reason)
-    ledger.clear_pause('OpenAI',evidence_path=evidence,reason=reason)
-    after=ledger_rows(dbpath)
-    expected=[{**a,'state':'settled','charged':25000000} if a['id']==e['attempt_id'] else a for a in before['attempts']]
+    ledger.reconcile_cost(e['attempt_id'],cost_usd='0.15',evidence_path=evidence,
+        reason='Author explicitly requested resume despite the reported Google503 billing hold. Conservative full0.15USD operational allowance only; actual rejected-request billing remains UNKNOWN, not invoice verified.')
+    after=ledger_rows(dbpath);expected=[{**a,'state':'settled','charged':150000000} if a['id']==e['attempt_id'] else a for a in before['attempts']]
     require(after['attempts']==expected and after['slots']==before['slots'] and after['settings']==before['settings'] and
-        after['audit'][:len(before['audit'])]==before['audit'] and len(after['audit'])==len(before['audit'])+2 and not after['pauses'],'Unauthorized ledger mutation')
+        after['pauses']==before['pauses'] and after['audit'][:len(before['audit'])]==before['audit'] and len(after['audit'])==len(before['audit'])+1,'Unauthorized copied-ledger mutation')
     return before
 
 
 def prepare_partial(provider,state,source,gm):
-    p,financial=plan();identity();require(round_number()==3 and not state.exists() and os.environ.get('CONFIRM_REMAINING_MAIN')=='true','Wrong recovery entry')
+    p,financial=plan();identity();require(round_number()==4 and not state.exists() and os.environ.get('CONFIRM_REMAINING_MAIN')=='true','Wrong resume entry')
     spec=p['partial_sources'][provider];outer=source/'contents'/provider.lower();original=outer/'campaign'
-    require(hashlib.sha256(json.dumps(files(original),sort_keys=True).encode()).hexdigest()==spec['campaign_files_sha256'],'Original partial campaign bytes differ')
+    require(hashlib.sha256(json.dumps(files(original),sort_keys=True).encode()).hexdigest()==spec['campaign_files_sha256'],'Original partial campaign differs')
     root=original/'frozen_repo/expanded_study';have={d.name for d in (original/'artifacts').iterdir()}
-    previous={s['artifact_id'] for s in schedule(root) if s['provider']==provider and s['round']<3}
-    require(have==previous|set(spec['retained_ids']) and len(set(spec['retained_ids']))==len(spec['retained_ids']),'Partial prefix differs')
-    require(sha(root/'study.json')==p['frozen_study_sha256'] and load(original/'reviewed_plan.json')==financial,'Original study/finance differs')
+    expected={s['artifact_id'] for s in prefix(provider,1,root)}
+    require(have==expected and set(spec['retained_ids'])=={s['artifact_id'] for s in slots(provider,1,root)} and not generation_slots(provider,1,root),'Saved wave incomplete or generation would repeat')
+    require(sha(root/'study.json')==p['frozen_study_sha256'] and load(original/'reviewed_plan.json')==financial,'Study or caps differ')
     shutil.copytree(original,state/'campaign');campaign=state/'campaign';beforefiles=files(original)
-    shutil.copy2(original/'spending.sqlite',state/'original_interrupted_ledger.sqlite')
-    save_json(state/'original_interrupted_ledger_rows.json',ledger_rows(original/'spending.sqlite'))
-    if provider=='OpenAI':apply_single_allowance_copy(campaign/'spending.sqlite',state/'approved_accounting_exception.json')
-    old_permission=campaign/'remaining_permissions/r3_w0.json';permission=dict(load(old_permission))
-    permission.update(allowed_artifact_ids=[s['artifact_id'] for s in generation_slots(provider,0,root)],allowed_providers=[provider],
-        expires_at_utc=(datetime.now(timezone.utc)+timedelta(hours=48)).isoformat(),authorization_record=p['authorization_record'],snapshot=execution_snapshot(root))
-    new_permission=campaign/'recovery_permissions/r3_w0.json';new_permission.parent.mkdir(parents=True,exist_ok=True);save_json(new_permission,permission);permit=ExecutionPermit(new_permission,root=root)
+    shutil.copy2(original/'spending.sqlite',state/'original_interrupted_ledger.sqlite');save_json(state/'original_interrupted_ledger_rows.json',ledger_rows(original/'spending.sqlite'))
+    if provider=='Google':apply_single_allowance_copy(campaign/'spending.sqlite',state/'approved_google_accounting_exception.json')
+    old_permission=campaign/'remaining_permissions/r4_w1.json';permission=dict(load(old_permission))
+    permission.update(allowed_artifact_ids=[],allowed_providers=[provider],expires_at_utc=(datetime.now(timezone.utc)+timedelta(hours=48)).isoformat(),authorization_record=p['authorization_record'],snapshot=execution_snapshot(root))
+    new_permission=campaign/'resume_permissions/r4_w1.json';new_permission.parent.mkdir(parents=True,exist_ok=True);save_json(new_permission,permission);permit=ExecutionPermit(new_permission,root=root)
     before=amend_copy_permission(campaign/'spending.sqlite',old_permission,new_permission,financial['new_campaign_caps_usd'][provider],spec['archive_sha256'])
-    require(all(sha(campaign/name)==h for name,h in beforefiles.items() if name!='spending.sqlite') and files(original)==beforefiles,'Original evidence changed')
+    require(all(sha(campaign/name)==h for name,h in beforefiles.items() if name!='spending.sqlite') and files(original)==beforefiles,'Prior evidence changed')
     save_json(state/'prior_campaign_files.json',beforefiles);save_json(state/'prior_ledger_rows.json',before)
-    save_json(state/'wave_manifest.json',{'provider':provider,'round':3,'wave':0,'slots':slots(provider,0,root),
-        'new_generation_slots':generation_slots(provider,0,root),'retained_partial_ids':spec['retained_ids'],
-        'campaign_namespace':CAMPAIGN,'run_id':int(os.environ['GITHUB_RUN_ID']),'commit':os.environ['GITHUB_SHA'],
-        'plan_sha256':sha(PLAN),'generation_source':gm,'audit_source':None,'previous_programs':len(have),
-        'permission_path':str(new_permission.relative_to(campaign)),'expected_cumulative':len(prefix(provider,0,root)),
-        'source_repairs':0,'synthetic_data':False,'prior_ledger_original_preserved':True,'recovery_authorization_sha256':p['approved_recovery_authorization_sha256']})
-    return {'prepared':True,'provider':provider,'round':3,'wave':0,'new_outputs':len(generation_slots(provider,0,root)),'model_api_calls':0}
+    save_json(state/'wave_manifest.json',{'provider':provider,'round':4,'wave':1,'slots':slots(provider,1,root),'new_generation_slots':[],
+        'retained_partial_ids':spec['retained_ids'],'campaign_namespace':CAMPAIGN,'run_id':int(os.environ['GITHUB_RUN_ID']),'commit':os.environ['GITHUB_SHA'],
+        'plan_sha256':sha(PLAN),'generation_source':gm,'audit_source':None,'previous_programs':len(have),'permission_path':str(new_permission.relative_to(campaign)),
+        'expected_cumulative':len(expected),'source_repairs':0,'synthetic_data':False,'prior_ledger_original_preserved':True,'resume_authorization_sha256':p['new_resume_authorization_sha256']})
+    return {'prepared':True,'provider':provider,'round':4,'wave':1,'new_outputs':0,'saved_outputs':len(slots(provider,1,root)),'model_api_calls':0}
 
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('mode',choices=['check','prepare','generate'])
     parser.add_argument('--provider',choices=PROVIDERS);parser.add_argument('--wave',type=int);parser.add_argument('--state',type=Path);a=parser.parse_args()
-    if a.mode=='check':plan();out={'passed':True,'maximum_new_outputs':2674,'model_api_calls':0}
+    if a.mode=='check':plan();out={'passed':True,'maximum_new_outputs':1760,'model_api_calls':0}
     elif a.mode=='prepare':out=prepare(a.provider,a.wave,a.state)
     else:out=asyncio.run(generate(a.provider,a.wave,a.state))
     print(json.dumps(out),flush=True)

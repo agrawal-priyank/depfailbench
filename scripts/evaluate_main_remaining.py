@@ -98,6 +98,17 @@ def verify_single_unknown_usage(art,attempt,provider,slot,j,headers,complete,met
     return True
 
 
+def verify_google503_allowance(art,attempt,provider,slot,j,headers,complete):
+    e=load(PLAN)['approved_google_exception']
+    if j['id']!=e['attempt_id']:return False
+    require(provider=='Google' and slot['artifact_id']==e['artifact_id'] and j['number']==1 and
+        headers['http_status']==503 and complete['wire_sha256']==sha(attempt/'wire_response.bin')==e['wire_sha256'] and
+        not j['accepted'] and not j['consumed'] and not j['content_received'] and j['billing_uncertain'] and j['retryable'] and
+        j['estimated_token_cost_usd'] is None and not j['usage']['complete'] and j['usage']['raw'] is None and
+        load(attempt/'wire_response.bin')==e['provider_error'],'Approved rejected Google503 differs')
+    return True
+
+
 def audit_finance(outer,state,root,provider,wave):
     """Replay every cumulative request, wire response, usage and settled charge."""
     financial=load(state/'reviewed_plan.json');current=load(outer/'wave_manifest.json');permission=load(state/current['permission_path'])
@@ -111,6 +122,8 @@ def audit_finance(outer,state,root,provider,wave):
             attempt_count+=1;j=load(attempt/'attempt.json');headers=load(attempt/'response_headers.json');complete=load(attempt/'wire_complete.json')
             require(load(attempt/'request.json')==expected_request and complete['wire_sha256']==sha(attempt/'wire_response.bin') and
                     not j['simulation_only'],'Request/wire integrity issue')
+            if verify_google503_allowance(art,attempt,provider,slot,j,headers,complete):
+                cost+=Decimal('0.15');continue
             exception=verify_single_unknown_usage(art,attempt,provider,slot,j,headers,complete,metadata)
             if exception:
                 consumed+=1;cost+=Decimal('0.025');continue
@@ -143,7 +156,12 @@ def audit_finance(outer,state,root,provider,wave):
         require(len(exception_rows)==1 and exception_rows[0]['charged']==25000000,'Approved allowance differs')
         evidence=[a for a in rows['audit'] if a['event']=='reconcile_cost' and json.loads(a['details'])['attempt_id']==exception_rows[0]['id']]
         require(len(evidence)==1 and json.loads(evidence[0]['details'])['evidence']['sha256']==load(PLAN)['approved_recovery_authorization_sha256'],'Author exception audit evidence differs')
-    if round_number()==3 and wave==0:
+    google_e=load(PLAN)['approved_google_exception'];google_rows=[a for a in attempts if a['id']==google_e['attempt_id']]
+    if google_rows:
+        require(len(google_rows)==1 and google_rows[0]['charged']==150000000,'Google allowance differs')
+        evidence=[a for a in rows['audit'] if a['event']=='reconcile_cost' and json.loads(a['details'])['attempt_id']==google_e['attempt_id']]
+        require(len(evidence)==1 and json.loads(evidence[0]['details'])['evidence']['sha256']==google_e['authorization_sha256'],'Google author approval evidence differs')
+    if round_number()==4 and wave==1:
         spec=load(PLAN)['partial_sources'][provider]
         require(load(outer/'original_interrupted_ledger_rows.json')==ledger_rows(outer/'original_interrupted_ledger.sqlite') and sha(outer/'original_interrupted_ledger.sqlite')==spec['original_ledger_sha256'],'Original interrupted ledger not preserved')
         require(hashlib.sha256(json.dumps(load(outer/'prior_campaign_files.json'),sort_keys=True).encode()).hexdigest()==spec['campaign_files_sha256'],'Retained source manifest differs')
@@ -198,9 +216,9 @@ def audit_saved(source,shards,provider,wave,run,commit):
         'counts_by_deadline':counts,'source_parse_counts':parses,'estimated_cumulative_token_cost_usd':str(cost),'estimated_token_cost_usd':str(new_cost),
         'generation_archive_sha256':sha(source/'archive.zip'),'generation_artifact_id':meta['id'],'evaluation_shards':proofs,'invoice_cost_verified':False,
         'http_attempts':attempts,'unresolved_reservations':0,
-        'approved_unknown_usage_responses':1 if provider=='OpenAI' else 0,'approved_operational_allowance_usd':'0.025' if provider=='OpenAI' else '0',
-        'known_usage_token_estimate_usd':str(cost-(Decimal('0.025') if provider=='OpenAI' else Decimal(0))),
-        'accounting_note':'Compatibility cost fields are operational estimates including the single approved allowance; actual usage for that response remains unknown, never invoice verified.',
+        'approved_unknown_usage_attempts':1 if provider in ['OpenAI','Google'] else 0,'approved_operational_allowance_usd':{'OpenAI':'0.025','Google':'0.15'}.get(provider,'0'),
+        'known_usage_token_estimate_usd':str(cost-Decimal({'OpenAI':'0.025','Google':'0.15'}.get(provider,'0'))),
+        'accounting_note':'Compatibility cost fields are operational estimates including the separately approved0.025USD OpenAI and0.15USD Google allowances where applicable; actual usage for those attempts remains unknown, never invoice verified.',
         'new_model_call_coordinates':len(generation_slots(provider,wave,root)),'behavioral_repeat_disagreements':flags,'literal_trace_disagreements':literal,
         'permitted_internal_identifier_variations':variations,'evidence_complete':True,'model_api_calls':0,'generated_program_executions_by_audit':0,
         'gate_note':'Integrity and original spending limits only; generated-program failures remain outcomes. No pass-rate threshold, repairs or replacements.'}

@@ -92,7 +92,7 @@ def test_workflow_credential_isolation_and_wave_dependencies():
         assert 'secrets' not in block
         measure=block.split('- name: Measure saved sources without credentials, one measurement at a time',1)[1].split('- uses:',1)[0]
         assert 'TOKEN' not in measure and 'prepare' not in measure
-        assert f'needs: w{w}-generation' in block
+        assert (f'needs: w{w}-generation' in block) if w!=1 else 'needs: [entry, w1-generation]' in block
         if w>1:assert f'needs: w{w-1}-audit' in text.split(f'  w{w}-generation:',1)[1].split('runs-on:',1)[0]
     assert text.index('Preserve advance intent before dispatch')<text.index('Start next exact-commit round once')
     assert "inputs.round_id != '6'" in text

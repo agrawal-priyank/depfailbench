@@ -11,6 +11,7 @@ from benchmark.expanded.providers import build_request, TokenRates
 from benchmark.expanded.provider_recovery import replay_wire
 from continue_main_remaining import PLAN, CAMPAIGN, PROVIDERS, plan, slots, generation_slots, prefix, round_number, identity, artifact_name, fetch_named, files, ledger_rows, load, sha, require
 from record_evaluation_host import write_record
+from continue_main_remaining import saved_origin,origin_identity,verify_saved_origin
 
 
 def save(path, value):
@@ -32,12 +33,16 @@ def verify_archive(folder,run,commit,name):
 
 def verify_generation(source,provider,wave,run,commit):
     p,financial=plan();r=round_number()
+    requested_run,requested_commit=run,commit
+    run,commit=origin_identity('generation',provider,wave,run,commit)
+    verify_saved_origin(source,'generation',provider,wave)
+    generation_plan_sha256=p['upload_recovery']['plan_sha256'] if saved_origin('generation',provider,wave) else sha(PLAN)
     meta=verify_archive(source,run,commit,artifact_name('generation',run,provider,wave))
     outer=source/'contents'/provider.lower();state=outer/'campaign';root=state/'frozen_repo/expanded_study'
     m=load(outer/'wave_manifest.json');summary=load(outer/'generation_summary.json');permission=load(state/m['permission_path'])
     require(sha(root/'study.json')==p['frozen_study_sha256'] and load(state/'reviewed_plan.json')==financial,'Study/financial plan differs')
     require(m['slots']==slots(provider,wave,root) and m['run_id']==run and m['commit']==commit and
-            m['provider']==provider and m['wave']==wave and m['round']==r and m['plan_sha256']==sha(PLAN),'Batch identity differs')
+            m['provider']==provider and m['wave']==wave and m['round']==r and m['plan_sha256']==generation_plan_sha256,'Batch identity differs')
     require(not m['synthetic_data'] and m['campaign_namespace']==CAMPAIGN and m['source_repairs']==0,'Source integrity differs')
     require(permission['snapshot']==execution_snapshot(root) and permission['cohort']=='main' and permission['allowed_providers']==[provider] and
             permission['allowed_artifact_ids']==[s['artifact_id'] for s in generation_slots(provider,wave,root)] and
@@ -52,7 +57,9 @@ def prepare(provider,wave,shard,output):
     identity();require(not output.exists(),'Never overwrite evaluation')
     run=int(os.environ['GITHUB_RUN_ID']);commit=os.environ['GITHUB_SHA']
     source=Path('saved')/provider/f'r{round_number()}w{wave}s{shard}'
-    fetch_named(run,commit,artifact_name('generation',run,provider,wave),source)
+    require(not saved_origin('evaluation',provider,wave,shard),'Completed shard must be reused, not remeasured')
+    source_run,source_commit=origin_identity('generation',provider,wave,run,commit)
+    fetch_named(source_run,source_commit,artifact_name('generation',source_run,provider,wave),source)
     meta,outer,state,root,m=verify_generation(source,provider,wave,run,commit)
     configs={c['id']:c for c in load(root/'study.json')['configurations']};inputs={}
     for slot in selected(provider,wave,shard,root):
@@ -60,7 +67,7 @@ def prepare(provider,wave,shard,output):
         require(not inputs[ident]['synthetic_data'],'Synthetic main input')
         shutil.copytree(state/'artifacts'/ident,output/'saved_input_copies'/ident)
     save(output/'verified_inputs.json',{'provider':provider,'round':round_number(),'wave':wave,'shard':shard,
-        'campaign_namespace':CAMPAIGN,'inputs':inputs,'generation_artifact':meta,'source_run_id':run,'source_commit':commit,
+        'campaign_namespace':CAMPAIGN,'inputs':inputs,'generation_artifact':meta,'source_run_id':meta['workflow_run']['id'],'source_commit':meta['workflow_run']['head_sha'],'measurement_run_id':run,'measurement_commit':commit,
         'root':str(root),'implementation':implementation_manifest(),'plan_sha256':sha(PLAN),'model_api_calls':0,'source_repairs':0})
 
 
@@ -69,7 +76,8 @@ def evaluate(provider,wave,shard,output):
     require(not any(k in os.environ for k in ['GH_TOKEN','GITHUB_TOKEN','REMAINING_PROVIDER_API_KEY','OPENAI_API_KEY','ANTHROPIC_API_KEY','GOOGLE_API_KEY','GEMINI_API_KEY','MISTRAL_API_KEY']),'Credentials present in evaluation')
     identity();v=load(output/'verified_inputs.json')
     require((v['provider'],v['round'],v['wave'],v['shard'])==(provider,round_number(),wave,shard) and
-            v['source_run_id']==int(os.environ['GITHUB_RUN_ID']) and v['source_commit']==os.environ['GITHUB_SHA'] and
+            v['measurement_run_id']==int(os.environ['GITHUB_RUN_ID']) and v['measurement_commit']==os.environ['GITHUB_SHA'] and
+            (v['source_run_id'],v['source_commit'])==origin_identity('generation',provider,wave,int(os.environ['GITHUB_RUN_ID']),os.environ['GITHUB_SHA']) and
             v['plan_sha256']==sha(PLAN) and v['implementation']==implementation_manifest() and not(output/'collection').exists(),'Evaluation identity differs or already exists')
     before=files(output/'saved_input_copies');write_record(output/'host_metadata.json');host_hash=sha(output/'host_metadata.json')
     summary=collect(output/'saved_input_copies',output/'collection',cohort='main',artifact_ids=list(v['inputs']),root=Path(v['root']),
@@ -177,11 +185,14 @@ def audit_saved(source,shards,provider,wave,run,commit):
     rows=[];probes=0;flags=[];literal=[];variations=[];proofs=[]
     require(set(shards)==set(range(4)),'Missing shard')
     for shard,folder in sorted(shards.items()):
-        em=verify_archive(folder,run,commit,artifact_name('evaluation',run,provider,wave,shard=shard));base=folder/'contents'
+        shard_run,shard_commit=origin_identity('evaluation',provider,wave,run,commit,shard)
+        verify_saved_origin(folder,'evaluation',provider,wave,shard)
+        em=verify_archive(folder,shard_run,shard_commit,artifact_name('evaluation',shard_run,provider,wave,shard=shard));base=folder/'contents'
+        expected_plan=load(PLAN)['upload_recovery']['plan_sha256'] if saved_origin('evaluation',provider,wave,shard) else sha(PLAN)
         v=load(base/'verified_inputs.json');manifest=load(base/'collection/collection_manifest.json')
         wanted={s['artifact_id'] for s in selected(provider,wave,shard,root)}
         require((v['provider'],v['round'],v['wave'],v['shard'])==(provider,round_number(),wave,shard) and
-            v['source_run_id']==run and v['source_commit']==commit and v['plan_sha256']==sha(PLAN) and v['generation_artifact']==meta,'Shard linkage differs')
+            v['source_run_id']==meta['workflow_run']['id'] and v['source_commit']==meta['workflow_run']['head_sha'] and v['plan_sha256']==expected_plan and v['generation_artifact']==meta,'Shard linkage differs')
         require(manifest['inputs']==v['inputs']=={k:inputs[k] for k in wanted} and
             v['implementation']==manifest['implementation']==implementation_manifest() and manifest['cohort']=='main' and
             not manifest['synthetic_data'] and manifest['selected_repeat']==1,'Shard inputs/implementation differ')
@@ -194,7 +205,7 @@ def audit_saved(source,shards,provider,wave,run,commit):
             summary['complete_matrix'] and summary['evaluation_records']==9*len(wanted) and not summary['confirmatory_ready'],'Incomplete shard')
         host=load(base/'host_metadata.json')
         require(load(base/'evaluation_integrity.json')['host_metadata_sha256']==sha(base/'host_metadata.json') and
-            host['workflow_and_image']['GITHUB_RUN_ID']==str(run) and host['workflow_and_image']['GITHUB_SHA']==commit and
+            host['workflow_and_image']['GITHUB_RUN_ID']==str(shard_run) and host['workflow_and_image']['GITHUB_SHA']==shard_commit and
             host['platform'].startswith('Linux-') and host['machine']=='x86_64' and host['logical_cpus_os_count']>0,'Host provenance differs')
         part=[load(f) for f in (base/'collection/records').glob('*/*.json')]
         expected={(i,d,r) for i in wanted for d in [1,2,5] for r in [1,2,3]}
@@ -205,7 +216,7 @@ def audit_saved(source,shards,provider,wave,run,commit):
                 independent=classify(row['result']['task'],o['scenario'],Settings(deadline_s=row['deadline_s']),o)
                 require(all(o[k]==val for k,val in independent.items()),'Raw observation reclassification differs');probes+=1
         rows.extend(part);flags+=summary['reproducibility_disagreements'];literal+=summary['literal_trace_disagreements'];variations+=summary['permitted_internal_identifier_variations']
-        proofs.append({'shard':shard,'artifact_id':em['id'],'archive_sha256':sha(folder/'archive.zip'),'host_metadata_sha256':sha(base/'host_metadata.json')})
+        proofs.append({'shard':shard,'measurement_run_id':shard_run,'measurement_commit':shard_commit,'reused_saved_measurement':bool(saved_origin('evaluation',provider,wave,shard)),'artifact_id':em['id'],'archive_sha256':sha(folder/'archive.zip'),'host_metadata_sha256':sha(base/'host_metadata.json')})
     n=len(slots(provider,wave,root));require(len(rows)==9*n and before==files(state),'Cumulative evidence changed')
     counts={}
     for d in [1,2,5]:
@@ -214,7 +225,7 @@ def audit_saved(source,shards,provider,wave,run,commit):
     return {'passed':True,'provider':provider,'run_id':run,'commit':commit,'round':round_number(),'wave':wave,'campaign_namespace':CAMPAIGN,
         'main_programs':n,'records':9*n,'cumulative_provider_programs':len(prefix(provider,wave,root)),'raw_probes_reclassified':probes,
         'counts_by_deadline':counts,'source_parse_counts':parses,'estimated_cumulative_token_cost_usd':str(cost),'estimated_token_cost_usd':str(new_cost),
-        'generation_archive_sha256':sha(source/'archive.zip'),'generation_artifact_id':meta['id'],'evaluation_shards':proofs,'invoice_cost_verified':False,
+        'generation_source_run_id':meta['workflow_run']['id'],'generation_source_commit':meta['workflow_run']['head_sha'],'generation_archive_sha256':sha(source/'archive.zip'),'generation_artifact_id':meta['id'],'evaluation_shards':proofs,'invoice_cost_verified':False,
         'http_attempts':attempts,'unresolved_reservations':0,
         'approved_unknown_usage_attempts':1 if provider in ['OpenAI','Google'] else 0,'approved_operational_allowance_usd':{'OpenAI':'0.025','Google':'0.15'}.get(provider,'0'),
         'known_usage_token_estimate_usd':str(cost-Decimal({'OpenAI':'0.025','Google':'0.15'}.get(provider,'0'))),
@@ -231,7 +242,9 @@ if __name__=='__main__':
     elif a.mode=='evaluate':evaluate(a.provider,a.wave,a.shard,a.output)
     else:
         identity();run=int(os.environ['GITHUB_RUN_ID']);commit=os.environ['GITHUB_SHA'];base=Path('saved_audit')/a.provider/f'r{round_number()}w{a.wave}'
-        source=base/'generation';fetch_named(run,commit,artifact_name('generation',run,a.provider,a.wave),source);parts={}
+        source=base/'generation';source_run,source_commit=origin_identity('generation',a.provider,a.wave,run,commit)
+        fetch_named(source_run,source_commit,artifact_name('generation',source_run,a.provider,a.wave),source);parts={}
         for s in range(4):
-            parts[s]=base/f'evaluation_s{s}';fetch_named(run,commit,artifact_name('evaluation',run,a.provider,a.wave,shard=s),parts[s])
+            parts[s]=base/f'evaluation_s{s}';sr,sc=origin_identity('evaluation',a.provider,a.wave,run,commit,s)
+            fetch_named(sr,sc,artifact_name('evaluation',sr,a.provider,a.wave,shard=s),parts[s])
         report=audit_saved(source,parts,a.provider,a.wave,run,commit);save(a.output/'independent_gate_audit.json',report);print(json.dumps(report),flush=True)

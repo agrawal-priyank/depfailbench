@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "authorized_by": "Priyank Agrawal",
+  "author_message": "If run is stopped again pls resume unless it’s a major blocker and you need my guidance",
+  "recorded_at_utc": "2026-10-23T09:10:21.818349+00:00",
+  "authorization": "Standing permission to investigate and autonomously recover routine execution interruptions in the already approved4320-outcome main study. Do not ask again for a routine recovery within these bounds.",
+  "bounds": {
+    "stop_at_cumulative_main_outputs": 4320,
+    "cumulative_operational_model_api_envelope_usd": "45",
+    "provider_caps": "Original caps unchanged; no increases or transfers.",
+    "service_tier": "Standard",
+    "science": "Frozen model panel, prompts, generation settings, task allocation, oracles, measurement rules, endpoints and prespecified analyses unchanged.",
+    "concurrency": "At most2inflight model calls/provider,60newoutputs/provider/batch,4credential-free evaluation shards/provider batch, one measurement at a time/host and all9measurements/program on one host.",
+    "preservation": "All existing accepted/consumed outcomes, source bytes, raw streams, attempts, invoices/usage evidence, original ledgers/archives and repeat flags stay preserved; no repair, replacement, selective regeneration or duplicate accepted calls.",
+    "single_use_launch": "Discover original run if dispatch outcome is uncertain. Each necessary new scoped recovery has a fresh recorded single-use launch after exact-commit software-only tests complete/success. Never blindly rerun a workflow or clear durable guards.",
+    "financial_recovery": "For a routine interrupted/rejected request whose actual usage is missing, retain unknown usage and account conservatively at its existing full reviewed per-request allowance only on an annotated copied ledger, with exact attempt/source hashes and standing author approval linked. Proceed only if original cumulative/provider caps remain satisfied and the conservative amount is defensible. Never invent zero usage or verified invoice costs; no blanket deletion of uncertain attempts.",
+    "no_other_actions": "No key-value retrieval, local execution of generated programs, manuscript edit, contact, submission or model calls beyond4320."
+  },
+  "major_blockers": [
+    "Original cumulative/provider cap exhaustion, requested increase/transfer, or billing exposure that cannot defensibly fit the reviewed bounds.",
+    "Evidence corruption, source/record/usage linkage mismatch, unexplained duplicates or an audit discrepancy that would require weakening guards.",
+    "A remedy requiring changed science, prompts, settings, model allocation, source repair/replacement, oracle semantics or measurement rules.",
+    "Unresolvable dispatch ambiguity or an issue requiring account access/credentials or a scientific decision from the author."
+  ],
+  "routine_recovery_workflow": [
+    "Preserve partial/terminal evidence and independently establish the exact failure and accepted/unmade coordinate set.",
+    "Use saved sources/evaluations wherever valid; generate only genuinely unmade coordinates under the original retry policy.",
+    "Prepare a versioned scoped recovery in a separate copy/branch, preserve original financial records and test all changed controls.",
+    "Require successful original-attempt exact-commit software gate, then one recorded launch. Restore/continue hourly health checks.",
+    "Keep quiet for healthy operation and routine recoveries; report major blockers or completion once."
+  ],
+  "current_phase_checkpoint": "work/remaining_main_resume_2026-10-23/checkpoint.json"
+}

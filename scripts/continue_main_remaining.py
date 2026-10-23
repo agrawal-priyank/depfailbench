@@ -75,7 +75,29 @@ def plan():
         all(google[k]==v for k,v in newauth['exception'].items()) and newauth['maximum_new_outputs']==1760 and newauth['stop_at']==4320,'New author approval differs')
     retained=set(p['all_retained_artifact_ids']);desired={s['artifact_id'] for s in schedule()}
     require(len(retained)==2560 and set(p['missing_artifact_ids'])==desired-retained and len(p['missing_artifact_ids'])==1760,'Resume coordinates differ')
+    u=p['upload_recovery']
+    require(sha(ROOT/'scripts/main_standing_recovery_authorization.json')==u['standing_authorization_sha256']=='2019b1e901b0c1e883a21bf542a6572886fd25aed259571f506835b5e7cf3166','Standing approval differs')
+    require(u['run_id']==39929309804 and u['commit']=='5cc5a1ba1104d26bda10ef133a55fb472e9c133e' and u['missing_provider']=='Anthropic' and u['missing_shard']==2 and len(u['generation'])==4 and set(u['evaluation'])=={v+':'+str(s) for v in PROVIDERS for s in range(4)}-{'Anthropic:2'},'Upload recovery scope differs')
     return p,old
+
+
+def saved_origin(kind,provider,wave,shard=None,round_id=None):
+    r=round_number() if round_id is None else round_id
+    if (r,wave)!=(4,1):return None
+    u=load(PLAN)['upload_recovery']
+    return u['generation'][provider] if kind=='generation' else u['evaluation'].get(provider+':'+str(shard))
+
+
+def origin_identity(kind,provider,wave,run,commit,shard=None,round_id=None):
+    spec=saved_origin(kind,provider,wave,shard,round_id)
+    return (spec['run_id'],spec['commit']) if spec else (run,commit)
+
+
+def verify_saved_origin(folder,kind,provider,wave,shard=None,round_id=None):
+    spec=saved_origin(kind,provider,wave,shard,round_id)
+    if spec:
+        m=load(folder/'metadata.json')
+        require(m['id']==spec['artifact_id'] and m['name']==spec['artifact_name'] and sha(folder/'archive.zip')==spec['archive_sha256'],'Pinned saved archive differs')
 
 
 def identity():
@@ -129,8 +151,8 @@ def prepare_from_saved(provider,wave,state,prior,gm,am):
     else:
         previous_round=r if wave else r-1;previous_wave=wave-1 if wave else last_wave(provider)
         require(audit['evidence_complete'] and audit['provider']==provider and audit['round']==previous_round and
-                audit['wave']==previous_wave and audit['run_id']==gm['workflow_run']['id'] and
-                audit['commit']==gm['workflow_run']['head_sha']==am['workflow_run']['head_sha'] and
+                audit['wave']==previous_wave and audit.get('generation_source_run_id',audit['run_id'])==gm['workflow_run']['id'] and
+                audit.get('generation_source_commit',audit['commit'])==gm['workflow_run']['head_sha'] and audit['commit']==am['workflow_run']['head_sha'] and
                 audit['run_id']==am['workflow_run']['id'] and audit['campaign_namespace']==CAMPAIGN and
                 audit['main_programs']==len(slots(provider,previous_wave,round_id=previous_round)) and
                 audit['records']==9*audit['main_programs'] and audit['unresolved_reservations']==0 and
@@ -140,7 +162,7 @@ def prepare_from_saved(provider,wave,state,prior,gm,am):
     require({f.name for f in (previous_campaign/'artifacts').iterdir()}=={s['artifact_id'] for s in expected_before},'Prior provider prefix incomplete or excessive')
     require(sha(root/'study.json')==p['frozen_study_sha256'] and load(previous_campaign/'reviewed_plan.json')==old,'Frozen study or financial plan changed')
     previous_files=files(previous_campaign);shutil.copytree(previous_campaign,state/'campaign');campaign=state/'campaign'
-    if (r,wave)==(4,2):old_permission=campaign/'resume_permissions/r4_w1.json'
+    if (r,wave)==(4,2) or r==5 and wave==0 and last_wave(provider)==1:old_permission=campaign/'resume_permissions/r4_w1.json'
     elif wave:old_permission=campaign/f'remaining_permissions/r{r}_w{wave-1}.json'
     elif r>2:old_permission=campaign/f'remaining_permissions/r{r-1}_w{last_wave(provider)}.json'
     else:old_permission=campaign/f'continuation_permissions/wave_{p["initial_sources"][provider]["last_wave"]}.json'
@@ -165,6 +187,7 @@ def prepare(provider,wave,state):
     p,_=plan();identity();r=round_number()
     require(os.environ.get('CONFIRM_REMAINING_MAIN')=='true' and not state.exists() and slots(provider,wave),'Unapproved or repeated batch')
     if (r,wave)==(4,1):
+        require(False,'Saved generation must be reused; never regenerate wave1')
         marker=CAMPAIGN+'-resume-r4-w1-prepared-'+provider.lower()
         pages=json.loads(subprocess.run(['gh','api','--paginate','--slurp',API+'actions/artifacts?per_page=100&name='+marker],capture_output=True,check=True).stdout)
         require(pages and all(x['total_count']==0 and not x['artifacts'] for x in pages),'Recovery already prepared; never retry')
@@ -173,7 +196,7 @@ def prepare(provider,wave,state):
         require(gm['id']==source['artifact_id'] and gm['digest']=='sha256:'+source['archive_sha256'],'Interrupted source archive differs')
         return prepare_partial(provider,state,prior/'generation',gm)
     if wave==0:
-        marker=CAMPAIGN+f'-resume-r{r}-w0-prepared-'+provider.lower()
+        marker=CAMPAIGN+f'-upload-recovery-r{r}-w0-prepared-'+provider.lower()
         pages=json.loads(subprocess.run(['gh','api','--paginate','--slurp',API+'actions/artifacts?per_page=100&name='+marker],capture_output=True,check=True).stdout)
         require(pages and all(x['total_count']==0 and not x['artifacts'] for x in pages),'Round already prepared; never redispatch blindly')
     prior=state.parent.parent/'prior'/provider.lower()/f'r{r}_w{wave}'
@@ -187,7 +210,9 @@ def prepare(provider,wave,state):
         previous_round=r if wave else r-1;previous_wave=wave-1 if wave else last_wave(provider)
         run=int(os.environ['GITHUB_RUN_ID']) if wave else int(os.environ['PREVIOUS_ROUND_RUN'])
         require(run!=int(os.environ['GITHUB_RUN_ID']) if not wave else True,'Previous round must have a distinct run')
-        gm=fetch_named(run,os.environ['GITHUB_SHA'],artifact_name('generation',run,provider,previous_wave,previous_round),prior/'generation')
+        source_run,source_commit=origin_identity('generation',provider,previous_wave,run,os.environ['GITHUB_SHA'],round_id=previous_round)
+        gm=fetch_named(source_run,source_commit,artifact_name('generation',source_run,provider,previous_wave,previous_round),prior/'generation')
+        verify_saved_origin(prior/'generation','generation',provider,previous_wave,round_id=previous_round)
         am=fetch_named(run,os.environ['GITHUB_SHA'],artifact_name('audit',run,provider,previous_wave,previous_round),prior/'audit')
         if not wave:
             completion=fetch_named(run,os.environ['GITHUB_SHA'],f'remaining-main-completion-{run}',prior/'round_completion')

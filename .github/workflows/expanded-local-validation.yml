@@ -1,5 +1,5 @@
 name: Array main scoped resume
-run-name: Array main resume round ${{ inputs.round_id }} (${{ inputs.mode }})
+run-name: Array main upload recovery round ${{ inputs.round_id }} (${{ inputs.mode }})
 on:
   workflow_dispatch:
     inputs:
@@ -9,7 +9,7 @@ on:
       verified_software_run: {description: 'Successful exact-commit software-only run', type: string, default: '0', required: true}
 permissions: {contents: read, actions: read}
 concurrency:
-  group: array-main-resume-20261023
+  group: array-main-upload-recovery-20261023
   cancel-in-progress: false
 env:
   REMAINING_ROUND: ${{ inputs.round_id }}
@@ -19,7 +19,7 @@ env:
   PYTHONUNBUFFERED: '1'
 jobs:
   software:
-    if: ${{ github.run_attempt == '1' && github.ref == 'refs/heads/array-main-resume-20261023' }}
+    if: ${{ github.run_attempt == '1' && github.ref == 'refs/heads/array-main-upload-recovery-20261023' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 25
     steps:
@@ -98,7 +98,7 @@ jobs:
       - name: Preserve stable round guard before providing any model key
         uses: actions/upload-artifact@v4
         with:
-          name: main-clarified-prompts-20261021-fresh-v1-resume-r${{ inputs.round_id }}-w0-prepared-${{ matrix.slug }}
+          name: main-clarified-prompts-20261021-fresh-v1-upload-recovery-r${{ inputs.round_id }}-w0-prepared-${{ matrix.slug }}
           path: results/generation/${{ matrix.slug }}/wave_manifest.json
           if-no-files-found: error
           retention-days: 90
@@ -177,7 +177,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w1-generation:
-    if: ${{ always() && needs.entry.result == 'success' && (inputs.round_id == '4' || needs.w0-audit.result == 'success') }}
+    if: ${{ inputs.round_id != '4' }}
     needs: [entry, w0-audit]
     runs-on: ubuntu-22.04
     timeout-minutes: 350
@@ -204,7 +204,7 @@ jobs:
       - name: Preserve stable round guard before providing any model key
         uses: actions/upload-artifact@v4
         with:
-          name: main-clarified-prompts-20261021-fresh-v1-resume-r${{ inputs.round_id }}-w1-prepared-${{ matrix.slug }}
+          name: main-clarified-prompts-20261021-fresh-v1-upload-recovery-r${{ inputs.round_id }}-w1-prepared-${{ matrix.slug }}
           path: results/generation/${{ matrix.slug }}/wave_manifest.json
           if-no-files-found: error
           retention-days: 90
@@ -220,15 +220,16 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   w1-evaluation:
-    if: ${{ always() && needs.w1-generation.result == 'success' }}
-    needs: w1-generation
+    if: ${{ always() && needs.entry.result == 'success' && (inputs.round_id == '4' || needs.w1-generation.result == 'success') }}
+    needs: [entry, w1-generation]
     runs-on: ubuntu-22.04
     timeout-minutes: 180
     strategy:
       fail-fast: false
       max-parallel: 16
       matrix:
-        include: [{"provider": "Anthropic", "slug": "anthropic", "shard": 0}, {"provider": "Anthropic", "slug": "anthropic", "shard": 1}, {"provider": "Anthropic", "slug": "anthropic", "shard": 2}, {"provider": "Anthropic", "slug": "anthropic", "shard": 3}, {"provider": "OpenAI", "slug": "openai", "shard": 0}, {"provider": "OpenAI", "slug": "openai", "shard": 1}, {"provider": "OpenAI", "slug": "openai", "shard": 2}, {"provider": "OpenAI", "slug": "openai", "shard": 3}, {"provider": "Google", "slug": "google", "shard": 0}, {"provider": "Google", "slug": "google", "shard": 1}, {"provider": "Google", "slug": "google", "shard": 2}, {"provider": "Google", "slug": "google", "shard": 3}, {"provider": "Mistral", "slug": "mistral", "shard": 0}, {"provider": "Mistral", "slug": "mistral", "shard": 1}, {"provider": "Mistral", "slug": "mistral", "shard": 2}, {"provider": "Mistral", "slug": "mistral", "shard": 3}]
+        include: >-
+          ${{ inputs.round_id == '4' && fromJSON('[{"provider": "Anthropic", "slug": "anthropic", "shard": 2}]') || fromJSON('[{"provider": "Anthropic", "slug": "anthropic", "shard": 0}, {"provider": "Anthropic", "slug": "anthropic", "shard": 1}, {"provider": "Anthropic", "slug": "anthropic", "shard": 2}, {"provider": "Anthropic", "slug": "anthropic", "shard": 3}, {"provider": "OpenAI", "slug": "openai", "shard": 0}, {"provider": "OpenAI", "slug": "openai", "shard": 1}, {"provider": "OpenAI", "slug": "openai", "shard": 2}, {"provider": "OpenAI", "slug": "openai", "shard": 3}, {"provider": "Google", "slug": "google", "shard": 0}, {"provider": "Google", "slug": "google", "shard": 1}, {"provider": "Google", "slug": "google", "shard": 2}, {"provider": "Google", "slug": "google", "shard": 3}, {"provider": "Mistral", "slug": "mistral", "shard": 0}, {"provider": "Mistral", "slug": "mistral", "shard": 1}, {"provider": "Mistral", "slug": "mistral", "shard": 2}, {"provider": "Mistral", "slug": "mistral", "shard": 3}]') }}
     steps:
       - uses: actions/checkout@v4
         with: {persist-credentials: false}

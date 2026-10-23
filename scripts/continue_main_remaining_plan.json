@@ -2,10 +2,10 @@
   "schema_version": 1,
   "author_approved": true,
   "authorized_by": "Priyank Agrawal",
-  "authorization_record": "Resume only1760 unmade coordinates and evaluate160 saved outputs; preserve all2560 existing coordinates and2400 audited outcomes. Conservatively account exactlyone rejected Google503 attempt at its existing0.15USD full allowance on a copied ledger. Actual billing remains unknown, not verified zero or an invoice. Original45USD/provider caps and every scientific setting remain unchanged. Prior0.025USD OpenAI exception remains separately preserved; no blanket permission for future unknown charges.",
+  "authorization_record": "Standing author approval23October2026: automatically recover routine interruptions inside unchanged4320/45USD/provider/scientific bounds; preserve15 completed shards and regenerate only missing measurement archive, never sources.",
   "authorization_recorded_at_utc": "2026-10-22T22:31:04.706615+00:00",
   "campaign_namespace": "main-clarified-prompts-20261021-fresh-v1",
-  "branch": "array-main-resume-20261023",
+  "branch": "array-main-upload-recovery-20261023",
   "workflow_id": 390108348,
   "maximum_new_outputs": 1760,
   "stop_at_cumulative_main": 4320,
@@ -13,7 +13,7 @@
   "maximum_inflight_per_provider": 2,
   "maximum_new_outputs_per_provider_batch": 60,
   "evaluation_shards": 4,
-  "expected_software_tests": 293,
+  "expected_software_tests": 307,
   "initial_plan_sha256": "b4d84752fb757db75b52cc1062be1bd9f3ae0be1e832a717222f44b0e59270e9",
   "frozen_study_sha256": "533fc5da04fb7f50b377bd32db8aba7d85743f15906ed5a1f75a5fea20cf8df1",
   "new_campaign_caps_usd": {
@@ -127,16 +127,16 @@
     "src/benchmark/expanded/worker.py": "e238e412f0b4aaa007a1c5589269ca4c5dfa55fb466596ad80d885e92bd32df7"
   },
   "orchestration_hashes": {
-    "scripts/continue_main_remaining.py": "2407401a745c117c54dace17ceacfb0ef85dfa2aff544d9b83a0cef4d340911d",
-    "scripts/evaluate_main_remaining.py": "c3b3f3b5357abb663e300c16b6ddd159b1c870521222d9433dcbd03a32a75d73",
-    "scripts/control_main_remaining.py": "450537e4df7e29de4532dbcaf02f8e09b4d158cb4293c78cb2044dc3be1746a7",
-    "tests/test_main_remaining.py": "bb932e8a2b68d0eeff4e2b7277816678b0a9306f24a49627a21c53b7a45229ee",
-    ".github/workflows/expanded-local-validation.yml": "5fbaf96e7a351c5d013f966d451cfc3b60a3277298b4289b886d2ef524cb9dff",
+    "scripts/continue_main_remaining.py": "2a9bf316c6f26e267b55effb3f74e9e56a77fe263c81135523219f58146aaed7",
+    "scripts/evaluate_main_remaining.py": "8be597aec4ba7dce5ccac23b203dc5e8d41e0bc71d866652053d8864558a8cbe",
+    "scripts/control_main_remaining.py": "629552095d499f392bec55b7d77a2a47b8b5e62ea2644020b09067eae0279fb3",
+    "tests/test_main_remaining.py": "ba9aac95412d179ce09b0880524e6f7f8b051ee404b7a33efd08e6aa0e66c3e8",
+    ".github/workflows/expanded-local-validation.yml": "797d3a77c726b7a8e3ab3cca1ee2f959a922a345c31d2aabe7ccef1d221021e6",
     "scripts/continue_main_round1.py": "7cbf86123f1ff4976f204ddeee58f65f7afc82f2897d4da558a9e0ecae311edc",
     "scripts/record_evaluation_host.py": "0d1f9ebdb7d89db11ad4f32a44f40e4e9e090c52e1725f8a2aa321ed622c022a",
     "scripts/evaluate_saved_openai_validation.py": "10a12160bb5eaf9ecef2f2fc9dc9f9959fc12b516631f3ec125626523997d283",
     "scripts/staged_main_first_gate.py": "d2a53a87a3ada27aa183dd6e065899920c39c3c676deb7ec4a97b5686e49c82d",
-    "tests/test_main_recovery.py": "44ed5695aa3dc60a36473ebea70d868cee211df186a6b8f1fae0cbef22200e2f"
+    "tests/test_main_recovery.py": "55e3202c176dcc196db0e13286a3852528ea42083eeaf5fa83f3152c3bd6bd6c"
   },
   "rounds": {
     "2": [
@@ -8811,5 +8811,154 @@
       "archive_sha256": "2920bf0c0947b28ed25201281297b4ac8da7e78a2b45ac76c38452a7a16f71b1",
       "report_sha256": "654427d241733021a75e8d63261d0355c2687c0e44a3841e0d8ca3b048e00e0a"
     }
+  },
+  "upload_recovery": {
+    "run_id": 39929309804,
+    "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+    "branch": "array-main-resume-20261023",
+    "plan_sha256": "898e332289298b1e4620cea958d193b50be2ed3782078561242a6dca60ae08ae",
+    "failed_job_id": 120334882786,
+    "failure": "Evaluation succeeded; artifact upload stalled; one shard archive is absent.",
+    "missing_provider": "Anthropic",
+    "missing_shard": 2,
+    "generation": {
+      "Anthropic": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-generation-39929309804-r4-w1-anthropic-final",
+        "artifact_id": 12491535401,
+        "archive_sha256": "5a75c581d0d26af3b1f81cfb437776492e2991ad8eb31d2f0523a7ac271d4523"
+      },
+      "OpenAI": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-generation-39929309804-r4-w1-openai-final",
+        "artifact_id": 12490608797,
+        "archive_sha256": "3d8c8b14d76c0c11b8940995dbdb8e763369c72041f482937ae31503e003b980"
+      },
+      "Google": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-generation-39929309804-r4-w1-google-final",
+        "artifact_id": 12490941759,
+        "archive_sha256": "e475e0b48c4872dfed93288a12928c8666e3ba283591d38e71b6101c8b972eb5"
+      },
+      "Mistral": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-generation-39929309804-r4-w1-mistral-final",
+        "artifact_id": 12490703489,
+        "archive_sha256": "ba1271cc6983a7089fab678276ab6d351fbcfbb8d3f4f2b9c47ec90a7e8da202"
+      }
+    },
+    "evaluation": {
+      "Anthropic:0": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-evaluation-39929309804-r4-w1-anthropic-s0-final",
+        "artifact_id": 12490533528,
+        "archive_sha256": "f5b46e431d15e7e579d8b8ed782cfc615d0c625f65b2873cb43e5ff6b87d5674"
+      },
+      "Anthropic:1": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-evaluation-39929309804-r4-w1-anthropic-s1-final",
+        "artifact_id": 12490713075,
+        "archive_sha256": "32033fe09e26bfe8b480756ebc147a75f57ce6a567285a057d79e098ad9d642d"
+      },
+      "Anthropic:3": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-evaluation-39929309804-r4-w1-anthropic-s3-final",
+        "artifact_id": 12491521577,
+        "archive_sha256": "f873d679c5d3b55281ab10376ee96c1476455c2beb2a2cd1bb62356b6bdcef4b"
+      },
+      "OpenAI:0": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-evaluation-39929309804-r4-w1-openai-s0-final",
+        "artifact_id": 12491377600,
+        "archive_sha256": "3287f56244b9eaa5aff35bca2d1a1dff37b8c5c083bf9b5a9a04d50d4bbdffec"
+      },
+      "OpenAI:1": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-evaluation-39929309804-r4-w1-openai-s1-final",
+        "artifact_id": 12491378766,
+        "archive_sha256": "75eec767cf3d8c0fb5576823f3bbf998e64e5fed551d2509429751ab5b82c0e0"
+      },
+      "OpenAI:2": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-evaluation-39929309804-r4-w1-openai-s2-final",
+        "artifact_id": 12491452486,
+        "archive_sha256": "42f8684c443b63d93d99f01a63800675ff3b98ac90e818d1cd6e14fd72ce66f9"
+      },
+      "OpenAI:3": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-evaluation-39929309804-r4-w1-openai-s3-final",
+        "artifact_id": 12492005211,
+        "archive_sha256": "4a6e134d101c5b0b415ee2673ef2add075121551297db1928ac0d62beae1bf92"
+      },
+      "Google:0": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-evaluation-39929309804-r4-w1-google-s0-final",
+        "artifact_id": 12491715492,
+        "archive_sha256": "2c34e832d45283fd8c038d0eb417fcd768e238bb7e5c8ee45274af49af3e0855"
+      },
+      "Google:1": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-evaluation-39929309804-r4-w1-google-s1-final",
+        "artifact_id": 12491521708,
+        "archive_sha256": "3eb5443ea045d952f45354a720b8fe822376340c60f7fdc24222e44cf56b323f"
+      },
+      "Google:2": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-evaluation-39929309804-r4-w1-google-s2-final",
+        "artifact_id": 12490834209,
+        "archive_sha256": "d85176d6474384d5f0e78f7645b6d5528e58724c987838e18b301f15b28047ba"
+      },
+      "Google:3": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-evaluation-39929309804-r4-w1-google-s3-final",
+        "artifact_id": 12490589916,
+        "archive_sha256": "e16d4931ec85eca97e51245294b24fccc942468135fa5149b53a5c50f205c9d5"
+      },
+      "Mistral:0": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-evaluation-39929309804-r4-w1-mistral-s0-final",
+        "artifact_id": 12490614208,
+        "archive_sha256": "ef346418620874654350290732452ce406e12e34bad2f43768688263c33a8096"
+      },
+      "Mistral:1": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-evaluation-39929309804-r4-w1-mistral-s1-final",
+        "artifact_id": 12491211589,
+        "archive_sha256": "2928f00dc4c55fcf90e6b7d15e1314b166a4082f7dee326b10254270fa226827"
+      },
+      "Mistral:2": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-evaluation-39929309804-r4-w1-mistral-s2-final",
+        "artifact_id": 12491685957,
+        "archive_sha256": "57421d3ffb7544f76cacdb609da87734cb443eba99a19c8f79ccb72b82adfac8"
+      },
+      "Mistral:3": {
+        "run_id": 39929309804,
+        "commit": "5cc5a1ba1104d26bda10ef133a55fb472e9c133e",
+        "artifact_name": "fresh-main-remaining-evaluation-39929309804-r4-w1-mistral-s3-final",
+        "artifact_id": 12490633159,
+        "archive_sha256": "2690e624219735af6690f7f1cae5c72370b935d30dfeaceb11590d021c108893"
+      }
+    },
+    "failure_log_sha256": "5155d20274913e3dd72d144766d1775058ca021cca9f923daf61adf701397227",
+    "standing_authorization_sha256": "2019b1e901b0c1e883a21bf542a6572886fd25aed259571f506835b5e7cf3166"
   }
 }

@@ -26,8 +26,10 @@ def entry(output):
     require(proof=={'passed':True,'tests':p['expected_software_tests'],'commit':os.environ['GITHUB_SHA'],
         'run_id':verified,'attempt':1,'mode':'software','plan_sha256':sha(PLAN),'model_api_calls':0},'Wrong software gate proof')
     if r==4:
-        require(os.environ.get('PREVIOUS_ROUND_RUN')==str(p['partial_sources']['OpenAI']['run_id']),'Wrong interrupted original run')
-        prior=get('actions/runs/'+os.environ['PREVIOUS_ROUND_RUN']);origin=p['partial_sources']['OpenAI']
+        u=p['upload_recovery'];failed=get('actions/runs/'+str(u['run_id']))
+        require(os.environ.get('PREVIOUS_ROUND_RUN')==str(u['run_id']) and failed['status']=='completed' and failed['conclusion']=='failure' and failed['run_attempt']==1 and failed['head_sha']==u['commit'] and failed['head_branch']==u['branch'] and failed['workflow_id']==p['workflow_id'],'Interrupted upload run differs')
+        require(str(p['partial_sources']['OpenAI']['run_id'])=='39891567130','Wrong interrupted original run')
+        prior=get('actions/runs/'+str(p['partial_sources']['OpenAI']['run_id']));origin=p['partial_sources']['OpenAI']
         require(prior['status']=='completed' and prior['conclusion']=='failure' and prior['run_attempt']==1 and
             prior['head_sha']==origin['commit'] and prior['workflow_id']==p['workflow_id'],'Interrupted original identity differs')
         completed=p['original_round3'];r2=get('actions/runs/'+str(completed['run_id']))
@@ -77,7 +79,7 @@ def complete(output):
         'completed_audit_at_utc':datetime.now(timezone.utc).isoformat(),'minimum_pass_rate':None})
 
 
-def marker_name(r):return CAMPAIGN+f'-resume-advance-r{r}'
+def marker_name(r):return CAMPAIGN+f'-upload-recovery-advance-r{r}'
 
 
 def advance_intent(output):

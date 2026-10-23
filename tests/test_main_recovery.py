@@ -54,10 +54,10 @@ def test_only_exact_google_attempt_can_use_second_exception():
 
 def test_initial_entry_uses_terminal_exact_gate_and_preserved_round3(tmp_path,monkeypatch):
     p,_=gen.plan();run=999;software=111;commit='controlled-no-dispatch'
-    monkeypatch.setattr(control,'identity',lambda:None);monkeypatch.setenv('REMAINING_ROUND','4');monkeypatch.setenv('REMAINING_MODE','paid');monkeypatch.setenv('VERIFIED_SOFTWARE_RUN',str(software));monkeypatch.setenv('GITHUB_SHA',commit);monkeypatch.setenv('GITHUB_RUN_ID',str(run));monkeypatch.setenv('PREVIOUS_ROUND_RUN','39891567130')
+    monkeypatch.setattr(control,'identity',lambda:None);monkeypatch.setenv('REMAINING_ROUND','4');monkeypatch.setenv('REMAINING_MODE','paid');monkeypatch.setenv('VERIFIED_SOFTWARE_RUN',str(software));monkeypatch.setenv('GITHUB_SHA',commit);monkeypatch.setenv('GITHUB_RUN_ID',str(run));monkeypatch.setenv('PREVIOUS_ROUND_RUN','39929309804')
     def get(path):
         ident=int(path.split('/')[-1]);old=ident!=software
-        return {'status':'completed','conclusion':'failure' if ident==39891567130 else 'success','run_attempt':1,'head_sha':p['original_round3']['commit'] if old else commit,'head_branch':p['branch'],'workflow_id':p['workflow_id']}
+        return {'status':'completed','conclusion':'failure' if ident in [39891567130,39929309804] else 'success','run_attempt':1,'head_sha':p['upload_recovery']['commit'] if ident==39929309804 else p['original_round3']['commit'] if old else commit,'head_branch':p['upload_recovery']['branch'] if ident==39929309804 else p['branch'],'workflow_id':p['workflow_id']}
     def fetch(run,sha,name,out):
         (out/'contents').mkdir(parents=True)
         if run==software:
@@ -72,8 +72,58 @@ def test_initial_wave_skip_does_not_suppress_following_jobs():
     text=(gen.ROOT/'.github/workflows/expanded-local-validation.yml').read_text()
     assert "if: ${{ inputs.round_id != '4' }}" in text
     assert "needs: [entry, w0-audit]" in text
-    assert "always() && needs.entry.result == 'success' && (inputs.round_id == '4' || needs.w0-audit.result == 'success')" in text
+    assert "always() && needs.entry.result == 'success' && (inputs.round_id == '4' || needs.w1-generation.result == 'success')" in text
     for w in range(6):
-        assert f"always() && needs.w{w}-generation.result == 'success'" in text
+        assert (f"always() && needs.w{w}-generation.result == 'success'" in text) if w!=1 else "inputs.round_id == '4' || needs.w1-generation.result == 'success'" in text
         assert f"always() && needs.w{w}-evaluation.result == 'success'" in text
     assert "inputs.round_id == '4' || needs.w0-audit.result == 'success'" in text.split('  completion:',1)[1]
+
+
+@pytest.mark.parametrize('provider',gen.PROVIDERS)
+def test_upload_recovery_pins_all_original_generation(provider,monkeypatch):
+    monkeypatch.setenv('REMAINING_ROUND','4')
+    s=gen.saved_origin('generation',provider,1)
+    assert (s['run_id'],s['commit'])==(39929309804,'5cc5a1ba1104d26bda10ef133a55fb472e9c133e')
+    assert not gen.generation_slots(provider,1)
+
+
+@pytest.mark.parametrize('r',[4,5,6])
+def test_upload_recovery_reuses_only_fifteen_original_shards(r,monkeypatch):
+    monkeypatch.setenv('REMAINING_ROUND',str(r))
+    reused=[(v,s) for v in gen.PROVIDERS for s in range(4) if gen.saved_origin('evaluation',v,1,s)]
+    assert len(reused)==(15 if r==4 else 0)
+    assert ('Anthropic',2) not in reused
+
+
+def test_upload_recovery_refuses_remeasurement_of_saved_shard(monkeypatch,tmp_path):
+    p,_=gen.plan();monkeypatch.setenv('REMAINING_ROUND','4')
+    monkeypatch.setattr(ev,'identity',lambda:None);monkeypatch.setenv('GITHUB_RUN_ID','999');monkeypatch.setenv('GITHUB_SHA','fixture')
+    monkeypatch.setattr(ev,'fetch_named',lambda *a:pytest.fail('must stop before fetch or execution'))
+    with pytest.raises(DispatchPaused):ev.prepare('OpenAI',1,0,tmp_path/'output')
+
+
+@pytest.mark.parametrize('damage',['id','name','digest'])
+def test_upload_recovery_rejects_wrong_saved_archive(damage,monkeypatch,tmp_path):
+    monkeypatch.setenv('REMAINING_ROUND','4');s=gen.saved_origin('generation','OpenAI',1)
+    (tmp_path/'archive.zip').write_bytes(b'fixture')
+    m={'id':s['artifact_id'],'name':s['artifact_name']}
+    if damage=='id':m['id']+=1
+    if damage=='name':m['name']+='wrong'
+    (tmp_path/'metadata.json').write_text(json.dumps(m))
+    with pytest.raises(DispatchPaused):gen.verify_saved_origin(tmp_path,'generation','OpenAI',1)
+
+
+def test_upload_recovery_only_missing_shard_is_scheduled():
+    text=(gen.ROOT/'.github/workflows/expanded-local-validation.yml').read_text()
+    block=text.split('  w1-evaluation:',1)[1].split('  w1-audit:',1)[0]
+    assert "fromJSON(" in block and '"provider": "Anthropic", "slug": "anthropic", "shard": 2' in block
+    assert 'needs: [entry, w1-generation]' in block
+    assert 'secrets' not in block
+
+
+@pytest.mark.parametrize('provider',['Anthropic','Google'])
+def test_round5_source_lookup_preserves_saved_round4_origin(provider,monkeypatch):
+    monkeypatch.setenv('REMAINING_ROUND','5')
+    assert gen.saved_origin('generation',provider,1) is None
+    run,commit=gen.origin_identity('generation',provider,1,999,'current',round_id=4)
+    assert run==39929309804 and commit=='5cc5a1ba1104d26bda10ef133a55fb472e9c133e'

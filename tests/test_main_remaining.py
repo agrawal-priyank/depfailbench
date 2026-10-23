@@ -86,7 +86,7 @@ def test_workflow_credential_isolation_and_wave_dependencies():
     text=(ROOT/'.github/workflows/expanded-local-validation.yml').read_text()
     assert 'cancel-in-progress: false' in text and "github.run_attempt == '1'" in text
     assert 'actions: write' in text and text.count('secrets[')==6
-    assert "options: ['4', '5', '6']" in text and 'max-parallel: 16' in text
+    assert "options: ['5', '6']" in text and 'max-parallel: 16' in text
     for w in range(6):
         block=text.split(f'  w{w}-evaluation:',1)[1].split(f'  w{w}-audit:',1)[0]
         assert 'secrets' not in block

@@ -15,14 +15,14 @@ def test_exact_unmade_scope_and_retained_saved_wave(monkeypatch):
         for w in range(6):
             for provider in gen.PROVIDERS:
                 group=gen.generation_slots(provider,w);assert len(group)<=60;new+=group
-                if (r,w)!=(4,0):measure+=gen.slots(provider,w)
+                if r in [5,6]:measure+=gen.slots(provider,w)
     ids={s['artifact_id'] for s in new}
-    assert len(new)==len(ids)==1760 and len(measure)==1920
-    assert not ids & set(p['all_retained_artifact_ids']) and len(p['all_retained_artifact_ids'])==2560
+    assert len(new)==len(ids)==1440 and len(measure)==1440
+    assert not ids & set(p['all_retained_artifact_ids']) and len(p['all_retained_artifact_ids'])==2880
     assert sum(len(v['retained_ids']) for v in p['partial_sources'].values())==160
     monkeypatch.setenv('REMAINING_ROUND','4')
     assert all(not gen.generation_slots(v,w) for v in gen.PROVIDERS for w in [0,1])
-    assert Counter(s['provider'] for s in new)=={'Anthropic':160,'OpenAI':840,'Google':160,'Mistral':600}
+    assert Counter(s['provider'] for s in new)=={'Anthropic':160,'OpenAI':640,'Google':160,'Mistral':480}
 
 
 @pytest.mark.parametrize('damage',['second_uncertain','wrong_id','wrong_reserved','wrong_response','extra_pause','wrong_provider'])

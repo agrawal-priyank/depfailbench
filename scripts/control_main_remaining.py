@@ -25,7 +25,19 @@ def entry(output):
     proof=load(output/'software/contents/software_gate.json')
     require(proof=={'passed':True,'tests':p['expected_software_tests'],'commit':os.environ['GITHUB_SHA'],
         'run_id':verified,'attempt':1,'mode':'software','plan_sha256':sha(PLAN),'model_api_calls':0},'Wrong software gate proof')
-    if r==4:
+    if r==5:
+        h=p['handoff_recovery'];prior=get('actions/runs/'+str(h['run_id']))
+        require(os.environ.get('PREVIOUS_ROUND_RUN')==str(h['run_id']) and prior['status']=='completed' and prior['conclusion']=='failure' and prior['run_attempt']==1 and prior['head_sha']==h['commit'] and prior['head_branch']==h['branch'] and prior['workflow_id']==p['workflow_id'],'Previous audited handoff run differs')
+        jobs=get(f"actions/runs/{h['run_id']}/jobs?per_page=100")['jobs']
+        failed=[j for j in jobs if j['conclusion'] in ['failure','cancelled','timed_out','action_required','startup_failure']]
+        require(len(failed)==1 and failed[0]['id']==h['failed_job_id'] and failed[0]['name']=='completion','Unexpected previous failure')
+        recent=get('actions/runs?event=workflow_dispatch&per_page=100')['workflow_runs']
+        require(not any(x['head_sha']==h['commit'] and x['head_branch']==h['branch'] and x['display_title']=='Array main upload recovery round 5 (paid)' for x in recent),'Original round5 exists; do not duplicate')
+        ref=h['completion'];meta=fetch_named(ref['run_id'],ref['commit'],ref['artifact_name'],output/'prior_round4')
+        require(meta['id']==ref['artifact_id'] and sha(output/'prior_round4/archive.zip')==ref['archive_sha256'] and sha(output/'prior_round4/contents/round_completion.json')==h['completion_report_sha256'],'Completed round4 archive differs')
+        completed=load(output/'prior_round4/contents/round_completion.json')
+        require(completed['passed'] and completed['round']==4 and completed['new_outputs']==720 and completed['records']==6480 and completed['groups']==14 and completed['cumulative_main_outputs']==2880 and len(completed['audits'])==14 and all(a['audit']['passed'] for a in completed['audits']),'Previous round4 cohort incomplete')
+    elif r==4:
         u=p['upload_recovery'];failed=get('actions/runs/'+str(u['run_id']))
         require(os.environ.get('PREVIOUS_ROUND_RUN')==str(u['run_id']) and failed['status']=='completed' and failed['conclusion']=='failure' and failed['run_attempt']==1 and failed['head_sha']==u['commit'] and failed['head_branch']==u['branch'] and failed['workflow_id']==p['workflow_id'],'Interrupted upload run differs')
         require(str(p['partial_sources']['OpenAI']['run_id'])=='39891567130','Wrong interrupted original run')
@@ -79,7 +91,7 @@ def complete(output):
         'completed_audit_at_utc':datetime.now(timezone.utc).isoformat(),'minimum_pass_rate':None})
 
 
-def marker_name(r):return CAMPAIGN+f'-upload-recovery-advance-r{r}'
+def marker_name(r):return CAMPAIGN+f'-handoff-recovery-advance-r{r}'
 
 
 def advance_intent(output):

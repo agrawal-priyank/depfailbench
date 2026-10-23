@@ -57,7 +57,7 @@ def last_wave(provider):
 
 def plan():
     p=load(PLAN);old=load(ROOT/'scripts/staged_main_first_gate_plan.json')
-    require(p['author_approved'] is True and p['maximum_new_outputs']==1760 and p['stop_at_cumulative_main']==4320,'Unapproved remaining scope')
+    require(p['author_approved'] is True and p['maximum_new_outputs']==1440 and p['stop_at_cumulative_main']==4320,'Unapproved remaining scope')
     require(p['campaign_namespace']==CAMPAIGN and p['overall_envelope_usd']=='45' and
             p['maximum_inflight_per_provider']==2 and p['maximum_new_outputs_per_provider_batch']==60 and p['evaluation_shards']==4,'Execution bounds changed')
     require(sha(ROOT/'scripts/staged_main_first_gate_plan.json')==p['initial_plan_sha256'],'Original financial plan changed')
@@ -74,10 +74,12 @@ def plan():
     require(sha(ROOT/'scripts/main_resume_authorization.json')==p['new_resume_authorization_sha256']==google['authorization_sha256'] and
         all(google[k]==v for k,v in newauth['exception'].items()) and newauth['maximum_new_outputs']==1760 and newauth['stop_at']==4320,'New author approval differs')
     retained=set(p['all_retained_artifact_ids']);desired={s['artifact_id'] for s in schedule()}
-    require(len(retained)==2560 and set(p['missing_artifact_ids'])==desired-retained and len(p['missing_artifact_ids'])==1760,'Resume coordinates differ')
+    require(len(retained)==2880 and set(p['missing_artifact_ids'])==desired-retained and len(p['missing_artifact_ids'])==1440,'Resume coordinates differ')
     u=p['upload_recovery']
     require(sha(ROOT/'scripts/main_standing_recovery_authorization.json')==u['standing_authorization_sha256']=='2019b1e901b0c1e883a21bf542a6572886fd25aed259571f506835b5e7cf3166','Standing approval differs')
     require(u['run_id']==39929309804 and u['commit']=='5cc5a1ba1104d26bda10ef133a55fb472e9c133e' and u['missing_provider']=='Anthropic' and u['missing_shard']==2 and len(u['generation'])==4 and set(u['evaluation'])=={v+':'+str(s) for v in PROVIDERS for s in range(4)}-{'Anthropic:2'},'Upload recovery scope differs')
+    h=p['handoff_recovery']
+    require(h['run_id']==39938352224 and h['commit']=='8a96494074d2ad28feef1b935b013e2ee1134c42' and h['prior_outputs']==2880 and h['new_outputs']==1440 and h['standing_authorization_sha256']==u['standing_authorization_sha256'] and set(h['provider_sources'])==set(PROVIDERS) and set(h['provider_audits'])==set(PROVIDERS),'Handoff recovery scope differs')
     return p,old
 
 
@@ -105,7 +107,7 @@ def identity():
     require(os.environ.get('GITHUB_REPOSITORY')=='agrawal-priyank/depfailbench' and
             os.environ.get('GITHUB_REF')=='refs/heads/'+p['branch'] and os.environ.get('GITHUB_RUN_ATTEMPT')=='1' and
             os.environ.get('GITHUB_RUN_ID') and os.environ.get('GITHUB_SHA'),'Approved original workflow required')
-    round_number()
+    require(round_number() in [5,6],'Only remaining rounds5 and6 may execute')
 
 
 def artifact_name(kind,run,provider,wave,round_id=None,shard=None):
@@ -196,10 +198,17 @@ def prepare(provider,wave,state):
         require(gm['id']==source['artifact_id'] and gm['digest']=='sha256:'+source['archive_sha256'],'Interrupted source archive differs')
         return prepare_partial(provider,state,prior/'generation',gm)
     if wave==0:
-        marker=CAMPAIGN+f'-upload-recovery-r{r}-w0-prepared-'+provider.lower()
+        marker=CAMPAIGN+f'-handoff-recovery-r{r}-w0-prepared-'+provider.lower()
         pages=json.loads(subprocess.run(['gh','api','--paginate','--slurp',API+'actions/artifacts?per_page=100&name='+marker],capture_output=True,check=True).stdout)
         require(pages and all(x['total_count']==0 and not x['artifacts'] for x in pages),'Round already prepared; never redispatch blindly')
     prior=state.parent.parent/'prior'/provider.lower()/f'r{r}_w{wave}'
+    if (r,wave)==(5,0):
+        h=p['handoff_recovery'];gs=h['provider_sources'][provider];au=h['provider_audits'][provider]
+        gm=fetch_named(gs['run_id'],gs['commit'],gs['artifact_name'],prior/'generation')
+        am=fetch_named(au['run_id'],au['commit'],au['artifact_name'],prior/'audit')
+        for ref,meta,folder in [(gs,gm,prior/'generation'),(au,am,prior/'audit')]:
+            require(meta['id']==ref['artifact_id'] and sha(folder/'archive.zip')==ref['archive_sha256'],'Handoff source or audit archive differs')
+        return prepare_from_saved(provider,wave,state,prior,gm,am)
     if (r,wave)==(2,0):
         source=p['initial_sources'][provider];a=p['initial_corrected_audit']
         gm=fetch_named(source['run_id'],source['commit'],source['artifact_name'],prior/'generation')

@@ -2,7 +2,7 @@
 
 DepFailBench 1.1 exposes a versioned, manifest-backed task-adapter API. An adapter owns the public invocation, dependency request contract, scenarios, observable state, and behavioral oracle. The shared evaluator owns artifact loading, fresh-module isolation, application lifespan, deadlines, deterministic seeds, and result serialization.
 
-The complete runnable example is in `examples/external_task`. It deliberately lives outside `benchmark.task_specs` so its test proves that registration does not require a core source edit.
+The complete runnable example is in `examples/external_task`. It deliberately lives outside the `benchmark` package so its test proves that registration does not require a core source edit.
 
 ## Required files
 

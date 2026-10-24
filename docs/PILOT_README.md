@@ -108,4 +108,4 @@ DepFailBench does not claim that resilience of LLM-generated software is wholly 
 - `ARTIFACT_CONTRACT.md` defines the only editable surface.
 - The MIT license permits reuse and extension.
 
-See [USER_GUIDE.md](USER_GUIDE.md) for extension instructions and [CONTRIBUTING.md](../CONTRIBUTING.md) for contribution rules.
+See [USER_GUIDE.md](USER_GUIDE.md) for extension instructions and [CONTRIBUTING.md](https://github.com/agrawal-priyank/depfailbench/blob/main/CONTRIBUTING.md) for contribution rules.

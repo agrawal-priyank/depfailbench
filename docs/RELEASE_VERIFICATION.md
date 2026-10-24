@@ -1,6 +1,6 @@
-# Verification of the v1.2.0 software candidate
+# Verification of software v1.2.0
 
-The candidate was assembled from the complete 261-file Git tree of execution
+The release was assembled from the complete 261-file Git tree of execution
 commit `5bbcb89261ae535bf85f99c148b7e4c02d3ddf2d`. All 89 files under
 `src/benchmark/` and `expanded_study/` match that source byte for byte. The source
 manifest pins each SHA256. Campaign-specific dispatch/continuation scripts and
@@ -45,8 +45,9 @@ together; its numerical simulation is distinct from empirical study evaluation.
 These checks establish packaging and computational consistency for the supplied
 evidence and reference environment. They are not independent human scientific
 review, proof of every oracle, a cross-platform timing validation, or evidence
-for a new runtime or future dependency release. Release metadata was finalized for 24 October 2026 with assigned software DOI
-10.5281/zenodo.23627089 and reserved dataset DOI 10.5281/zenodo.23626768.
-The local metadata/build checks do not publish either record or establish
-public access; DOI resolution/publication is checked separately before deposit
-and manuscript citation are finalized.
+for a new runtime or future dependency release. Software DOI 10.5281/zenodo.23627089 and dataset DOI
+10.5281/zenodo.23626768 were published on 24 October 2026 and are publicly
+accessible. The release commit is `933b431e578896462ec970f2193d01d4e71840cd`;
+its original-attempt [Linux software check](https://github.com/agrawal-priyank/depfailbench/actions/runs/40134053062)
+passed 354 software tests and 13 external classifier/summary unit checks.
+Publication and these checks do not establish additional scientific results.

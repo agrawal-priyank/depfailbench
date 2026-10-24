@@ -418,5 +418,5 @@
   "historical_sensitivity_scope": "Separately reviewed retrospective hypothetical four-task calculation; portable wrapper only executes trusted math and reads S2 historical source bytes for provenance; not prospective justification or empirical remeasurement",
   "release_metadata_date": "2026-10-24",
   "dataset_version": "2.0.0",
-  "doi_publication_status": "assigned/reserved identifiers; publication/access verification pending; this local metadata update does not publish either record"
+  "doi_publication_status": "Software v1.2.0 and research dataset v2.0.0 published 2026-10-24; both version-specific DOI records are publicly accessible. Main documentation may advance; published release assets remain unchanged."
 }

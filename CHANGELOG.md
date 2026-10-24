@@ -1,6 +1,6 @@
 # Release notes
 
-## 1.2.0 — 2026-10-24 release metadata
+## 1.2.0 — 2026-10-24
 
 - Add the separate expanded E1–E8 API and exact executed study assets, including all frozen and prompt-amendment JSONs, while retaining historical modules and adapter support.
 - Supply the trusted analysis-only reproducer, complete data-field/coordinate guide and explicit qualified post-review reporting boundary.
@@ -8,7 +8,7 @@
 - Retain unchanged Stripe/Seam contract tools and separate SDK lock. Exclude campaign-specific paid controllers and workflow entrypoints from reusable software; originals remain in execution history and research provenance.
 - Keep software licensing MIT and research-record licensing separately scoped CC BY 4.0. Software and dataset version identifiers are distinct; historical versions remain intact.
 
-The release metadata date is 24 October 2026. The assigned software DOI is 10.5281/zenodo.23627089; the separate dataset version 2.0.0 has reserved DOI 10.5281/zenodo.23626768. Identifier assignment and this changelog do not themselves publish a record. No new model generation or full-cohort remeasurement forms part of this packaging release.
+Software v1.2.0 and dataset version 2.0.0 were published on 24 October 2026 at https://doi.org/10.5281/zenodo.23627089 and https://doi.org/10.5281/zenodo.23626768. Both version-specific archives are publicly accessible. Main documentation reflects that publication status; published release assets and historical versions remain unchanged. No new model generation or full-cohort remeasurement forms part of this packaging release.
 
 ## 1.1.0 - 2026-09-14
 

@@ -1,7 +1,7 @@
 {
   "candidate_version": "1.2.0",
-  "public_software_doi": null,
-  "dataset_version_doi": null,
+  "public_software_doi": "10.5281/zenodo.23627089",
+  "dataset_version_doi": "10.5281/zenodo.23626768",
   "source_execution_commit": "5bbcb89261ae535bf85f99c148b7e4c02d3ddf2d",
   "scientific_files_preserved": 89,
   "selected_test_files": [
@@ -415,5 +415,8 @@
     "portable_reproduction_verification.json": "20719b2a4ca9bb08a81fa2c48f3501666e8fdca49f5258253a6026ddeee2784c",
     "portable_reproduction_results.json": "7abece7ed0fbc96e1c45718ade5a36a499471940839e5838d0935d24bfba2af9"
   },
-  "historical_sensitivity_scope": "Separately reviewed retrospective hypothetical four-task calculation; portable wrapper only executes trusted math and reads S2 historical source bytes for provenance; not prospective justification or empirical remeasurement"
+  "historical_sensitivity_scope": "Separately reviewed retrospective hypothetical four-task calculation; portable wrapper only executes trusted math and reads S2 historical source bytes for provenance; not prospective justification or empirical remeasurement",
+  "release_metadata_date": "2026-10-24",
+  "dataset_version": "2.0.0",
+  "doi_publication_status": "assigned/reserved identifiers; publication/access verification pending; this local metadata update does not publish either record"
 }

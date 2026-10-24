@@ -1,19 +1,20 @@
 # Version and identifier preservation policy
 
-This is the project's preservation policy for the proposed DepFailBench dataset
-2.0.0, not a guarantee that an external hosting platform can never change or
+This is the project's preservation policy for DepFailBench dataset 2.0.0, not a guarantee that an external hosting platform can never change or
 withdraw an object.
 
 1. **Keep prior versions identifiable.** Historical dataset v1.1.0 remains
    [10.5281/zenodo.22759501](https://doi.org/10.5281/zenodo.22759501); v1.0.2
    remains [10.5281/zenodo.22699095](https://doi.org/10.5281/zenodo.22699095).
    The Dataset concept is
-   [10.5281/zenodo.22699094](https://doi.org/10.5281/zenodo.22699094). The proposed
-   2.0.0 deposit is a new version in that series, not an overwrite of an old one.
-2. **Use exact versions in the Array record.** Add the new dataset's real
-   version-specific DOI, the separate software version DOI and the actual
-   software release commit only after they exist. Keep version-specific citations
-   when newer versions appear; the concept DOI may be added for discovery.
+   [10.5281/zenodo.22699094](https://doi.org/10.5281/zenodo.22699094). Dataset
+   [2.0.0](https://doi.org/10.5281/zenodo.23626768) identifies a new version in
+   that series, not an overwrite of an old one.
+2. **Use exact versions in the Array record.** Cite dataset
+   [2.0.0](https://doi.org/10.5281/zenodo.23626768), the separate software
+   [v1.2.0](https://doi.org/10.5281/zenodo.23627089), and the exact software
+   commit used. Keep version-specific citations when newer versions appear; the
+   concept DOI may be added for discovery.
 3. **Treat new corrections as new versions.** Preserve prior source files,
    outputs, prompt versions, raw measurement versions, repeat flags and manifests.
    Explain changed measurement or interpretation without silently replacing the
@@ -37,6 +38,6 @@ withdraw an object.
    perpetual availability or claiming a platform can never change an asset.
 
 Future Software Impacts or Data in Brief articles, if pursued, should identify
-the exact software/data versions they describe. This staging package does not
-start or submit either article and does not imply that the Array revision has
+the exact software/data versions they describe. These research materials do not
+start or submit either article and do not imply that the Array revision has
 been resubmitted or accepted.

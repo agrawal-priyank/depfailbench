@@ -45,5 +45,8 @@ together; its numerical simulation is distinct from empirical study evaluation.
 These checks establish packaging and computational consistency for the supplied
 evidence and reference environment. They are not independent human scientific
 review, proof of every oracle, a cross-platform timing validation, or evidence
-for a new runtime or future dependency release. No DOI or publication date is
-claimed before the release and dataset records are actually published.
+for a new runtime or future dependency release. Release metadata was finalized for 24 October 2026 with assigned software DOI
+10.5281/zenodo.23627089 and reserved dataset DOI 10.5281/zenodo.23626768.
+The local metadata/build checks do not publish either record or establish
+public access; DOI resolution/publication is checked separately before deposit
+and manuscript citation are finalized.

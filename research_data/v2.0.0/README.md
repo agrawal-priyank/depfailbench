@@ -1,13 +1,15 @@
-# DepFailBench research dataset 2.0.0 — draft deposit
+# DepFailBench research dataset 2.0.0
 
-**Status: prepared for publication review; this version has not yet been
-published and no new version DOI or publication date is asserted.** This is a
-proposed new version within the existing Dataset concept
-[10.5281/zenodo.22699094](https://doi.org/10.5281/zenodo.22699094). The historical
-v1.1.0 object remains separately identified by
-[10.5281/zenodo.22759501](https://doi.org/10.5281/zenodo.22759501). Replace this
-draft status and finalize the citation only after actual publication metadata is
-available.
+**Version:** 2.0.0  
+**Dataset identifier:** [10.5281/zenodo.23626768](https://doi.org/10.5281/zenodo.23626768)  
+**Dataset concept:** [10.5281/zenodo.22699094](https://doi.org/10.5281/zenodo.22699094)  
+**Record date:** 24 October 2026  
+**Companion software:** [DepFailBench v1.2.0, 10.5281/zenodo.23627089](https://doi.org/10.5281/zenodo.23627089)
+
+This version extends the existing research-dataset series. The historical v1.1.0
+object remains separately identified by
+[10.5281/zenodo.22759501](https://doi.org/10.5281/zenodo.22759501); its files,
+meaning and identifier are retained.
 
 ## Content and scope
 
@@ -55,7 +57,7 @@ rewrite the archive merely to update that label.
 | `Supplementary_File_S6_Repeat_Outcomes.csv` | 162 repeat summaries; repeated measurements are not additional programs. |
 | `DATA_DICTIONARY.md` | Coordinates, unchanged stored fields, CSV columns and denominator rules. |
 | `DATA_LICENSE.md` | Scoped research-record licensing and retained software/third-party rights. |
-| `CITATION.cff` | Draft dataset citation; a real version-specific DOI must be added before publication. |
+| `CITATION.cff` | Dataset citation using this exact version-specific identifier; cite the software version separately. |
 | `VERSION_PRESERVATION.md` | Project policy for new corrections, prior versions and exact-version citations. |
 | `SHA256SUMS.txt` | Checksums for the upload payload, including the unchanged S2 asset. |
 
@@ -69,9 +71,8 @@ material. See the exact mapping in the data dictionary.
 The default computational reproduction reads saved data and trusted statistical
 code. It does **not** import or execute the generated `app.py` files and requires
 no model credentials or model calls. The unchanged S2 README gives the exact
-saved-analysis command and environment. The separately versioned software
-package will document the corresponding installed-software entry points; its
-real release identifier and DOI must be linked once available.
+saved-analysis command and environment. The separately versioned companion [DepFailBench software v1.2.0](https://doi.org/10.5281/zenodo.23627089)
+documents the corresponding installed-software entry points.
 
 For the added historical sensitivity calculation, see
 `historical_primary_sensitivity/PORTABLE_REPRODUCTION.md` inside the reporting
@@ -105,11 +106,12 @@ empirical result.
 
 ## Citation and future versions
 
-Cite the **actual version-specific dataset DOI** and exact software version/commit
-used for an analysis. The concept DOI additionally identifies the evolving
-dataset series; it does not replace the fixed-version citation. No new dataset
-DOI, software DOI, release commit, article DOI or publication date is invented in
-this draft.
+Cite dataset **[version 2.0.0](https://doi.org/10.5281/zenodo.23626768)** and the
+exact software version/commit used for an analysis. The companion software is
+**[v1.2.0](https://doi.org/10.5281/zenodo.23627089)**. The concept DOI additionally
+identifies the evolving dataset series; it does not replace the fixed-version
+citation. A later journal-article identifier should be linked only after one
+actually exists.
 
 Future changes should receive a new, clearly described dataset/software version.
 Project policy preserves previous files, hashes, tags and exact-version

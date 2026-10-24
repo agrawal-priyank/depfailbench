@@ -9,6 +9,8 @@ authors:
     email: "agrawalpriyank@icloud.com"
     orcid: "https://orcid.org/0009-0004-3230-8277"
 version: 1.2.0
+doi: "10.5281/zenodo.23627089"
+date-released: "2026-10-24"
 license: MIT
 repository-code: "https://github.com/agrawal-priyank/depfailbench"
 repository-artifact: "https://github.com/agrawal-priyank/depfailbench/releases/tag/v1.2.0"

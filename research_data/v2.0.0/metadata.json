@@ -1,19 +1,13 @@
 {
-  "status": "DRAFT \u2014 do not publish until real DOI/date/release metadata are finalized",
-  "existing_dataset_concept_doi": "10.5281/zenodo.22699094",
+  "publication_state": "Metadata prepared locally for the reserved dataset record; publication completion is not asserted by this file.",
+  "dataset_version_doi": "10.5281/zenodo.23626768",
+  "dataset_version": "2.0.0",
+  "dataset_concept_doi": "10.5281/zenodo.22699094",
   "previous_dataset_version_doi": "10.5281/zenodo.22759501",
-  "proposed_version": "2.0.0",
-  "publication_date_assigned": false,
-  "new_dataset_doi_assigned": false,
-  "software_doi_assigned": false,
-  "required_before_publication": [
-    "Create a new version under the existing Dataset concept, preserving old22759501/22699095 records",
-    "Reserve/read back actual version-specific dataset DOI",
-    "Reserve/read back separate software DOI and exact released software commit",
-    "Replace draft README/CITATION status with verified actual publication metadata",
-    "Review scoped licenses and all upload checksums; refresh manifests after final metadata changes",
-    "Cross-link actual software and dataset version DOIs; no invented Array article DOI"
-  ],
+  "software_version_doi": "10.5281/zenodo.23627089",
+  "software_version": "1.2.0",
+  "record_date": "2026-10-24",
+  "identifier_source": "Identifiers supplied by the parent publication workflow; parent is verifying the reserved records before upload/publication.",
   "metadata": {
     "title": "DepFailBench research dataset: expanded backend dependency-failure study and historical reanalysis",
     "upload_type": "dataset",
@@ -39,6 +33,11 @@
     ],
     "related_identifiers": [
       {
+        "identifier": "10.5281/zenodo.23627089",
+        "relation": "isSupplementTo",
+        "scheme": "doi"
+      },
+      {
         "identifier": "10.5281/zenodo.22759501",
         "relation": "isNewVersionOf",
         "scheme": "doi"
@@ -48,6 +47,7 @@
         "relation": "isSupplementTo",
         "scheme": "url"
       }
-    ]
+    ],
+    "publication_date": "2026-10-24"
   }
 }

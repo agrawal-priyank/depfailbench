@@ -1,36 +1,36 @@
 {
-  "status": "Draft portable dataset asset inventory; no data archive or CSV is stored in this Git metadata directory",
+  "status": "Portable asset inventory for the reserved dataset version; publication completion pending parent workflow.",
   "dataset_version": "2.0.0",
   "existing_dataset_concept_doi": "10.5281/zenodo.22699094",
   "previous_dataset_version_doi": "10.5281/zenodo.22759501",
-  "version_specific_dataset_doi": null,
-  "version_specific_software_doi": null,
-  "publication_date": null,
+  "version_specific_dataset_doi": "10.5281/zenodo.23626768",
+  "version_specific_software_doi": "10.5281/zenodo.23627089",
+  "publication_date": "2026-10-24",
   "files": [
     {
       "filename": "README.md",
-      "bytes": 6975,
-      "sha256": "d8fc55671500c850bc124736643a77f4dc3be96871f4acd98f360b11a1f36d21"
+      "bytes": 7129,
+      "sha256": "73cc4205e6012a1e27916396bd097b8c7ff76d4f9728697c76aaa779d76b5003"
     },
     {
       "filename": "DATA_DICTIONARY.md",
-      "bytes": 9773,
-      "sha256": "acc1fe23358c9edd400bd3c4a3d8795a25a0dba9d63ea037ed0096b6f72e6219"
+      "bytes": 9759,
+      "sha256": "32bcf93bc8729f399788b16696572971c6c133821ac76bd52fc841b791de6df8"
     },
     {
       "filename": "DATA_LICENSE.md",
-      "bytes": 1949,
-      "sha256": "e29ec09023573e7ad2f60facf1c95abc1fbf1e023a7aa1358378486b6336490e"
+      "bytes": 1883,
+      "sha256": "5248c0b8ca9281c25a011e8bf78e41c5a1d0c2bb746d6daeb40ec9c42e47e3e6"
     },
     {
       "filename": "CITATION.cff",
-      "bytes": 794,
-      "sha256": "37c2e9f3529ae26194bbb9e8f5dc3e43fcc34bb4ad7666e1fc92c9e74d6cab2b"
+      "bytes": 789,
+      "sha256": "5e9a038ca2b43f1402b85081b64aac83a09838fdae6c935aa3db9e6853a3026d"
     },
     {
       "filename": "VERSION_PRESERVATION.md",
-      "bytes": 2837,
-      "sha256": "49043791444afd131a03d1870b22bcc8fbdb43c0440363bafa1e7e1173ab5d00"
+      "bytes": 2895,
+      "sha256": "9d6547b1334c878fa68c1dfdc01820a18cf6c434d9fb0ee9364694bd84d98675"
     },
     {
       "filename": "Supplementary_File_S3_Scenario_Outcomes.csv",
@@ -65,11 +65,10 @@
     {
       "filename": "SHA256SUMS.txt",
       "bytes": 1046,
-      "sha256": "93e2b053806cc3ea01d1b57ea90b2aceb7cf9404fc1df1747c010e44b82700a9"
+      "sha256": "a889bada32b04a685a7f8a7ca56ef50b7da27aba4b9e7c9b9dfbcd4b071a3f22"
     }
   ],
   "source_locations": "Assets are supplied separately in the versioned dataset deposit; filenames and hashes are portable. No private local paths are required.",
-  "current_stage": "Finalize actual DOI/date/software-release metadata and refresh checksums before publication. The old S2 internal candidate label is preserved provenance.",
   "scientific_archive_unchanged": true,
   "data_archives_csvs_or_generated_programs_in_git_metadata_directory": false
 }

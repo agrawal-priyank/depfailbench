@@ -28,6 +28,8 @@ dependencies = [
 Repository = "https://github.com/agrawal-priyank/depfailbench"
 Documentation = "https://github.com/agrawal-priyank/depfailbench/tree/v1.2.0/docs"
 Issues = "https://github.com/agrawal-priyank/depfailbench/issues"
+"Software DOI" = "https://doi.org/10.5281/zenodo.23627089"
+"Research dataset" = "https://doi.org/10.5281/zenodo.23626768"
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<9", "pytest-asyncio>=0.24,<1"]

@@ -27,7 +27,6 @@ and third-party rights are not overridden by this dataset notice. The source
 programs are research artifacts; the license is not a security or correctness
 guarantee and does not make them trusted utilities.
 
-The current top-level Zenodo license selection is proposed as CC BY 4.0 for the
-research dataset, with these scoped MIT and third-party exceptions explicitly
-retained. Publication metadata must preserve this scope rather than imply a
-single new license supersedes every component of the archive.
+The top-level Zenodo CC BY 4.0 selection applies to the research dataset with
+these scoped MIT and third-party exceptions explicitly retained. It does not
+imply that a single new license supersedes every component of the archive.

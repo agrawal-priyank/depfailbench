@@ -2,11 +2,11 @@
 
 DepFailBench checks saved Python/FastAPI backend services under controlled downstream dependency failures. Public responses, downstream attempts, committed effects, application state and observed request time are checked together. The software is a research tool, not a production-reliability certification.
 
-This is the **v1.2.0 release candidate**. Release identifiers and DOIs become citable only after publication; no new public DOI is claimed in this candidate. Priyank Agrawal is the sole author and maintainer. Software and documentation are MIT-licensed; research records use their separately scoped CC BY 4.0 notice in `DATA_LICENSE.md`.
+This is the **v1.2.0 software release prepared on 24 October 2026**. Its assigned software DOI is [10.5281/zenodo.23627089](https://doi.org/10.5281/zenodo.23627089); the separate expanded research dataset, version 2.0.0, has reserved DOI [10.5281/zenodo.23626768](https://doi.org/10.5281/zenodo.23626768). These identifiers are included in prepublication metadata; assigning a DOI does not itself publish a record, and a reserved link may not resolve until publication. Priyank Agrawal is the sole author and maintainer. Software and documentation are MIT-licensed; research records use their separately scoped CC BY 4.0 notice in `DATA_LICENSE.md`.
 
 ## Reproduce the reported analysis first
 
-Obtain the accompanying expanded research dataset archive, `Supplementary_Material_S2.zip`, from the version-specific dataset record identified in the final release metadata. Its SHA256 is `4a70538f1fdf7efb6ad0a7186b9a8e3c044fd0d89b74e77969590bd081bc2bfa`. It contains 4,320 outcomes, including one incomplete/no-source output; 4,319 source files; and 38,880 current measurements. Historical 320-program evidence is separately identified and must not be pooled with the expanded cohort.
+Obtain the accompanying expanded research dataset archive, `Supplementary_Material_S2.zip`, from the version-specific dataset record [10.5281/zenodo.23626768](https://doi.org/10.5281/zenodo.23626768), once that reserved record is published. Its SHA256 is `4a70538f1fdf7efb6ad0a7186b9a8e3c044fd0d89b74e77969590bd081bc2bfa`. It contains 4,320 outcomes, including one incomplete/no-source output; 4,319 source files; and 38,880 current measurements. Historical 320-program evidence is separately identified and must not be pooled with the expanded cohort.
 
 Use Python 3.12 with the supplied evaluator dependency lock and `numpy==2.3.5`. After installing those dependencies:
 

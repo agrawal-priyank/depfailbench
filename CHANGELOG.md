@@ -1,5 +1,15 @@
 # Release notes
 
+## 1.2.0 — release candidate
+
+- Add the separate expanded E1–E8 API and exact executed study assets, including all frozen and prompt-amendment JSONs, while retaining historical modules and adapter support.
+- Supply the trusted analysis-only reproducer, complete data-field/coordinate guide and explicit qualified post-review reporting boundary.
+- Preserve every scientific implementation/asset byte from execution commit 5bbcb89261ae535bf85f99c148b7e4c02d3ddf2d; update packaging, version metadata and reuse documentation only.
+- Retain unchanged Stripe/Seam contract tools and separate SDK lock. Exclude campaign-specific paid controllers and workflow entrypoints from reusable software; originals remain in execution history and research provenance.
+- Keep software licensing MIT and research-record licensing separately scoped CC BY 4.0. Software and dataset version identifiers are distinct; historical versions remain intact.
+
+The release date and software DOI will be recorded when the candidate is actually published. No new model generation or full-cohort remeasurement forms part of this packaging release.
+
 ## 1.1.0 - 2026-09-14
 
 - Harden task oracles against unsupported success, wrong downstream requests, schema type confusion, ambiguous payment state, state leakage, excessive attempts, and deadline evasion.

@@ -1,0 +1,26 @@
+{
+  "checked_at_utc": "2026-10-24T20:24:59.546896+00:00",
+  "review_type": "Read-only methodological review by a separate Codex agent; not independent human scientific review",
+  "reviewer_task": "/root/response_supplement_audit",
+  "result": "No substantive bug found",
+  "checked": [
+    "four fixed task hypergeometric blocks, n20 per condition, statistic total(C1-C0)/80 against original full_analysis.py",
+    "symmetry and two-sided tie-inclusive tail with exact rational fallback",
+    "independence of C0/C1 draws and simulated studies; common random numbers across effect sizes properly disclosed",
+    "all87 grid rows: rejection counts, rates, Monte Carlo standard errors",
+    "script and original-analysis hashes",
+    "MC grid crossing vs true MDE qualification",
+    "exact inner integration vs original sampled permutation qualification",
+    "alpha0.025 conservative first-Holm vs complete joint Holm distinction"
+  ],
+  "first_estimated_80pct_crossings_pp": {
+    "0.05": 22.6,
+    "0.025": 24.4
+  },
+  "limits": "Both crossing-point Monte Carlo confidence intervals include80%; crossings are approximate grid estimates, not exact analytic minima. Simulation brackets are not formal MDE confidence intervals.",
+  "script_sha256": "0b7e67ffb74b385cce36a86e68f473a5d74f305d9f52ffe008678e8c155fbb2f",
+  "results_sha256": "b9f6588da5db45a976f06c6b29136af7b5f5b3fc7897b8bf0db6c5a417266f83",
+  "files_modified_by_reviewer": false,
+  "generated_program_executions": 0,
+  "model_calls": 0
+}

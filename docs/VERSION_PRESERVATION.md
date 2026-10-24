@@ -1,0 +1,9 @@
+# Version preservation and citation
+
+Software v1.2.0 and dataset 2.0.0 are separate versioned objects. The planned software record is a new Software concept; the expanded dataset is a new version in existing Dataset concept 10.5281/zenodo.22699094. The historical v1.1.0 dataset DOI 10.5281/zenodo.22759501 and v1.0.2 DOI 10.5281/zenodo.22699095 remain unchanged. No new DOI is claimed before actual registration/publication.
+
+Cite the exact software version DOI, dataset version DOI and released code commit used for a result. A concept DOI identifies an evolving series and is not a substitute for the version used. New versions may add corrections or capabilities without overwriting earlier scientific records. Project policy prohibits moving/reusing release tags, replacing historical assets or silently changing source/data under an old identifier. Copies and hashes of historical evidence remain retained.
+
+Repository services cannot guarantee availability forever. GitHub's optional immutable releases protect assets and associated tags after publication, while still allowing release-note changes and release deletion; enabling the setting only covers future releases. Zenodo creates separately identified linked versions and states retention for the repository's lifetime, subject to withdrawal/revocation/access restrictions. Its current help permits limited post-publication minor corrections. This project uses new versions and retained checksums instead of claiming absolute technical immutability.
+
+Primary service documentation: https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases ; https://help.zenodo.org/docs/deposit/manage-versions/ ; https://help.zenodo.org/docs/deposit/manage-files/ ; https://help.zenodo.org/docs/deposit/manage-records/ ; https://about.zenodo.org/policies/ .

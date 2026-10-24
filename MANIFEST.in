@@ -1,5 +1,4 @@
 include LICENSE
-include Licence.txt
 include DATA_LICENSE.md
 include CITATION.cff
 include CONTRIBUTING.md
@@ -14,9 +13,22 @@ include generation_plan.json
 include full_study_design.json
 include full_study_schedule.csv
 include requirements.lock
+include SCIENTIFIC_SOURCE_MANIFEST.json
+include RELEASE_SCOPE.json
+include reproduce_saved_analysis.py
+include .github/workflows/tests.yml
+recursive-include src *.py
 recursive-include prompts *.md
 recursive-include scaffolds *.py
+recursive-include full_study *.json *.md *.py
 recursive-include docs *.md
-recursive-include .github *.yml
+recursive-include examples *.py *.json *.md
+recursive-include external_cases *.py *.json *.txt *.sha256
 recursive-include expanded_study *.md *.json *.py *.txt
+recursive-include tests *.py
+global-exclude *.py[cod]
 prune expanded_study/plan_preview
+prune scripts
+prune work
+prune results
+recursive-include research *.py *.json *.md

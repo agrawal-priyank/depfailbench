@@ -1,0 +1,422 @@
+{
+  "candidate_version": "1.2.0",
+  "public_software_doi": "10.5281/zenodo.23627089",
+  "dataset_version_doi": "10.5281/zenodo.23626768",
+  "source_execution_commit": "5bbcb89261ae535bf85f99c148b7e4c02d3ddf2d",
+  "scientific_files_preserved": 89,
+  "selected_test_files": [
+    "tests/test_adversarial_oracles.py",
+    "tests/test_artifact_contract.py",
+    "tests/test_evaluator_corrections.py",
+    "tests/test_expanded_analysis.py",
+    "tests/test_expanded_collection.py",
+    "tests/test_expanded_live_recovery.py",
+    "tests/test_expanded_providers.py",
+    "tests/test_expanded_reclassification.py",
+    "tests/test_expanded_state_capture.py",
+    "tests/test_expanded_status_policy.py",
+    "tests/test_expanded_study.py",
+    "tests/test_full_budget.py",
+    "tests/test_full_module_registration.py",
+    "tests/test_full_tasks.py",
+    "tests/test_generation.py",
+    "tests/test_pilot.py",
+    "tests/test_prompts.py",
+    "tests/test_reference_validation.py",
+    "tests/test_repeat_audit.py",
+    "tests/test_task_adapter_extension.py",
+    "tests/test_timeout_guard.py"
+  ],
+  "external_classifier_unit_tests": [
+    "external_cases/test_run_cases.py",
+    "external_cases/test_summarize_results.py"
+  ],
+  "excluded_files": [
+    {
+      "path": "scripts/amended_prompt_validation.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/amended_prompt_validation_plan.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/continue_main_remaining.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/continue_main_remaining_plan.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/continue_main_round1.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/continue_main_round1_plan.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/control_main_remaining.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/evaluate_amended_validation.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/evaluate_gemini_low_validation.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/evaluate_main_mistral.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/evaluate_main_remaining.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/evaluate_main_round1.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/evaluate_saved_anthropic_validation.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/evaluate_saved_openai_validation.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/evaluate_saved_remaining_validation.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/evaluate_staged_main_first_gate.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/evaluate_uniform_source_processing.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/expanded_anthropic_validation.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/expanded_anthropic_validation_plan.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/expanded_google_validation_plan.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/expanded_mistral_validation_plan.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/expanded_openai_validation.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/expanded_openai_validation_plan.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/expanded_remaining_validation.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/expanded_xai_request_recovery.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/expanded_xai_request_recovery_plan.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/expanded_xai_validation_plan.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/gemini_low_feasibility.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/gemini_low_feasibility_plan.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/gemini_low_remaining.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/gemini_low_remaining_plan.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/grok_medium_sample.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/inspect_xai_access.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/main_recovery_authorization.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/main_resume_authorization.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/main_standing_recovery_authorization.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/mistral_main_first_block.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/mistral_main_first_block_plan.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/mistral_main_overnight.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/mistral_main_overnight_plan.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/prepare_amended_main_cohort.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/record_evaluation_host.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/recover_xai_metadata_failure.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/reevaluate_round1_state_capture.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/resume_xai_budget_validation.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/resume_xai_budget_validation.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/review_xai_rejected_request.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/round1_software_gate.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/round1_state_capture_plan.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/source_processing_policy.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/staged_main_first_gate.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/staged_main_first_gate_plan.json",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": "scripts/staged_main_software_gate.py",
+      "reason": "Campaign-specific paid dispatch, continuation, evaluation and authorization controllers; original exact source retained in execution commit/base_source and dataset provenance"
+    },
+    {
+      "path": ".github/workflows/openai-pilot.yml",
+      "reason": "Replaced in curated release by offline-only build/software/mock CI without provider secrets or cohort re-execution"
+    },
+    {
+      "path": ".github/workflows/anthropic-pilot.yml",
+      "reason": "Replaced in curated release by offline-only build/software/mock CI without provider secrets or cohort re-execution"
+    },
+    {
+      "path": ".github/workflows/expanded-local-validation.yml",
+      "reason": "Replaced in curated release by offline-only build/software/mock CI without provider secrets or cohort re-execution"
+    },
+    {
+      "path": ".github/workflows/full-study.yml",
+      "reason": "Replaced in curated release by offline-only build/software/mock CI without provider secrets or cohort re-execution"
+    },
+    {
+      "path": ".github/workflows/tests.yml",
+      "reason": "Replaced in curated release by offline-only build/software/mock CI without provider secrets or cohort re-execution"
+    },
+    {
+      "path": ".github/workflows/round1-state-capture-review.yml",
+      "reason": "Replaced in curated release by offline-only build/software/mock CI without provider secrets or cohort re-execution"
+    },
+    {
+      "path": ".github/workflows/gemini-low-remaining.yml",
+      "reason": "Replaced in curated release by offline-only build/software/mock CI without provider secrets or cohort re-execution"
+    },
+    {
+      "path": "tests/test_amended_main_preparation.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_amended_prompt_validation.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_expanded_anthropic_batch.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_expanded_openai_batch.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_expanded_openai_saved_validation.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_expanded_remaining_batch.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_expanded_saved_validation.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_gemini_low_feasibility.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_gemini_low_remaining.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_main_handoff.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_main_recovery.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_main_remaining.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_main_round1_continuation.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_mistral_main_first_block.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_mistral_main_overnight.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_round1_state_capture_review.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_saved_remaining_validation.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_staged_main_first_gate.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_uniform_source_processing.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_xai_access_diagnostic.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_xai_budget_continuation.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_xai_metadata_recovery.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "tests/test_xai_request_recovery.py",
+      "reason": "Tests campaign-specific scripts omitted from reusable software; preserved unchanged in exact base source and execution commit"
+    },
+    {
+      "path": "docs/EXPANDED_STUDY_DRAFT.md",
+      "reason": "Dated campaign/preparation guidance superseded by current reusable-release documentation; original retained in execution history"
+    },
+    {
+      "path": "docs/LIVE_EXECUTION_READINESS.md",
+      "reason": "Dated campaign/preparation guidance superseded by current reusable-release documentation; original retained in execution history"
+    },
+    {
+      "path": "docs/expanded_error_status_policy.md",
+      "reason": "Dated campaign/preparation guidance superseded by current reusable-release documentation; original retained in execution history"
+    }
+  ],
+  "archived_originals": "Exact execution commit and separately preserved research dataset/provenance",
+  "network_policy": "No provider keys/calls; mock transports only; no stored model-generated app evaluation in release tests/CI",
+  "software_test_gate_result": {
+    "retained_software_tests_passed": 354,
+    "failures": 0,
+    "skipped": 0,
+    "expected_fastapi_deprecation_warnings": 4,
+    "external_sdk_classifier_summary_unit_tests_passed": 13,
+    "historical_319_gate_is_distinct": true,
+    "stored_generated_cohort_executed": false,
+    "provider_calls": 0
+  },
+  "generated_cohort_reexecuted": false,
+  "packaging_verification": {
+    "wheel_and_sdist_built_offline": true,
+    "scientific_bytes_preserved": 89,
+    "three_frozen_amendment_jsons_in_wheel": true,
+    "installed_wheel_preflight_outside_checkout_passed": true,
+    "installation_scope": "Actual wheel installed without network/dependency resolution; exact reference dependency directory linked read-only into the isolated test environment",
+    "saved_record_reproduction": {
+      "archive_files_verified": 109544,
+      "expanded_records": 38880,
+      "all_original_result_fields_reproduced": true,
+      "generated_program_executions": 0,
+      "model_calls": 0
+    }
+  },
+  "historical_sensitivity_resources": {
+    "historical_primary_sensitivity.py": "0b7e67ffb74b385cce36a86e68f473a5d74f305d9f52ffe008678e8c155fbb2f",
+    "reproduce_historical_sensitivity.py": "bd06c4277a69e9954875a4b1e0b3bc7b77570c8b3e021a2e3f3725c418d2a3f3",
+    "sensitivity_results.json": "b9f6588da5db45a976f06c6b29136af7b5f5b3fc7897b8bf0db6c5a417266f83",
+    "PORTABLE_REPRODUCTION.md": "c52544828aee91e540cd0670cb41c15871fb60b8894e3abd1289ba39b0c1b578",
+    "README.md": "9277dd27c8ad25fb34c650e51f45a44ef82fbe022888cef0224a23ba5d576685",
+    "independent_review.json": "fb906fbbd09d3e1eb9ceb764d3b23694af7e12f439e6f71bcc86da56df4fdafd",
+    "portable_wrapper_review.json": "bf1cfa6c4730efd7278d83762605c0a3a331c36bd35f393c6559a04b9fc773e8",
+    "portable_reproduction_verification.json": "20719b2a4ca9bb08a81fa2c48f3501666e8fdca49f5258253a6026ddeee2784c",
+    "portable_reproduction_results.json": "7abece7ed0fbc96e1c45718ade5a36a499471940839e5838d0935d24bfba2af9"
+  },
+  "historical_sensitivity_scope": "Separately reviewed retrospective hypothetical four-task calculation; portable wrapper only executes trusted math and reads S2 historical source bytes for provenance; not prospective justification or empirical remeasurement",
+  "release_metadata_date": "2026-10-24",
+  "dataset_version": "2.0.0",
+  "doi_publication_status": "Software v1.2.0 and research dataset v2.0.0 published 2026-10-24; both version-specific DOI records are publicly accessible. Main documentation may advance; published release assets remain unchanged."
+}

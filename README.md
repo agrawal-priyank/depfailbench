@@ -1,72 +1,54 @@
 # DepFailBench
 
-DepFailBench evaluates LLM-generated FastAPI services under controlled downstream dependency failures. It distinguishes clean correctness, successful recovery, safe termination, and unsafe or unavailable outcomes. The software is a research benchmark, not a production-readiness certification.
+DepFailBench checks saved Python/FastAPI backend services under controlled downstream dependency failures. Public responses, downstream attempts, committed effects, application state and observed request time are checked together. The software is a research tool, not a production-reliability certification.
 
-DepFailBench is authored and maintained by [Priyank Agrawal](https://orcid.org/0009-0004-3230-8277), Independent Researcher, New York, NY, United States.
+Software **v1.2.0** and research dataset **v2.0.0** were published on 24 October 2026. Both version-specific archives are publicly accessible: [software DOI](https://doi.org/10.5281/zenodo.23627089), [research dataset DOI](https://doi.org/10.5281/zenodo.23626768) and [GitHub release](https://github.com/agrawal-priyank/depfailbench/releases/tag/v1.2.0). Priyank Agrawal is the sole author and maintainer. Software and documentation are MIT-licensed; research records use their separately scoped CC BY 4.0 notice in `DATA_LICENSE.md`.
 
-## Completed study
+## Reproduce the reported analysis first
 
-The full study contains four fixed tasks: T1 Product Proxy, T2 Paginated Catalog, T4 Order Payment, and T5 Object Upload. Two model configurations and two specification conditions, with 20 generations per cell, produced 320 unchanged programs. Each saved program has three oracle-hardened evaluations with zero categorical disagreements. The earlier two-task, 16-program pilot is separate and excluded from those results.
+Obtain the accompanying expanded research dataset archive, `Supplementary_Material_S2.zip`, from the version-specific dataset record [10.5281/zenodo.23626768](https://doi.org/10.5281/zenodo.23626768). Its SHA256 is `4a70538f1fdf7efb6ad0a7186b9a8e3c044fd0d89b74e77969590bd081bc2bfa`. It contains 4,320 outcomes, including one incomplete/no-source output; 4,319 source files; and 38,880 current measurements. Historical 320-program evidence is separately identified and must not be pooled with the expanded cohort.
 
-C0 is a baseline contract, not a uniform absence of operational guidance: catalog and upload baselines already include safeguards. C1 adds a bundled resilience specification. See [pre-generation protocol](docs/FULL_STUDY_PROTOCOL.md) and [release guide](docs/REPRODUCING_FULL_STUDY.md).
-
-The root files preserve the pilot plan and also supply the model configuration and T1/T4 scaffolds reused by the full study. Their planning-status values are historical. Full-study prompts, T2/T5 scaffolds, and the frozen manifest are under `full_study/`; `full_study_schedule.csv` lists the 320 prespecified generation slots. Generated programs and evaluation records are in the release archive rather than the Git repository.
-
-## Installation
-
-Use Python 3.12. From this source directory:
+Use Python 3.12 with the supplied evaluator dependency lock and `numpy==2.3.5`. After installing those dependencies:
 
 ```sh
-python3.12 -m venv .venv
+python reproduce_saved_analysis.py /path/to/Supplementary_Material_S2.zip --output reproduced_analysis.json
+```
+
+This default route verifies saved-file hashes and source/record joins, then runs trusted analysis code on saved records. **It does not import or execute model-generated apps, contact model APIs, or need provider credentials.** It extracts only trusted benchmark/analysis source to a temporary directory and reads generated programs as bytes. See [reproduction details](docs/REPRODUCING_ARRAY_REVISION.md). The separate [historical sensitivity wrapper](research/historical_sensitivity/PORTABLE_REPRODUCTION.md) reproduces the disclosed retrospective, hypothetical four-task design calculation. It is not an original prospective power calculation and does not remeasure study programs.
+
+Nine programs retain full-behavior repeat differences across 22 program-deadline entries. Primary pass/fail and functional-qualification outcomes are stable across repeats, but the original strict reporting guard still rejects these flagged rows. The disclosed qualified post-review wrapper retains the planned first repeat, all flags and original formulas under the recorded author approval. Do not describe this as unqualified frozen confirmatory reporting.
+
+## Install and inspect the software
+
+Python 3.12 is the reference interpreter. The exact main-study application environment is in `requirements.lock`; analysis adds the separately pinned NumPy requirement.
+
+```sh
+python -m venv .venv
 .venv/bin/python -m pip install -r requirements.lock
 .venv/bin/python -m pip install --no-deps .
-.venv/bin/python -m pytest -q tests
+.venv/bin/python -m pip install -r expanded_study/requirements-analysis.txt
+.venv/bin/python -m benchmark.expanded preflight
 ```
 
-The pinned environment is the reference evaluation environment. Statistical analysis additionally uses `numpy==2.3.5`.
+Preflight reads the fixed task/prompt/allocation resources and makes no model call or program evaluation. The unchanged historical status string `local draft checked; not frozen or execution-authorized` describes the structural validator's limited role: it does not freeze a new study or grant execution permission. Completed-study status belongs in the accompanying data and release records. Installation from a wheel uses the same bundled resources and works outside the source checkout.
 
-## Five-minute walkthrough
+For an editable development install, use the `dev` and `analysis` extras. The retained tests use synthetic or handwritten controls and mock provider transports. No stored model-generated study corpus is bundled in the software repository or run by release CI. The separate external SDK classifier/summarizer unit checks require no SDK network access.
 
-```sh
-.venv/bin/depfailbench validate-references --repetitions 3
-.venv/bin/python examples/transient_transport.py
-```
+## What is included
 
-The first command validates the T1/T4 handwritten controls; full-study T2/T5 controls are covered by the repository tests. The second command injects the same `503 -> 200` dependency sequence into two T1 controls. The naive service stops after one call and returns a safe 503 response. The resilient service retries once and returns the valid product after two calls. Neither command generates model outputs.
+- Unchanged historical T1/T2/T4/T5 modules and their original prompts, scaffolds and contracts.
+- The E1–E8 implementation in `benchmark.expanded`, with exact executed prompts, numerical settings, task contracts, raw-record collection/reclassification, failure reporting, repeat comparison and analysis.
+- Frozen main-plan and prompt-amendment files alongside the current study assets. `SCIENTIFIC_SOURCE_MANIFEST.json` pins their scientific source bytes to execution commit `5bbcb89261ae535bf85f99c148b7e4c02d3ddf2d`.
+- The versioned [task-adapter interface](docs/ADDING_TASKS.md), including a manifest-backed out-of-tree handwritten example. Adapters supply their own scenarios and semantic oracles; registration does not validate an arbitrary new oracle automatically.
+- The unchanged Stripe 15.6.1 / Seam 3.12.0 contract runner, classifier, summarizer and separate environment in `external_cases/`. This descriptive illustration uses fake credentials and loopback when explicitly rerun; it is distinct from both generated-program cohorts.
+- General mock/provider, parsing, source-processing, authorization and spending-control modules. Their inclusion does not authorize fresh paid generation. Original campaign controllers and paid workflow entrypoints are omitted from this reusable release; complete original evidence remains in the dataset and execution history.
 
-The complete saved study is distributed as the versioned `DepFailBench_Source_and_Data.zip` release artifact. After extracting it, reproduce one saved program with:
+## Measurement and reuse boundaries
 
-```sh
-.venv/bin/python -m benchmark.full_eval \
-  ../data/artifacts/full_v1_T1_C1_openai_gpt56sol_g01 \
-  ../single-evaluation.json
-```
+The primary pass outcome is binary: a saved output must pass construction/startup, functional qualification and every applicable fault check. Its primary pass rate is the percentage of all requested outcomes passing those checks; failures and incomplete outputs stay in the denominator. The implementation and saved data retain legacy field names such as `primary_pass` and `allpass`; [the data dictionary](docs/DATA_DICTIONARY.md) explains them.
 
-The output records clean qualification, primary pass status, every scenario outcome, downstream-call traces, and task-specific state. It can be inspected without provider credentials.
+Timing is observed under the pinned runtime with the recorded tolerance. Expanded same-source measurements use 1, 2 and 5-second deadlines and three repeats. Repeats and scenarios are not additional independent programs. The historical runtime/guard differs and remains separately identified. Results concern eight authored tasks and the exact tested configurations, not a provider ranking or arbitrary production systems.
 
-For all 320 saved programs and the statistical analysis, follow the [reproduction instructions](docs/REPRODUCING_FULL_STUDY.md). Analysis and evaluation need no provider account or API key. Generation is a separate, explicitly billable operation and is not required to reproduce saved results.
+Executing untrusted model-generated apps is outside the default analysis route. Any deliberate fresh evaluation belongs on isolated, credential-free Linux hosts, with one measurement per host at a time and all nine measurements of a program on the same host. Do not run the dataset's generated apps on a credentialed personal machine.
 
-## Software organization
-
-- `src/benchmark/emulator.py`, `runner.py`, and `oracle.py`: T1/T4 fault traces and checks.
-- `src/benchmark/full_tasks.py`: T2/T5 dependencies, fixtures, and outcome checks.
-- `src/benchmark/full_eval.py`: full-study artifact loading and scenario evaluation.
-- `src/benchmark/full_batch_eval.py`: fresh-process batch execution with hard time limits.
-- `src/benchmark/full_analysis.py`: fixed-task analysis of saved evaluation records.
-- `src/benchmark/task_api.py`, `task_registry.py`, and `adapter_eval.py`: versioned extension interface, explicit manifest loading, and task-agnostic evaluation.
-- `full_study/`: frozen full-study prompts, scaffolds, and their manifest.
-- `tests/`: reference, regression, and evaluator checks.
-
-The historical T1/T2/T4/T5 evaluator remains fixed so the published 320-program study can be replayed exactly. New tasks can use the versioned manifest-backed adapter interface without registering task IDs in core code. A task author still supplies the semantic oracle, scenarios, dependency request contract, and observable state; these cannot be inferred safely from HTTP status alone. See the runnable [task-adapter guide](docs/ADDING_TASKS.md).
-
-## Scope and interpretation
-
-The four tasks use short, isolated requests and emulated dependency faults. They exclude concurrency, long-lived state, real distributed transactions, cascades, and calibrated network latency. Retry-After is zero in the rate-limit fixtures. Safe failure is distinct from successful recovery; only specified fault scenarios allow it to count as a pass.
-
-The evaluator registers a fresh generated module for every probe, validates exact request/response/state contracts, combines application and simulated dependency time, and separately checks finite timeout behavior against a hanging dependency. A machine-readable ledger identifies 53 programs that move from submitted primary pass to hardened failure. No generated source was repaired. See [release notes](CHANGELOG.md).
-
-## Citation, documentation, and licenses
-
-Please cite DepFailBench using [CITATION.cff](CITATION.cff). Version 1.1.0 is the Array-revision source release; its matched data archive contains the hardened replays and external case-study records. Version 1.0.2 and [doi:10.5281/zenodo.22699095](https://doi.org/10.5281/zenodo.22699095) preserve the earlier SoftwareX submission state.
-
-[User guide](docs/USER_GUIDE.md), [result schema](docs/RESULT_SCHEMA.md), [task-adapter guide](docs/ADDING_TASKS.md), [pilot methodology](docs/METHODOLOGY.md), [contribution rules](CONTRIBUTING.md). Software source code is licensed under the MIT License in the sole canonical `LICENSE` file. Study data is licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0), as specified in [DATA_LICENSE.md](DATA_LICENSE.md).
+See [the expanded API and scope](docs/EXPANDED_STUDY.md), [the historical documentation guide](docs/HISTORICAL_GUIDE.md), [version preservation](docs/VERSION_PRESERVATION.md), [contributing](CONTRIBUTING.md) and [citation metadata](CITATION.cff). Historical releases and DOI records remain unchanged. Main can receive documentation and maintenance updates; use the fixed v1.2.0 tag, released commit `933b431e578896462ec970f2193d01d4e71840cd` and version-specific DOI records when reproducing or citing the release. The [dataset metadata guide](research_data/README.md) distinguishes preserved archival metadata from current publication status.

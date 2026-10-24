@@ -1,0 +1,29 @@
+{
+  "reviewed_at_utc": "2026-10-24T20:38:27.989173+00:00",
+  "reviewer_task": "/root/response_supplement_audit",
+  "review_type": "Read-only code/provenance review by a separate Codex agent; not independent human scientific review",
+  "result": "No substantive guard or provenance issue found",
+  "wrapper_sha256": "bd06c4277a69e9954875a4b1e0b3bc7b77570c8b3e021a2e3f3725c418d2a3f3",
+  "checks": [
+    "S2 SHA checked before ZIP read",
+    "exactly one pinned historical member required",
+    "trusted math/results hashes checked",
+    "only two files staged, historical file read and hashed but not executed",
+    "non-main runpy namespace avoids helper main",
+    "simulate actual global paths redirected to temporary workspace",
+    "NumPy2.3.5 guard",
+    "complete structural/text/numeric comparison with three declared metadata exceptions",
+    "exclusive-create output prevents overwrite race",
+    "original helper/results and staged bytes checked unchanged",
+    "no hidden private-workspace dependency found"
+  ],
+  "successful_proof_comparison_counts": {
+    "integers": 375,
+    "floats": 1008,
+    "booleans": 5
+  },
+  "files_modified_by_reviewer": false,
+  "model_calls": 0,
+  "generated_program_executions": 0,
+  "historical_analysis_executions": 0
+}

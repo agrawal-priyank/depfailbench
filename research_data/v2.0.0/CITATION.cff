@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "Draft dataset citation. Add the real version-specific dataset DOI and actual publication date after reservation/publication; cite the exact software version separately."
+title: "DepFailBench research dataset: expanded backend dependency-failure study and historical reanalysis"
+type: dataset
+authors:
+  - given-names: "Priyank"
+    family-names: "Agrawal"
+    affiliation: "Independent Researcher, New York, NY, United States"
+    orcid: "https://orcid.org/0009-0004-3230-8277"
+version: 2.0.0
+license: CC-BY-4.0
+url: "https://doi.org/10.5281/zenodo.22699094"
+repository-code: "https://github.com/agrawal-priyank/depfailbench"
+keywords:
+  - generated software
+  - dependency failures
+  - resilience
+  - fault injection
+  - backend services
+  - reproducible research

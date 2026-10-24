@@ -1,0 +1,75 @@
+{
+  "status": "Draft portable dataset asset inventory; no data archive or CSV is stored in this Git metadata directory",
+  "dataset_version": "2.0.0",
+  "existing_dataset_concept_doi": "10.5281/zenodo.22699094",
+  "previous_dataset_version_doi": "10.5281/zenodo.22759501",
+  "version_specific_dataset_doi": null,
+  "version_specific_software_doi": null,
+  "publication_date": null,
+  "files": [
+    {
+      "filename": "README.md",
+      "bytes": 6975,
+      "sha256": "d8fc55671500c850bc124736643a77f4dc3be96871f4acd98f360b11a1f36d21"
+    },
+    {
+      "filename": "DATA_DICTIONARY.md",
+      "bytes": 9773,
+      "sha256": "acc1fe23358c9edd400bd3c4a3d8795a25a0dba9d63ea037ed0096b6f72e6219"
+    },
+    {
+      "filename": "DATA_LICENSE.md",
+      "bytes": 1949,
+      "sha256": "e29ec09023573e7ad2f60facf1c95abc1fbf1e023a7aa1358378486b6336490e"
+    },
+    {
+      "filename": "CITATION.cff",
+      "bytes": 794,
+      "sha256": "37c2e9f3529ae26194bbb9e8f5dc3e43fcc34bb4ad7666e1fc92c9e74d6cab2b"
+    },
+    {
+      "filename": "VERSION_PRESERVATION.md",
+      "bytes": 2837,
+      "sha256": "49043791444afd131a03d1870b22bcc8fbdb43c0440363bafa1e7e1173ab5d00"
+    },
+    {
+      "filename": "Supplementary_File_S3_Scenario_Outcomes.csv",
+      "bytes": 393566,
+      "sha256": "69bd7808cacbc654ef2b706d31677753b57655c4f291b0778e36af7ba69ad73f"
+    },
+    {
+      "filename": "Supplementary_File_S4_Task_Outcomes.csv",
+      "bytes": 104514,
+      "sha256": "a1aee943d9774b893bbee4b60ed6bb565e3e4e57436a189764dee1c648c715aa"
+    },
+    {
+      "filename": "Supplementary_File_S5_Deadline_Transitions.csv",
+      "bytes": 1461,
+      "sha256": "91969743debfde7c069591331c1dcf4e7df202d8718911f02f609d1701eaec92"
+    },
+    {
+      "filename": "Supplementary_File_S6_Repeat_Outcomes.csv",
+      "bytes": 6718,
+      "sha256": "e6ac58f9aa10051c43bb19a8fc4dca8d2487831a7941629cf1408a666b4805cd"
+    },
+    {
+      "filename": "Reporting_Additions_2026-10-24.zip",
+      "bytes": 79815,
+      "sha256": "1f0ae08d11c69222b8862275bfa43e117eb00286d8456e92d0a02ed018256a58"
+    },
+    {
+      "filename": "Supplementary_Material_S2.zip",
+      "bytes": 746832022,
+      "sha256": "4a70538f1fdf7efb6ad0a7186b9a8e3c044fd0d89b74e77969590bd081bc2bfa"
+    },
+    {
+      "filename": "SHA256SUMS.txt",
+      "bytes": 1046,
+      "sha256": "93e2b053806cc3ea01d1b57ea90b2aceb7cf9404fc1df1747c010e44b82700a9"
+    }
+  ],
+  "source_locations": "Assets are supplied separately in the versioned dataset deposit; filenames and hashes are portable. No private local paths are required.",
+  "current_stage": "Finalize actual DOI/date/software-release metadata and refresh checksums before publication. The old S2 internal candidate label is preserved provenance.",
+  "scientific_archive_unchanged": true,
+  "data_archives_csvs_or_generated_programs_in_git_metadata_directory": false
+}

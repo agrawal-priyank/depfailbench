@@ -1,0 +1,53 @@
+{
+  "status": "DRAFT \u2014 do not publish until real DOI/date/release metadata are finalized",
+  "existing_dataset_concept_doi": "10.5281/zenodo.22699094",
+  "previous_dataset_version_doi": "10.5281/zenodo.22759501",
+  "proposed_version": "2.0.0",
+  "publication_date_assigned": false,
+  "new_dataset_doi_assigned": false,
+  "software_doi_assigned": false,
+  "required_before_publication": [
+    "Create a new version under the existing Dataset concept, preserving old22759501/22699095 records",
+    "Reserve/read back actual version-specific dataset DOI",
+    "Reserve/read back separate software DOI and exact released software commit",
+    "Replace draft README/CITATION status with verified actual publication metadata",
+    "Review scoped licenses and all upload checksums; refresh manifests after final metadata changes",
+    "Cross-link actual software and dataset version DOIs; no invented Array article DOI"
+  ],
+  "metadata": {
+    "title": "DepFailBench research dataset: expanded backend dependency-failure study and historical reanalysis",
+    "upload_type": "dataset",
+    "version": "2.0.0",
+    "creators": [
+      {
+        "name": "Agrawal, Priyank",
+        "affiliation": "Independent Researcher, New York, NY, United States",
+        "orcid": "0009-0004-3230-8277"
+      }
+    ],
+    "description": "Research records for 4,320 expanded backend-generation outcomes (4,319 source files and one incomplete/no-source response), 38,880 current measurements, and separately identified historical 320-program/common-guard evidence. Includes exact prompts, raw provider/measurement provenance, trusted scientific code and saved-record reproduction. The original S2 archive is unchanged; a separate reporting-additions asset contains historical probe-inventory verification and a retrospective hypothetical four-task sensitivity calculation. All unsuccessful outcomes and repeat flags remain retained. Formal expanded inference is qualified post-review; repeated measures are not independent extra programs. Research data follow scoped CC BY 4.0 terms, while software/documentation retains MIT and third-party/provider rights remain unchanged.",
+    "access_right": "open",
+    "license": "cc-by-4.0",
+    "language": "eng",
+    "keywords": [
+      "generated software",
+      "dependency failures",
+      "fault injection",
+      "backend services",
+      "software resilience",
+      "reproducible research"
+    ],
+    "related_identifiers": [
+      {
+        "identifier": "10.5281/zenodo.22759501",
+        "relation": "isNewVersionOf",
+        "scheme": "doi"
+      },
+      {
+        "identifier": "https://github.com/agrawal-priyank/depfailbench/tree/5bbcb89261ae535bf85f99c148b7e4c02d3ddf2d",
+        "relation": "isSupplementTo",
+        "scheme": "url"
+      }
+    ]
+  }
+}
